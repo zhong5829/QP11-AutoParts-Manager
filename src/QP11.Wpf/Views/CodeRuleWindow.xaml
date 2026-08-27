@@ -1,0 +1,32 @@
+<Window x:Class="QP11.Wpf.Views.CodeRuleWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="编码规则设置" Height="450" Width="700"
+        WindowStartupLocation="CenterOwner">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,5">
+            <TextBlock Text="设置各业务单据的编码生成规则" VerticalAlignment="Center" Margin="5,0"/>
+            <Button Content="新增规则" Width="80" Height="26" Margin="15,0,5,0" Click="BtnAdd_Click"/>
+            <Button Content="删除规则" Width="80" Height="26" Margin="5,0" Click="BtnDelete_Click"/>
+        </StackPanel>
+
+        <DataGrid Grid.Row="1" x:Name="dgList" AutoGenerateColumns="False" CanUserAddRows="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="表名" Width="120" Binding="{Binding TableName}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="前缀" Width="60" Binding="{Binding Prefix}"/>
+                <DataGridTextColumn Header="日期格式" Width="100" Binding="{Binding DateFormat}"/>
+                <DataGridTextColumn Header="序号长度" Width="70" Binding="{Binding SeqLength}"/>
+                <DataGridTextColumn Header="当前序号" Width="70" Binding="{Binding CurrentSeq}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="每日重置" Width="70" Binding="{Binding ResetDaily}"/>
+                <DataGridTextColumn Header="备注" Width="*" Binding="{Binding Memo}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+        <Button Grid.Row="2" Content="保存修改" Width="100" Height="30" HorizontalAlignment="Center" Margin="5" Click="BtnSave_Click"/>
+    </Grid>
+</Window>

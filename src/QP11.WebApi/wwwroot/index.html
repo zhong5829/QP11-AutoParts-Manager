@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>QP11 销售开单</title>
+<link rel="stylesheet" href="style.css?v=1.0.0">
+</head>
+<body>
+
+<!-- 登录遮罩层（未登录时显示） -->
+<div id="loginOverlay" class="login-overlay">
+  <div class="login-card">
+    <div class="login-logo"><h2>QP11 销售开单</h2><p>汽配管理系统</p></div>
+    <div class="login-form">
+      <div class="login-field">
+        <label>用户名</label>
+        <select id="loginUser">
+          <option value="">-- 请选择 --</option>
+        </select>
+      </div>
+      <div class="login-field">
+        <label>密码</label>
+        <input type="password" id="loginPwd" placeholder="请输入密码" autocomplete="off">
+      </div>
+      <div id="loginError" class="login-error" style="display:none"></div>
+      <button class="btn btn-primary btn-lg login-btn" id="btnLogin" onclick="doLogin()">登 录</button>
+    </div>
+    <div class="login-footer">Ver 13.1 Web</div>
+  </div>
+</div>
+
+<div class="app">
+
+  <!-- 顶部导航 -->
+  <header class="header">
+    <h1>QP11 销售开单</h1>
+    <div class="tab-bar">
+      <button class="tab-btn active" data-tab="sell">销售开单</button>
+      <button class="tab-btn" data-tab="query">单据查询</button>
+    </div>
+  </header>
+
+  <!-- ========== 销售开单页面（完全对齐桌面端） ========== -->
+  <section id="tab-sell" class="tab-content active">
+
+    <!-- 一、查询条件区（编号 / 名称 / 车型） -->
+    <div class="card">
+      <div class="card-header"><span>配件查询</span></div>
+      <div class="query-row">
+        <div class="query-field">
+          <label>编号</label><input type="text" id="qPartNo" placeholder="输入配件编号..." autocomplete="off">
+        </div>
+        <div class="query-field">
+          <label>名称</label><input type="text" id="qPartName" placeholder="输入名称..." autocomplete="off">
+        </div>
+        <div class="query-field">
+          <label>车型</label><input type="text" id="qCartype" placeholder="车型/分类..." autocomplete="off">
+        </div>
+        <div class="query-field q-match">
+          <label>匹配</label>
+          <select id="qMatchMode">
+            <option value="contains">包含</option>
+            <option value="left">左匹配</option>
+            <option value="right">右匹配</option>
+            <option value="exact">精确</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- 二、配件库存列表 -->
+    <div class="card card-parts">
+      <div class="card-header"><span>配件库存列表</span><span class="sub-hint">点击行添加到明细</span>
+        <label style="margin-left:auto;font-size:12px;cursor:pointer;color:#666">
+          <input type="checkbox" id="chkHideWaste" onchange="toggleWasteFilter()"> 隐藏废品仓
+        </label>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table" id="partsTable">
+          <thead><tr>
+            <th>编号</th><th>名称</th><th>车型</th><th>库存</th>
+            <th>零售价</th><th>批发价</th><th>仓位</th>
+          </tr></thead>
+          <tbody id="partsBody"><tr><td colspan="7" class="empty-hint">输入条件后回车或等待自动搜索...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 三、单头信息 -->
+    <div class="card bill-head">
+      <div class="card-header"><span>单头信息</span></div>
+      <div class="bh-grid">
+        <div class="field bh-client">
+          <label>客户</label>
+          <div class="input-group">
+            <input type="text" id="clientInput" placeholder="搜索客户..." autocomplete="off">
+            <div id="clientDropdown" class="dropdown"></div>
+          </div>
+        </div>
+        <div class="field bh-worker">
+          <label>业务员</label>
+          <select id="workerSelect"><option value="">请选择</option></select>
+        </div>
+        <div class="field bh-discount">
+          <label>折扣率</label>
+          <input type="number" id="discountRate" value="0" step="0.01" min="0" max="1">
+        </div>
+        <div class="field bh-total">
+          <label>原单总额</label>
+          <input type="text" id="totalAmount" readonly value="¥0.00" class="readonly">
+        </div>
+        <div class="field bh-bill-total">
+          <label>开票总额</label>
+          <input type="text" id="billTotal" readonly value="¥0.00" class="readonly highlight-blue">
+        </div>
+
+        <!-- 收款行 -->
+        <div class="field bh-cash"><label>现金</label><input type="number" id="cashPay" value="0" step="0.01"></div>
+        <div class="field bh-checks"><label>支票</label><input type="number" id="checksPay" value="0" step="0.01"></div>
+        <div class="field bh-zfb"><label>支付宝</label><input type="number" id="zhifubaoPay" value="0" step="0.01"></div>
+        <div class="field bh-wx"><label>微信</label><input type="number" id="weixinPay" value="0" step="0.01"></div>
+        <div class="field bh-arrear">
+          <label>欠款</label>
+          <input type="text" id="arrearAmt" readonly value="¥0.00" class="readonly arrear">
+        </div>
+        <div class="field bh-memo-full">
+          <label>备注</label>
+          <input type="text" id="memoText" placeholder="可选备注">
+        </div>
+      </div>
+    </div>
+
+    <!-- 四、销售明细列表 -->
+    <div class="card card-details">
+      <div class="card-header">
+        <span>销售明细 (<span id="detailCount">0</span>)</span>
+        <span id="sumLabel">合计: ¥0.00 | 开票合计: ¥0.00 | 数量: 0</span>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table detail-tbl" id="detailTable">
+          <thead><tr>
+            <th style="width:85px">编号</th><th>名称</th><th style="width:50px">数量</th>
+            <th style="width:70px">单价</th><th style="width:75px">小计</th>
+            <th style="width:65px">车型</th><th style="width:60px">备注</th>
+            <th style="width:36px"></th>
+          </tr></thead>
+          <tbody id="detailBody"><tr><td colspan="8" class="empty-hint">双击配件列表添加明细</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 五、操作按钮 -->
+    <div class="actions">
+      <button class="btn btn-clear" id="btnClear">清空重填</button>
+      <button class="btn btn-primary btn-lg" id="btnSubmit">确认开单</button>
+    </div>
+  </section>
+
+  <!-- ========== 单据查询页面 ========== -->
+  <section id="tab-query" class="tab-content">
+    <div class="card">
+      <div class="query-row">
+        <div class="query-field flex-2"><label>日期从</label><input type="date" id="qStart"></div>
+        <div class="query-field flex-2"><label>到</label><input type="date" id="qEnd"></div>
+        <div class="query-field"><label>客户</label><input type="text" id="qClient" placeholder="可选"></div>
+        <div class="query-field"><label>业务员</label><select id="qWorker"><option value="">全部</option></select></div>
+        <button class="btn btn-primary" id="btnQuery">查询</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><span>单据列表</span></div>
+      <div class="table-wrap">
+        <table class="data-table" id="billTable">
+          <thead><tr>
+            <th>单号</th><th>日期</th><th>客户</th><th>业务员</th>
+            <th>总额</th><th>开票总额</th><th>状态</th>
+          </tr></thead>
+          <tbody id="billBody"><tr><td colspan="7" class="empty-hint">请输入条件并点击查询</td></tr></tbody>
+        </table>
+      </div>
+      <div class="pagination" id="pagination"></div>
+    </div>
+
+    <!-- 单据详情弹窗 -->
+    <div id="billDetailModal" class="modal">
+      <div class="modal-content modal-lg">
+        <div class="modal-header">
+          <h3>单据详情</h3>
+          <button class="modal-close" onclick="closeBillDetail()">&times;</button>
+        </div>
+        <div id="billDetailBody" class="modal-body"></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- 添加配件弹窗（对齐桌面端 SellEditDialog 两栏布局） -->
+<div id="partDialog" class="modal">
+  <div class="modal-content modal-lg">
+    <div class="modal-header">
+      <h3 id="dlgTitle">销售编辑</h3>
+      <button class="modal-close" onclick="closePartDialog()">&times;</button>
+    </div>
+    <div class="dlg2-col">
+      <!-- 左栏：销售信息（对齐桌面端 GroupBox "销售信息" 280px） -->
+      <div class="dlg-left">
+        <div class="dlg-section-title">销售信息</div>
+
+        <!-- 客户查询（对齐桌面端 cmbClient） -->
+        <div class="field"><label>客户查询</label>
+          <div style="position:relative">
+            <input type="text" id="dlgClient" placeholder="输入客户名/拼音搜索..." autocomplete="off">
+            <div id="dlgClientDropdown" class="dropdown-menu"></div>
+          </div>
+        </div>
+
+        <!-- 配件编号（只读，对齐桌面端 txtPartNo 第52行） -->
+        <div class="field dlg-readonly"><label>配件编号</label><div id="dlgPno" class="readonly-val bold"></div></div>
+
+        <!-- 配件名称（只读，对齐桌面端 txtPartName 第53行） -->
+        <div class="field dlg-readonly"><label>配件名称</label><div id="dlgPname" class="readonly-val bold"></div></div>
+
+        <!-- 价格提示（对齐桌面端 txtPriceHint 第55行） -->
+        <div id="dlgPriceHint" class="price-hint" style="display:none"></div>
+
+        <!-- 车型（对齐桌面端 txtCartype 第59行） -->
+        <div class="field"><label>车型</label><input type="text" id="dlgCartype"></div>
+
+        <!-- 销售数量 -->
+
+        <!-- 销售数量（对齐桌面端 txtAmount 第72行） -->
+        <div class="field"><label>销售数量</label><input type="number" id="dlgAmount" value="1" min="1"></div>
+
+        <!-- 零售/批发（对齐桌面端 rbRetail / rbWholesale 第79-84行） -->
+        <div class="field price-type-row"><label>价格类型</label>
+          <div class="price-radios">
+            <label class="radio-label"><input type="radio" name="priceType" value="retail" checked id="rbRetail"> 零售</label>
+            <label class="radio-label"><input type="radio" name="priceType" value="wholesale" id="rbWholesale"> 批发</label>
+          </div>
+        </div>
+
+        <!-- 销售单价（对齐桌面端 txtPrice 第91行 + TextChanged自动同步开票价） -->
+        <div class="field"><label>销售单价</label><input type="number" id="dlgPrice" step="0.01"></div>
+
+        <!-- 开票单价（对齐桌面端 txtBillPrice 第100行） -->
+        <div class="field"><label>开票单价</label><input type="number" id="dlgBillPrice" step="0.01"></div>
+
+        <!-- 自动匹配（对齐桌面端 chkAutoMatch 第104-107行） -->
+        <div class="auto-match-row">
+          <label class="checkbox-label"><input type="checkbox" id="chkAutoMatch" checked> 自动匹配客户历史价格</label>
+        </div>
+        <div class="auto-match-hint">提示: 自动匹配客户最后一次价格提醒</div>
+      </div>
+
+      <!-- 右栏：历史数据（对齐桌面端 DataGrid dgSellHistory + dgBuyHistory） -->
+      <div class="dlg-right">
+        <!-- 销售历史（对齐桌面端第117-129行） -->
+        <div style="margin-bottom:8px;font-size:.85rem;font-weight:600;color:#444;">销售历史</div>
+        <div class="table-wrap-sm" style="flex:1;margin-bottom:8px;">
+          <table class="dlg-tbl">
+            <thead><tr><th>单号</th><th>日期</th><th>客户</th><th>数量</th><th>单价</th><th>开票单价</th></tr></thead>
+            <tbody id="sellHistoryBody"><tr><td colspan="6" class="empty-hint-sm">加载中...</td></tr></tbody>
+          </table>
+        </div>
+
+        <!-- 采购历史参考（对齐桌面端第131-140行） -->
+        <div style="margin-bottom:6px;font-size:.85rem;font-weight:600;color:#444;">采购历史 (参考)</div>
+        <div class="table-wrap-sm" style="flex:1;">
+          <table class="dlg-tbl">
+            <thead><tr><th>日期</th><th>供应商</th><th>数量</th><th>进价</th></tr></thead>
+            <tbody id="buyHistoryBody"><tr><td colspan="4" class="empty-hint-sm">加载中...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 底部按钮（对齐桌面端第143-151行） -->
+    <div class="modal-footer" style="justify-content:center;gap:12px">
+      <button class="btn btn-clear" onclick="closePartDialog()">取消(_C)</button>
+      <button class="btn btn-default" id="btnPriceHistory">历史售价</button>
+      <button class="btn btn-primary" id="btnAddDetail">确认(_O)</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast 提示 -->
+<div id="toast" class="toast"></div>
+
+<script src="app.js?v=1.0.0"></script>
+</body>
+</html>

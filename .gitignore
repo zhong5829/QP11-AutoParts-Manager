@@ -1,0 +1,41 @@
+# ===== 构建输出 =====
+bin/
+obj/
+publish/
+Publish/
+
+# ===== 安装包产物（保留 .iss 脚本与图标，忽略大体积安装包二进制）=====
+InstallPackage/*.exe
+installer/*.exe
+installer/Output/
+
+# ===== NuGet 还原缓存 / Visual Studio 临时文件 =====
+*.user
+*.suo
+.vs/
+*.cache
+project.assets.json
+project.nuget.cache
+
+# ===== 临时目录 =====
+_tmp/
+_Temp/
+_temp/
+
+# ===== 日志 =====
+logs/
+*.log
+
+# ===== Tools 工具项目的构建产物 =====
+Tools/**/bin/
+Tools/**/obj/
+
+# ===== 本地备份 / 压缩包 =====
+*.tmp
+*.bak
+*.zip
+
+# ===== IDE =====
+.vscode/
+.idea/
+*.swp

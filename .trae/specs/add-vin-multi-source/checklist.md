@@ -1,0 +1,15 @@
+- [ ] IVinDataSource接口定义完整，包含SourceName、IsLoggedIn、SendSmsAsync、LoginAsync、DecodeVinAsync、GetPartCardsAsync、RefreshTokenAsync
+- [ ] VinPartCard新增SourceName、AlternateSources、PartNumber、VehicleComment字段，不影响现有功能
+- [ ] IVinQueryService接口新增GetLoggedInSources()、LoginSourceAsync()、SendSourceSmsAsync()方法
+- [ ] VinQueryService重构为实现IVinDataSource，SourceName="318car"，Token文件路径改为vin_token_318car.json，所有现有功能正常
+- [ ] PinxiuDataSource实现IVinDataSource完整功能：发送验证码、登录、VIN解码、配件查询、Token刷新
+- [ ] PinxiuDataSource所有API响应正确进行Base64解码+JSON解析，检查code="0000"
+- [ ] PinxiuDataSource配件字段映射正确：cspuModel→Model, brandName→TenantBrandName, categoryName→TenantCategoryName, placesName→InstallationLocation, partNumber→PartNumber, vehicleComment→VehicleComment, pImage→ImgUrlList
+- [ ] CompositeVinQueryService实现IVinQueryService，并行查询已登录数据源，单数据源失败不阻塞
+- [ ] 配件合并去重逻辑正确：按编码(Model)相同则合并，SourceName逗号分隔，AlternateSources保留各来源数据
+- [ ] App.xaml.cs DI注册正确：所有IVinDataSource实现注入，CompositeVinQueryService注册为IVinQueryService，PinxiuDataSource受Enabled开关控制
+- [ ] appsettings.json新增Pinxiu配置节，含ApiBaseUrl、CompanyId、ProductCode、Enabled等
+- [ ] 登录面板支持多数据源，至少一个登录成功可查询，手机号自动填充
+- [ ] 配件卡片显示来源标签，多来源合并配件显示多标签+多价格对比
+- [ ] 品秀配件卡片额外显示OE号和安装位置
+- [ ] 现有318car单数据源查询功能无回归问题

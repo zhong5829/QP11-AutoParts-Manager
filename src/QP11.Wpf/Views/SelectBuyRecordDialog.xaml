@@ -1,0 +1,64 @@
+<Window x:Class="QP11.Wpf.Views.SelectBuyRecordDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="选择进货记录（退回供应商）" Width="580" Height="480"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False">
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="100"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- 配件信息 -->
+        <TextBlock Grid.Row="0" Text="配件编码:" VerticalAlignment="Center" Margin="2"/>
+        <TextBlock Grid.Row="0" Grid.Column="1" x:Name="txtPartNo" VerticalAlignment="Center" Margin="2" FontWeight="Bold"/>
+        <TextBlock Grid.Row="0" Grid.Column="2" Text="名称:" VerticalAlignment="Center" Margin="8,2,2,2"/>
+        <TextBlock Grid.Row="0" Grid.Column="3" x:Name="txtPartName" VerticalAlignment="Center" Margin="2" FontWeight="Bold"/>
+
+        <TextBlock Grid.Row="1" Text="退货数量:" VerticalAlignment="Center" Margin="2,4,2,2"/>
+        <TextBlock Grid.Row="1" Grid.Column="1" x:Name="txtReturnAmount" VerticalAlignment="Center" Margin="2,4,2,2" Foreground="Blue" FontWeight="Bold"/>
+
+        <!-- 进货记录列表 -->
+        <DataGrid Grid.Row="3" Grid.ColumnSpan="4" x:Name="dgBuyRecords" AutoGenerateColumns="False"
+                  CanUserAddRows="False" IsReadOnly="True" SelectionMode="Single"
+                  Margin="0,4,0,4"
+                  SelectionChanged="DgBuyRecords_SelectionChanged">
+            <DataGrid.Columns>
+                <DataGridCheckBoxColumn Header="" Width="35" Binding="{Binding IsSelected}"/>
+                <DataGridTextColumn Header="采购单号" Width="110" Binding="{Binding Sn}"/>
+                <DataGridTextColumn Header="供应商" Width="100" Binding="{Binding SupplierName}"/>
+                <DataGridTextColumn Header="数量" Width="55" Binding="{Binding Amount}"/>
+                <DataGridTextColumn Header="进价" Width="70" Binding="{Binding InPrice, StringFormat=N2}"/>
+                <DataGridTextColumn Header="小计" Width="80" Binding="{Binding InTotal, StringFormat=N2}"/>
+                <DataGridTextColumn Header="日期" Width="90" Binding="{Binding Datetime, StringFormat=yyyy-MM-dd}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- 提示信息 -->
+        <Border Grid.Row="4" Grid.ColumnSpan="4" Background="#FFF8E1" BorderBrush="#FFC107" BorderThickness="1" Padding="6,4" Margin="0,0,0,4">
+            <TextBlock TextWrapping="Wrap" Foreground="#F57C00">
+                <Run Text="提示：选择该配件的原始进货记录，结算时将自动生成采购退货单直接退给供应商（不入废品仓）。"/>
+                <LineBreak/>
+                <Run Text="取消则按原方式入废品仓。"/>
+            </TextBlock>
+        </Border>
+
+        <!-- 按钮 -->
+        <StackPanel Grid.Row="5" Grid.ColumnSpan="4" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,4,0,0">
+            <Button Content="确定退给供应商(_O)" Width="130" Height="28" Margin="4,0" Click="BtnOk_Click" IsDefault="True"/>
+            <Button Content="取消(入废品仓)(_C)" Width="120" Height="28" Margin="4,0" Click="BtnCancel_Click" IsCancel="True"/>
+        </StackPanel>
+    </Grid>
+</Window>

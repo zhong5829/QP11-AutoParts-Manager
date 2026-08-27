@@ -1,0 +1,17 @@
+- [x] ISellRepository 接口定义完成，包含 GetBySnAsync/GetDetailsAsync/InsertBillAsync 等特有方法
+- [x] IPartRepository 接口定义完成，包含 GetStockListAsync/DecreaseStockAsync/IncreaseStockAsync 等特有方法
+- [x] 其余 9 个仓储接口（IClient/ISupplier/IAccount/IPays/IArrearage/IMemberCard/IBorrow/IUser/ISysLog）定义完成
+- [x] IValidationService 接口定义完成
+- [x] ISellService/IBuyService/IFinanceService 接口定义完成
+- [x] SellRepository/PartRepository 等实现类声明了对应接口
+- [x] BaseRepository.InsertAsync/UpdateAsync/DeleteAsync 使用 try-finally 释放连接
+- [x] ValidationService 通过构造函数注入 IPartRepository/IClientRepository/IArrearageRepository
+- [x] SellService 通过构造函数注入 6 个依赖，不再使用 new
+- [x] BuyService/FinanceService 通过构造函数注入
+- [x] App.xaml.cs DI 注册改为接口→实现类映射
+- [x] SellViewModel 创建完成，包含 SaveBillAsync/VoidBillAsync/SearchBillsAsync 等方法
+- [x] SellControl.xaml.cs 不再直接 new Repository 或调用 DatabaseFactory（UI 交互代码除外）
+- [x] SellControl 通过构造函数注入 SellViewModel
+- [x] 所有空 catch 补充了 Serilog 日志记录（0个残留空catch）
+- [x] dotnet build 零编译错误
+- [ ] 登录→销售开单→保存→查询→作废全流程功能正常（需手动验证）

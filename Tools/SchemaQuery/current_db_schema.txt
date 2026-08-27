@@ -1,0 +1,1312 @@
+﻿=== account ===
+  id|bigint||No 
+  name|varchar|50|YES
+  sn|varchar|20|YES
+  charge|decimal||YES
+  type|varchar|10|YES
+  operator|varchar|10|YES
+  flag|int||YES
+  btype|int||YES
+  memo|varchar|100|YES
+  bz|int||YES
+  datetime|datetime||YES
+  wuliu_sid|varchar|20|YES
+  wuliu_danhao|varchar|20|YES
+
+=== area ===
+  id|bigint||No 
+  areaname|varchar|200|YES
+  parentid|bigint||YES
+  level|bigint||YES
+
+=== arrearage ===
+  id|bigint||No 
+  bid|varchar|30|YES
+  sn|varchar|20|YES
+  total|decimal||YES
+  charge|decimal||YES
+  operator|varchar|20|YES
+  type|int||YES
+  btype|int||YES
+  datetime|datetime||YES
+
+=== bill_buy ===
+  sn|varchar|15|No 
+  supplier|varchar|30|YES
+  worker|varchar|20|YES
+  operator|varchar|20|YES
+  invoice|varchar|30|YES
+  memo|varchar|255|YES
+  flag|int||YES
+  type|int||YES
+  datetime|datetime||YES
+  total|money||YES
+  cash|money||YES
+  checks|money||YES
+  arrear|money||YES
+  zhifubao|numeric||YES
+  weixin|numeric||YES
+  yunfei|numeric||YES
+
+=== bill_jhdh ===
+  sn|varchar|15|No 
+  supplier|varchar|30|YES
+  worker|varchar|30|YES
+  operator|varchar|30|YES
+  total|money||YES
+  datetime|datetime||YES
+  memo|varchar|255|YES
+  flag|int||YES
+
+=== bill_order ===
+  sn|varchar|15|No 
+  client|varchar|30|YES
+  operator|varchar|30|YES
+  worker|varchar|30|YES
+  total|money||YES
+  datetime|datetime||YES
+  memo|varchar|255|YES
+  flag|int||YES
+
+=== bill_sell ===
+  sn|varchar|15|No 
+  client|varchar|20|YES
+  worker|varchar|20|YES
+  operator|varchar|20|YES
+  checkno|varchar|30|YES
+  total|money||YES
+  bill_total|money||YES
+  discount_rate|decimal||YES
+  total_payment|money||YES
+  bill_payment|money||YES
+  cash|money||YES
+  collection|money||YES
+  checks|money||YES
+  arrear|money||YES
+  memo|varchar|255|YES
+  flag|int||YES
+  type|int||YES
+  datetime|datetime||YES
+  cardpay|money||YES
+  cardID|varchar|200|YES
+  zhifubao|numeric||YES
+  weixin|numeric||YES
+  yunfei|numeric||YES
+
+=== BILLFAX ===
+  SN|varchar|20|No 
+  USERNAME|varchar|30|YES
+  JC|varchar|30|YES
+  JC_PY|varchar|30|YES
+  TEL|varchar|50|YES
+  DATETIME|datetime||YES
+  operator|varchar|20|YES
+  flag|int||YES
+
+=== BJ ===
+  DH|varchar|50|YES
+  MC|varchar|50|YES
+
+=== bs_code ===
+  bch|varchar|2|No 
+  bs|varchar|1|No 
+  flag|varchar|1|YES
+
+=== business_infor ===
+  id|bigint||No 
+  username|varchar|50|No 
+  password|varchar|50|YES
+  question|varchar|50|YES
+  answer|varchar|50|YES
+  jyxm|varchar|200|YES
+  jyxm_py|varchar|200|YES
+  qc|varchar|50|YES
+  qc_py|varchar|50|YES
+  jc|varchar|50|YES
+  jc_py|varchar|50|YES
+  linkman|varchar|30|YES
+  tel|varchar|60|YES
+  mobile|varchar|20|YES
+  zip|varchar|10|YES
+  fax|varchar|20|YES
+  bank1|varchar|50|YES
+  bank2|varchar|50|YES
+  bank3|varchar|50|YES
+  tax|varchar|50|YES
+  province|bigint||YES
+  city|bigint||YES
+  address|varchar|50|YES
+  address_py|varchar|50|YES
+  email|varchar|30|YES
+  url|varchar|50|YES
+  info|text|2147483647|YES
+  datetime|datetime||YES
+  rules|varchar|50|YES
+  class|varchar|50|YES
+  picture|image|2147483647|YES
+  ad|varchar|255|YES
+  type|int||YES
+  checkpay|int||YES
+  DISKID|varchar|150|YES
+  qq|varchar|20|YES
+  voip|varchar|50|YES
+
+=== business_type ===
+  id|bigint||No 
+  type|varchar|50|YES
+
+=== car_mark ===
+  id|bigint||No 
+  name|varchar|200|YES
+  carname|varchar|200|YES
+  cartype|varchar|200|YES
+  engine|varchar|50|YES
+  carframe|varchar|50|YES
+  picture|image|2147483647|YES
+  linkman|varchar|50|YES
+  tel|varchar|30|YES
+  memo|varchar|255|YES
+  name_py|varchar|200|YES
+  client_cid|varchar|100|YES
+
+=== CLASSES ===
+  CLASS_TYPE|varchar|4|No 
+  CLASS_NO|varchar|6|No 
+  CLASS_NM|varchar|30|YES
+  CLASS_EN|varchar|100|YES
+  CLASS_TYPE_NM|varchar|100|YES
+  CLASS_NOTE|varchar|100|YES
+  NOUSE_MK|varchar|1|YES
+  NOUSE_USER|varchar|20|YES
+  NOUSE_DATE|varchar|14|YES
+  BEGIN_DATE|varchar|8|YES
+  END_DATE|varchar|8|YES
+
+=== client_infor ===
+  cid|varchar|30|No 
+  name|varchar|100|YES
+  address|varchar|50|YES
+  linkman|varchar|30|YES
+  tel|varchar|30|YES
+  fax|varchar|30|YES
+  mobile|varchar|30|YES
+  zip|varchar|30|YES
+  level|varchar|30|YES
+  credit|money||YES
+  bank|varchar|30|YES
+  tax|varchar|30|YES
+  class|varchar|10|YES
+  name_py|varchar|30|YES
+  jyfw|varchar|100|YES
+  note|varchar|200|YES
+  bank1|varchar|30|YES
+  bank2|varchar|30|YES
+  sell_use|numeric||YES
+
+=== dbupdatetime ===
+  code|varchar|10|No 
+  name|varchar|30|YES
+  notes|varchar|255|YES
+
+=== desktop ===
+  code|varchar|10|No 
+  username|varchar|30|No 
+  name|varchar|50|No 
+  buildtime|datetime||No 
+  memo|varchar|100|YES
+
+=== detail_buy ===
+  id|bigint||No 
+  sn|varchar|15|No 
+  partid|bigint||YES
+  partno|varchar|200|YES
+  name|varchar|200|YES
+  amount|bigint||YES
+  unit|varchar|10|YES
+  carname|varchar|200|YES
+  cartype|varchar|200|YES
+  inprice|money||YES
+  intotal|money||YES
+  pfprice|money||YES
+  lsprice|money||YES
+  place|varchar|30|YES
+  class|varchar|30|YES
+  memo|varchar|255|YES
+  tsn|varchar|15|YES
+  type|int||YES
+  datetime|datetime||YES
+  part_gg|varchar|100|YES
+  part_th|varchar|50|YES
+  part_cclb|varchar|30|YES
+  part_bzq|varchar|200|YES
+  part_bzrq|datetime||YES
+
+=== detail_jhdh ===
+  id|bigint||No 
+  sn|varchar|15|YES
+  partid|bigint||YES
+  partno|varchar|200|YES
+  name|varchar|200|YES
+  carname|varchar|200|YES
+  cartype|varchar|200|YES
+  unit|varchar|10|YES
+  amount|bigint||YES
+  price|money||YES
+  total|money||YES
+  wayed|bigint||YES
+  waying|bigint||YES
+  datetime|datetime||YES
+  memo|varchar|255|YES
+  flag|int||YES
+  part_th|varchar|50|YES
+  part_gg|varchar|100|YES
+  part_tm|varchar|30|YES
+  part_cclb|varchar|30|YES
+  lsprice|numeric||YES
+  pfprice|numeric||YES
+
+=== detail_order ===
+  id|bigint||No 
+  sn|varchar|15|No 
+  partid|bigint||YES
+  partno|varchar|200|YES
+  name|varchar|200|YES
+  carname|varchar|200|YES
+  cartype|varchar|200|YES
+  unit|varchar|10|YES
+  amount|bigint||YES
+  price|money||YES
+  total|money||YES
+  wayed|bigint||YES
+  waying|bigint||YES
+  datetime|datetime||YES
+  memo|varchar|255|YES
+  flag|int||YES
+
+=== detail_sell ===
+  id|bigint||No 
+  sn|varchar|15|No 
+  partid|bigint||YES
+  partno|varchar|200|YES
+  name|varchar|200|YES
+  unit|varchar|10|YES
+  place|varchar|50|YES
+  amount|bigint||YES
+  price|money||YES
+  bill_price|money||YES
+  stotal|money||YES
+  btotal|money||YES
+  cartype|varchar|200|YES
+  area|varchar|200|YES
+  car_mark|varchar|20|YES
+  memo|varchar|255|YES
+  tsn|varchar|15|YES
+  type|int||YES
+  flag|int||YES
+  datetime|datetime||YES
+  cb|decimal||YES
+  part_gg|varchar|100|YES
+  part_th|varchar|50|YES
+  part_cclb|varchar|30|YES
+  part_bzq|varchar|200|YES
+  part_bzrq|datetime||YES
+
+=== downbill ===
+  id|bigint||YES
+  seller|varchar|50|YES
+  sn|varchar|50|YES
+  partno|varchar|200|YES
+  name|varchar|200|YES
+  carname|varchar|200|YES
+  cartype|varchar|200|YES
+  amount|bigint||YES
+  unit|varchar|50|YES
+  memo|varchar|100|YES
+  p1|decimal||YES
+  P2|decimal||YES
+  p3|decimal||YES
+  p4|decimal||YES
+  p5|decimal||YES
+  bz|int||YES
+  datetime|datetime||YES
+  flag|int||YES
+  qid|bigint||YES
+  jc|varchar|50|YES
+  name_py|varchar|200|YES
+  carname_py|varchar|200|YES
+  cartype_py|varchar|200|YES
+  unit_py|varchar|50|YES
+  picture|image|2147483647|YES
+  bj|varchar|10|YES
+  sfhy|char|2|YES
+
+=== downdata ===
+  sn|varchar|20|YES
+  buyer|varchar|30|YES
+  partno|varchar|200|YES
+  name|varchar|200|YES
+  carname|varchar|200|YES
+  amount|bigint||YES
+  p1|decimal||YES
+  p2|decimal||YES
+  p3|decimal||YES
+  p4|decimal||YES
+  p5|decimal||YES
+  bz|int||YES
+  datetime|datetime||YES
+  flag|int||YES
+  qid|int||YES
+  jc|varchar|50|YES
+  name_py|varchar|200|YES
+  cartype_py|varchar|200|YES
+  unit_py|varchar|50|YES
+  unit|varchar|50|YES
+  cartype|varchar|200|YES
+  carname_py|varchar|200|YES
+  picture|image|2147483647|YES
+  memo|varchar|100|YES
+
+=== downdh ===
+  buyer|varchar|30|YES
+  jc|varchar|30|YES
+  datetime|datetime||YES
+  flag|int||YES
+  qid|bigint||YES
+  sn|varchar|30|YES
+  id|int||YES
+  sfhy|char|2|YES
+
+=== downdhdata ===
+  sn|varchar|50|YES
+  buyer|varchar|50|YES
+  partno|varchar|200|YES
+  name|varchar|200|YES
+  carname|varchar|200|YES
+  amount|bigint||YES
+  p1|decimal||YES
+  p2|decimal||YES
+  p3|decimal||YES
+  p4|decimal||YES
+  p5|decimal||YES
+  bz|int||YES
+  datetime|datetime||YES
+  flag|int||YES
+  qid|bigint||YES
+  jc|varchar|50|YES
+  name_py|varchar|200|YES
+  cartype_py|varchar|200|YES
+  unit_py|varchar|50|YES
+  unit|varchar|50|YES
+  cartype|varchar|200|YES
+  carname_py|varchar|200|YES
+  memo|varchar|100|YES
+  picture|image|2147483647|YES
+  ss|bigint||YES
+  qh|bigint||YES
+
+=== downfax ===
+  id|bigint||YES
+  buyer|varchar|50|YES
+  sn|varchar|50|YES
+  jc|varchar|50|YES
+  datetime|datetime||YES
+  flag|int||YES
+  sfhy|char|2|YES
+
+=== dtproperties ===
+  id|int||No 
+  objectid|int||YES
+  property|varchar|64|No 
+  value|varchar|255|YES
+  uvalue|nvarchar|255|YES
+  lvalue|image|2147483647|YES
+  version|int||No 
+
+=== faxsz ===
+  dd|varchar|10|YES
+  dhsz|decimal||No 
+  tp|varchar|250|YES
+  JJBH|decimal||YES
+  dxuser|varchar|50|YES
+  dxpass|varchar|50|YES
+  dxjs|bigint||YES
+  dxsz|char|10|YES
+
+=== friends ===
+  username|varchar|50|YES
+  jyxm|varchar|200|YES
+  jyxm_py|varchar|200|YES
+  qc|varchar|50|YES
+  qc_py|varchar|50|YES
+  linkman|varchar|50|YES
+  tel|varchar|50|YES
+  mobile|varchar|50|YES
+  status|int||YES
+
+=== ftpsz ===
+  server|varchar|50|No 
+  user1|varchar|50|YES
+  pass|varchar|50|YES
+  bbh|char|10|YES
+
+=== ggc ===
+  ggc|varchar|200|No 
+
+=== groups ===
+  id|bigint||No 
+  name|varchar|50|YES
+  rules|varchar|50|YES
+
+=== helpfile ===
+  wname|varchar|30|No 
+  content|text|2147483647|YES
+  status|int||YES
+
+=== hykc ===
+  isedit|bigint||YES
+  isad|bigint||YES
+  partid|bigint||YES
+  partno|varchar|200|YES
+  name|varchar|200|YES
+  carname|varchar|200|YES
+  cartype|varchar|200|YES
+  area|varchar|200|YES
+  class|varchar|30|YES
+  place|varchar|30|YES
+  unit|varchar|10|YES
+  amount|bigint||YES
+  inprice|decimal||YES
+  pfprice|decimal||YES
+  lsprice|decimal||YES
+  ckprice|decimal||YES
+  memo|varchar|255|YES
+  name_py|varchar|200|YES
+  carname_py|varchar|200|YES
+  cartype_py|varchar|200|YES
+  area_py|varchar|200|YES
+  unit_py|varchar|10|YES
+  buyer|varchar|50|YES
+
+=== hykc1 ===
+  isedit|bigint||YES
+  isad|bigint||YES
+  partid|bigint||YES
+  partno|varchar|200|YES
+  name|varchar|200|YES
+  carname|varchar|200|YES
+  cartype|varchar|200|YES
+  area|varchar|200|YES
+  class|varchar|30|YES
+  place|varchar|30|YES
+  unit|varchar|10|YES
+  amount|bigint||YES
+  inprice|decimal||YES
+  pfprice|decimal||YES
+  lsprice|decimal||YES
+  memo|varchar|255|YES
+  buyer|varchar|50|YES
+
+=== maint_plan ===
+  plan_id|decimal||No 
+  plan_name|varchar|128|No 
+  event_name|varchar|128|YES
+  disable_new_connections|bit||No 
+  disconnect_all_users|bit||No 
+  do_validate|bit||No 
+  validate_database_check|bit||No 
+  validate_checksum_check|bit||No 
+  validate_express_check|bit||No 
+  validate_normal_check|bit||No 
+  do_backup|bit||No 
+  disk_backup|bit||No 
+  full_backup|bit||No 
+  archive_backup|bit||No 
+  backup_path|text|2147483647|YES
+  tape_backup_prompt|bit||No 
+  tape_backup_comment|text|2147483647|YES
+  save_report_count|int||YES
+  report_to_console|bit||No 
+  email_success|bit||No 
+  email_failure|bit||No 
+  email_recipients|text|2147483647|YES
+  email_smtp_server_name|text|2147483647|YES
+  email_smtp_port|int||YES
+  email_smtp_sender_name|text|2147483647|YES
+  email_smtp_sender_address|text|2147483647|YES
+  email_smtp_auth_user_name|text|2147483647|YES
+  email_smtp_auth_password|text|2147483647|YES
+  email_user_id|text|2147483647|YES
+  email_user_password|text|2147483647|YES
+
+=== maint_plan_report ===
+  plan_id|decimal||No 
+  start_time|datetime||No 
+  finish_time|datetime||YES
+  success|bit||No 
+  report|text|2147483647|YES
+
+=== mnu ===
+  code|varchar|8|No 
+  name|varchar|20|YES
+  pswd|varchar|8|YES
+  auth|varchar|80|YES
+  dept|varchar|8|YES
+  duty|varchar|8|YES
+  memo|varchar|40|YES
+  flag|varchar|1|YES
+  evetflag|varchar|1|YES
+  bmp|varchar|50|YES
+
+=== part_area ===
+  id|bigint||No 
+  name|varchar|200|YES
+  name_py|varchar|200|YES
+
+=== part_carname ===
+  id|bigint||No 
+  name|varchar|200|YES
+  name_py|varchar|200|YES
+
+=== part_cartype ===
+  id|bigint||No 
+  name|varchar|200|YES
+  name_py|varchar|200|YES
+
+=== part_data ===
+  partid|bigint||No 
+  partno|varchar|200|YES
+  name|varchar|200|YES
+  carname|varchar|200|YES
+  cartype|varchar|200|YES
+  unit|varchar|30|YES
+  class|varchar|60|YES
+  area|varchar|200|YES
+  place|varchar|60|YES
+  inprice|money||YES
+  isck|bigint||YES
+  name_py|varchar|200|YES
+  carname_py|varchar|200|YES
+  cartype_py|varchar|200|YES
+  unit_py|varchar|20|YES
+  area_py|varchar|200|YES
+  memo|varchar|255|YES
+  DEL|char|20|YES
+  name_bs|varchar|200|YES
+  carname_bs|varchar|200|YES
+  cartype_bs|varchar|200|YES
+  unit_bs|varchar|20|YES
+  area_bs|varchar|100|YES
+  picture|image|2147483647|YES
+  part_th|varchar|50|YES
+  part_gg|varchar|100|YES
+  part_tm|varchar|30|YES
+  part_cclb|varchar|30|YES
+  lsprice|numeric||YES
+  pfprice|numeric||YES
+  part_bzq|varchar|200|YES
+  part_bzrq|datetime||YES
+
+=== part_name ===
+  id|bigint||No 
+  name|varchar|200|YES
+  name_py|varchar|200|YES
+
+=== part_pdb ===
+  partid|bigint||No 
+  amount1|bigint||YES
+  amount|bigint||YES
+  place|varchar|50|YES
+
+=== part_place ===
+  place|varchar|30|No 
+  place_nm|varchar|100|YES
+  place_user|varchar|50|YES
+  place_type|varchar|50|YES
+  place_area|varchar|100|YES
+  place_note|varchar|200|YES
+
+=== part_stock ===
+  partid|bigint||No 
+  place|varchar|20|YES
+  amount|bigint||YES
+  warning|bigint||YES
+  lsprice|money||YES
+  pfprice|money||YES
+  upflag|varchar|1|YES
+  sell_use|numeric||YES
+  buy_use|numeric||YES
+
+=== part_stock_up_set ===
+  username|varchar|50|No 
+  itemno|varchar|50|No 
+
+=== part_sub ===
+  id|int||No 
+  partid_pri|int||No 
+  partid_sub|int||No 
+  seq|int||No 
+  amount|int||No 
+
+=== part_unit ===
+  id|bigint||No 
+  name|varchar|10|YES
+  name_py|varchar|10|YES
+
+=== pays ===
+  id|bigint||No 
+  bid|varchar|20|YES
+  sn|varchar|20|YES
+  pay|money||YES
+  operator|varchar|20|YES
+  flag|int||YES
+  btype|int||YES
+  bz|int||YES
+  datetime|datetime||YES
+
+=== pbcatcol ===
+  pbc_tnam|varchar|129|No 
+  pbc_tid|int||YES
+  pbc_ownr|varchar|129|No 
+  pbc_cnam|varchar|129|No 
+  pbc_cid|smallint||YES
+  pbc_labl|varchar|254|YES
+  pbc_lpos|smallint||YES
+  pbc_hdr|varchar|254|YES
+  pbc_hpos|smallint||YES
+  pbc_jtfy|smallint||YES
+  pbc_mask|varchar|31|YES
+  pbc_case|smallint||YES
+  pbc_hght|smallint||YES
+  pbc_wdth|smallint||YES
+  pbc_ptrn|varchar|31|YES
+  pbc_bmap|varchar|1|YES
+  pbc_init|varchar|254|YES
+  pbc_cmnt|varchar|254|YES
+  pbc_edit|varchar|31|YES
+  pbc_tag|varchar|254|YES
+
+=== pbcatedt ===
+  pbe_name|varchar|30|No 
+  pbe_edit|varchar|254|YES
+  pbe_type|smallint||YES
+  pbe_cntr|int||YES
+  pbe_seqn|smallint||No 
+  pbe_flag|int||YES
+  pbe_work|varchar|32|YES
+
+=== pbcatfmt ===
+  pbf_name|varchar|30|No 
+  pbf_frmt|varchar|254|YES
+  pbf_type|smallint||YES
+  pbf_cntr|int||YES
+
+=== pbcattbl ===
+  pbt_tnam|varchar|129|No 
+  pbt_tid|int||YES
+  pbt_ownr|varchar|129|No 
+  pbd_fhgt|smallint||YES
+  pbd_fwgt|smallint||YES
+  pbd_fitl|varchar|1|YES
+  pbd_funl|varchar|1|YES
+  pbd_fchr|smallint||YES
+  pbd_fptc|smallint||YES
+  pbd_ffce|varchar|18|YES
+  pbh_fhgt|smallint||YES
+  pbh_fwgt|smallint||YES
+  pbh_fitl|varchar|1|YES
+  pbh_funl|varchar|1|YES
+  pbh_fchr|smallint||YES
+  pbh_fptc|smallint||YES
+  pbh_ffce|varchar|18|YES
+  pbl_fhgt|smallint||YES
+  pbl_fwgt|smallint||YES
+  pbl_fitl|varchar|1|YES
+  pbl_funl|varchar|1|YES
+  pbl_fchr|smallint||YES
+  pbl_fptc|smallint||YES
+  pbl_ffce|varchar|18|YES
+  pbt_cmnt|varchar|254|YES
+
+=== pbcatvld ===
+  pbv_name|varchar|30|No 
+  pbv_vald|varchar|254|YES
+  pbv_type|smallint||YES
+  pbv_cntr|int||YES
+  pbv_msg|varchar|254|YES
+
+=== qpfax ===
+  id|bigint||YES
+  buyer|varchar|50|YES
+  sn|varchar|50|YES
+  partno|varchar|200|YES
+  name|varchar|200|YES
+  carname|varchar|200|YES
+  cartype|varchar|200|YES
+  amount|bigint||YES
+  unit|varchar|10|YES
+  memo|varchar|100|YES
+  p1|decimal||YES
+  p2|decimal||YES
+  p3|decimal||YES
+  p4|decimal||YES
+  p5|decimal||YES
+  bz|int||YES
+  datetime|datetime||YES
+  flag|int||YES
+  qid|bigint||YES
+  picture|image|2147483647|YES
+  jc|varchar|50|YES
+  name_py|varchar|200|YES
+  carname_py|varchar|200|YES
+  cartype_py|varchar|200|YES
+  unit_py|varchar|50|YES
+  lid|int||YES
+
+=== rules ===
+  id|bigint||No 
+  name|varchar|40|YES
+  module|varchar|40|YES
+  parentid|bigint||YES
+
+=== serialnumber ===
+  id|bigint||No 
+  sn|varchar|30|No 
+  memo|varchar|30|YES
+
+=== serialnumber_new ===
+  id|bigint||No 
+  sn|varchar|30|YES
+  memo|varchar|30|YES
+
+=== shop ===
+  id|bigint||No 
+  client|varchar|30|YES
+  partid|bigint||YES
+  partno|varchar|30|YES
+  amount|bigint||YES
+  price|money||YES
+  flag|int||YES
+  datetime|char|10|YES
+  isedit|int||YES
+
+=== subject ===
+  sn|varchar|20|No 
+  name|varchar|30|YES
+  direction|varchar|10|YES
+  class|varchar|30|YES
+  level|int||YES
+
+=== supplier_infor ===
+  sid|varchar|20|No 
+  name|varchar|100|YES
+  address|varchar|50|YES
+  linkman|varchar|30|YES
+  tel|varchar|30|YES
+  fax|varchar|20|YES
+  mobile|varchar|20|YES
+  zip|varchar|10|YES
+  level|varchar|10|YES
+  credit|money||YES
+  bank|varchar|30|YES
+  tax|varchar|30|YES
+  class|varchar|10|YES
+  name_py|varchar|30|YES
+
+=== sys_log ===
+  id|bigint||No 
+  operator|varchar|50|YES
+  module|varchar|50|YES
+  action|varchar|50|YES
+  datetime|datetime||YES
+
+=== systems ===
+  id|varchar|50|No 
+  ck|varchar|50|YES
+  datetime|datetime||YES
+  cou|int||YES
+
+=== tpzz ===
+  sn|varchar|50|YES
+  buyer|varchar|50|YES
+  name|varchar|50|YES
+  pictrue|image|2147483647|YES
+
+=== ts ===
+  t1|int||No 
+  t2|int||YES
+  t3|int||YES
+  t4|int||YES
+  t5|int||YES
+  t6|int||YES
+  play|int||YES
+  rq|datetime||YES
+
+=== user_infor ===
+  username|varchar|30|No 
+  name|varchar|30|YES
+  password|varchar|40|YES
+  groups|int||YES
+  datetime|datetime||YES
+  rules|varchar|50|YES
+  state|int||YES
+  login|datetime||YES
+  out|datetime||YES
+  auth|text|2147483647|YES
+  diskid|nvarchar|150|YES
+
+=== voucher ===
+  id|bigint||No 
+  mon|varchar|10|YES
+  memo|varchar|255|YES
+  datetime|datetime||YES
+  accessory|bigint||YES
+  make_bill|varchar|30|YES
+  entry_account|varchar|30|YES
+  total|money||YES
+  cash|money||YES
+  checks|money||YES
+  flag|int||YES
+
+=== work_infor ===
+  workid|varchar|20|No 
+  name|varchar|20|YES
+  idcard|varchar|20|YES
+  duty|varchar|10|YES
+  pay_level|varchar|10|YES
+  level_date|datetime||YES
+  mobile|varchar|20|YES
+  tel|varchar|20|YES
+  address|varchar|50|YES
+  indate|datetime||YES
+  outdate|datetime||YES
+  name_py|varchar|20|YES
+  bz|varchar|30|YES
+
+=== wuliu_infor ===
+  sid|varchar|20|No 
+  name|varchar|100|YES
+  address|varchar|50|YES
+  linkman|varchar|30|YES
+  tel|varchar|30|YES
+  fax|varchar|20|YES
+  mobile|varchar|20|YES
+  zip|varchar|10|YES
+  level|varchar|10|YES
+  credit|numeric||YES
+  bank|varchar|100|YES
+  tax|varchar|30|YES
+  class|varchar|10|YES
+  name_py|varchar|30|YES
+
+=== xl_bxgs ===
+  id|bigint||No 
+  mc|varchar|50|YES
+
+=== xl_bz ===
+  id|bigint||No 
+  bz|varchar|30|YES
+
+=== xl_gjgl ===
+  id|bigint||No 
+  gjbh|varchar|20|YES
+  gjmc|varchar|50|YES
+  bz|varchar|100|YES
+  jybz|varchar|30|YES
+  jyr|varchar|20|YES
+  jyrq|datetime||YES
+  ghrq|datetime||YES
+  zt|varchar|10|YES
+  gjjz|decimal||YES
+  gjmc_py|varchar|50|YES
+  jybz_py|varchar|30|YES
+  jyr_py|varchar|20|YES
+
+=== xl_gjgljl ===
+  id|bigint||No 
+  gjbh|varchar|20|YES
+  gjmc|varchar|50|YES
+  bz|varchar|100|YES
+  jybz|varchar|30|YES
+  jyr|varchar|20|YES
+  jyrq|datetime||YES
+  ghrq|datetime||YES
+  gjjz|decimal||YES
+  gjmc_py|varchar|50|YES
+  jybz_py|varchar|30|YES
+  jyr_py|varchar|20|YES
+
+=== xl_gzsh ===
+  id|bigint||No 
+  khmc|varchar|50|YES
+  cp|varchar|20|YES
+  dh|varchar|20|YES
+  syy|varchar|20|YES
+  je|decimal||YES
+  rq|datetime||YES
+
+=== xl_hygl ===
+  id|bigint||No 
+  kh|varchar|20|YES
+  klb|varchar|20|YES
+  kmm|varchar|20|YES
+  khmc|varchar|50|YES
+  lxr|varchar|20|YES
+  tel|varchar|20|YES
+  kzsr|datetime||YES
+  cp|varchar|20|YES
+  carname|varchar|200|YES
+  cartype|varchar|200|YES
+  fdjh|varchar|50|YES
+  cjh|varchar|60|YES
+  sprq|datetime||YES
+  bxrq|datetime||YES
+  hyqx|datetime||YES
+  je|decimal||YES
+  khmc_py|varchar|50|YES
+  zkl|decimal||YES
+  zt|varchar|19|YES
+  nsrq|datetime||YES
+  bd|bigint||YES
+  ykcs|numeric||YES
+  jyghrq|timestamp|8|YES
+
+=== xl_js ===
+  id|bigint||No 
+  dh|varchar|20|YES
+  jsrq|datetime||YES
+  syy|varchar|10|YES
+  cp|varchar|20|YES
+  sy|varchar|20|YES
+  mc|varchar|50|YES
+  ysje|decimal||YES
+  zkl|decimal||YES
+  ssje|decimal||YES
+  yhje|decimal||YES
+  xj|decimal||YES
+  xyk|decimal||YES
+  gz|decimal||YES
+  hyczk|decimal||YES
+  kh|varchar|20|YES
+  bz|varchar|50|YES
+  zhifubao|numeric||YES
+  weixin|numeric||YES
+
+=== xl_klb ===
+  id|bigint||No 
+  klb|varchar|20|YES
+  je|decimal||YES
+
+=== xl_klbmfxm ===
+  id|bigint||No 
+  klb|varchar|20|YES
+  xmbh|varchar|20|YES
+  xmmc|varchar|50|YES
+  gsf|decimal||YES
+  lb|varchar|30|YES
+  cllx|varchar|30|YES
+  cs|decimal||YES
+
+=== xl_kmfxm ===
+  id|bigint||No 
+  kh|varchar|20|YES
+  xmbh|varchar|20|YES
+  xmmc|varchar|50|YES
+  gsf|decimal||YES
+  lb|varchar|30|YES
+  cllx|varchar|30|YES
+  cs|decimal||YES
+
+=== xl_pgmx ===
+  id|bigint||No 
+  dh|varchar|19|YES
+  wxbz|varchar|30|YES
+  fzr|varchar|31|YES
+  gsf|decimal||YES
+  gsftc|decimal||YES
+  xmmc|varchar|50|YES
+  gjwgrq|datetime||YES
+  wgrq|datetime||YES
+  xmmc_py|varchar|30|YES
+  xmbh|varchar|30|YES
+  shr|varchar|20|YES
+  jsrq|datetime||YES
+
+=== xl_pjll ===
+  id|bigint||No 
+  dh|varchar|50|YES
+  partno|varchar|200|YES
+  name|varchar|200|YES
+  carname|varchar|200|YES
+  cartype|varchar|200|YES
+  amount|bigint||YES
+  unit|varchar|10|YES
+  flag|int||YES
+  name_py|varchar|200|YES
+  carname_py|varchar|200|YES
+  cartype_py|varchar|200|YES
+  bz|bigint||YES
+  fkfs|varchar|20|YES
+  je|decimal||YES
+  pjsx|varchar|20|YES
+  sfll|bigint||YES
+  sfjs|bigint||YES
+  fid|bigint||YES
+  lldh|varchar|20|YES
+  rq|datetime||YES
+  llr|varchar|20|YES
+  llbz|varchar|20|YES
+  partid|int||YES
+  thsl|bigint||YES
+  cb|decimal||YES
+  jsrq|datetime||YES
+
+=== xl_sbgs ===
+  id|bigint||No 
+  mc|varchar|50|YES
+
+=== xl_wxba ===
+  id|bigint||No 
+  dh|varchar|20|YES
+  khmc|varchar|50|YES
+  lxr|varchar|20|YES
+  lxdh|varchar|20|YES
+  khbz|varchar|100|YES
+  cp|varchar|20|YES
+  carname|varchar|200|YES
+  cartype|varchar|200|YES
+  fdjh|varchar|50|YES
+  cjh|varchar|60|YES
+  clbz|varchar|100|YES
+  wxlb|varchar|30|YES
+  jcsj|datetime||YES
+  gjccsj|datetime||YES
+  lcbs|varchar|20|YES
+  ybs|varchar|20|YES
+  scfj|varchar|500|YES
+  bxgs|varchar|60|YES
+  sbcs|varchar|60|YES
+  gzgs|varchar|200|YES
+  gzbz|varchar|200|YES
+  hykh|varchar|20|YES
+  hymm|varchar|20|YES
+  hylb|varchar|20|YES
+  zt|varchar|10|YES
+  ccsj|datetime||YES
+  khmc_py|varchar|50|YES
+  bxrq|datetime||YES
+  byrq|datetime||YES
+  jsrq|datetime||YES
+  cartype_py|varchar|200|YES
+  jyghrq|timestamp|8|YES
+
+=== xl_wxlb ===
+  id|bigint||No 
+  mc|varchar|50|YES
+
+=== xl_wxxm ===
+  xmbh|varchar|20|No 
+  xmmc|varchar|100|YES
+  lb|varchar|20|YES
+  cllx|varchar|20|YES
+  gsf|decimal||YES
+  bz|varchar|200|YES
+  xmmc_py|varchar|100|YES
+
+=== xl_wxxmcllx ===
+  mc|varchar|40|No 
+
+=== xl_wxxmlb ===
+  mc|varchar|20|No 
+
+=== xl_wxxmmx ===
+  xmbh|varchar|20|YES
+  xmmc|varchar|100|YES
+  lb|varchar|20|YES
+  cllx|varchar|20|YES
+  gsf|decimal||YES
+  bz|varchar|200|YES
+  dh|varchar|12|YES
+  xmmc_py|varchar|100|YES
+  fkfs|varchar|10|YES
+  id|bigint||No 
+  pg|bigint||YES
+  js|bigint||YES
+  wgrq|datetime||YES
+  qy|bigint||YES
+  cb|decimal||YES
+  idzt|bigint||YES
+  jsrq|datetime||YES
+
+=== xl_xmhs ===
+  dh|varchar|12|No 
+  name|varchar|50|YES
+  cp|varchar|20|YES
+  rq|datetime||YES
+  tel|varchar|20|YES
+  name_py|varchar|50|YES
+  cp_py|varchar|20|YES
+
+=== xl_xmhspj ===
+  id|bigint||No 
+  dh|varchar|50|YES
+  partno|varchar|200|YES
+  name|varchar|200|YES
+  carname|varchar|200|YES
+  cartype|varchar|200|YES
+  amount|bigint||YES
+  unit|varchar|10|YES
+  p1|numeric||YES
+  p2|numeric||YES
+  p3|numeric||YES
+  p4|numeric||YES
+  p5|numeric||YES
+  flag|int||YES
+  name_py|varchar|200|YES
+  carname_py|varchar|200|YES
+  cartype_py|varchar|200|YES
+  bz|bigint||YES
+  fkfs|varchar|20|YES
+  je|decimal||YES
+  pjsx|varchar|20|YES
+  sfll|bigint||YES
+  sfjs|bigint||YES
+  llsl|bigint||YES
+  js|bigint||YES
+  idzt|bigint||YES
+  jsrq|datetime||YES
+
+=== xsd ===
+  sn|varchar|50|YES
+  jc|varchar|50|YES
+  datetime|datetime||YES
+
+=== xsddata ===
+  sn|varchar|50|YES
+  jc|varchar|50|YES
+  cartype|varchar|200|YES
+  cdpm|varchar|200|YES
+  unit|varchar|50|YES
+  acount|bigint||YES
+  p1|decimal||YES
+  hj|varchar|50|YES
+  memo|varchar|100|YES
+  name|varchar|200|YES
+  partno|varchar|200|YES
+  name_py|varchar|200|YES
+  cartype_py|varchar|200|YES
+
+=== xxfk ===
+  memo|text|2147483647|YES
+  rq|datetime||YES
+  id|varchar|2|YES
+
+=== 结果 ===
+  id|bigint||No 
+  name|varchar|50|YES
+  sn|varchar|20|YES
+  charge|decimal||YES
+  type|varchar|10|YES
+  operator|varchar|10|YES
+  datetime|datetime||YES
+  flag|int||YES
+  btype|int||YES
+  memo|varchar|100|YES
+  bz|int||YES
+
+
+=== TABLE ROW COUNTS ===
+  account: 327456 rows
+  area: 3062 rows
+  arrearage: 276989 rows
+  bill_buy: 37803 rows
+  bill_jhdh: 866 rows
+  bill_order: 0 rows
+  bill_sell: 300271 rows
+  BILLFAX: 3 rows
+  BJ: 16 rows
+  bs_code: 20117 rows
+  business_infor: 1 rows
+  business_type: 7 rows
+  car_mark: 0 rows
+  CLASSES: 443 rows
+  client_infor: 3276 rows
+  dbupdatetime: 3 rows
+  desktop: 236 rows
+  detail_buy: 163599 rows
+  detail_jhdh: 19383 rows
+  detail_order: 0 rows
+  detail_sell: 545000 rows
+  downbill: 5 rows
+  downdata: 1 rows
+  downdh: 0 rows
+  downdhdata: 0 rows
+  downfax: 1 rows
+  dtproperties: 0 rows
+  faxsz: 1 rows
+  friends: 3 rows
+  ftpsz: 1 rows
+  ggc: 1 rows
+  groups: 3 rows
+  helpfile: 0 rows
+  hykc: 0 rows
+  hykc1: 0 rows
+  maint_plan: 0 rows
+  maint_plan_report: 0 rows
+  mnu: 176 rows
+  part_area: 0 rows
+  part_carname: 0 rows
+  part_cartype: 0 rows
+  part_data: 25388 rows
+  part_name: 0 rows
+  part_pdb: 0 rows
+  part_place: 760 rows
+  part_stock: 21163 rows
+  part_stock_up_set: 0 rows
+  part_sub: 47 rows
+  part_unit: 0 rows
+  pays: 283208 rows
+  pbcatcol: 696 rows
+  pbcatedt: 43 rows
+  pbcatfmt: 41 rows
+  pbcattbl: 100 rows
+  pbcatvld: 0 rows
+  qpfax: 25 rows
+  rules: 0 rows
+  serialnumber: 7 rows
+  serialnumber_new: 9 rows
+  shop: 0 rows
+  subject: 0 rows
+  supplier_infor: 229 rows
+  sys_log: 2 rows
+  systems: 1 rows
+  tpzz: 2 rows
+  ts: 1 rows
+  user_infor: 3 rows
+  voucher: 0 rows
+  work_infor: 4 rows
+  wuliu_infor: 27 rows
+  xl_bxgs: 0 rows
+  xl_bz: 1 rows
+  xl_gjgl: 0 rows
+  xl_gjgljl: 0 rows
+  xl_gzsh: 0 rows
+  xl_hygl: 2 rows
+  xl_js: 6 rows
+  xl_klb: 0 rows
+  xl_klbmfxm: 0 rows
+  xl_kmfxm: 0 rows
+  xl_pgmx: 0 rows
+  xl_pjll: 0 rows
+  xl_sbgs: 0 rows
+  xl_wxba: 0 rows
+  xl_wxlb: 0 rows
+  xl_wxxm: 0 rows
+  xl_wxxmcllx: 0 rows
+  xl_wxxmlb: 0 rows
+  xl_wxxmmx: 0 rows
+  xl_xmhs: 0 rows
+  xl_xmhspj: 0 rows
+  xsd: 26 rows
+  xsddata: 133 rows
+  xxfk: 1 rows
+  结果: 858 rows

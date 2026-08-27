@@ -1,0 +1,44 @@
+<Window x:Class="QP11.Wpf.Views.SellBalanceWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:QP11.Wpf.Controls"
+        Title="销售对账" Height="500" Width="850"
+        WindowStartupLocation="CenterOwner">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,5">
+            <TextBlock Text="客户:" VerticalAlignment="Center"/>
+            <controls:ClientSearchBox x:Name="txtClient" Width="150" Margin="5,0"/>
+            <TextBlock Text="起始日期:" VerticalAlignment="Center" Margin="10,0,0,0"/>
+            <DatePicker x:Name="dtStart" Width="130" Margin="5,0"/>
+            <TextBlock Text="截止日期:" VerticalAlignment="Center" Margin="10,0,0,0"/>
+            <DatePicker x:Name="dtEnd" Width="130" Margin="5,0"/>
+            <Button Content="生成对账单" Width="90" Click="BtnGenerate_Click"/>
+        </StackPanel>
+
+        <DataGrid Grid.Row="1" x:Name="dgBills" AutoGenerateColumns="False" IsReadOnly="True">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="单号" Width="140" Binding="{Binding Sn}"/>
+                <DataGridTextColumn Header="日期" Width="100" Binding="{Binding Datetime, StringFormat=yyyy-MM-dd}"/>
+                <DataGridTextColumn Header="原价总额" Width="100" Binding="{Binding Total, StringFormat=c2}"/>
+                <DataGridTextColumn Header="折后金额" Width="100" Binding="{Binding BillTotal, StringFormat=c2}"/>
+                <DataGridTextColumn Header="现金" Width="80" Binding="{Binding Cash, StringFormat=c2}"/>
+                <DataGridTextColumn Header="微信" Width="80" Binding="{Binding Weixin, StringFormat=c2}"/>
+                <DataGridTextColumn Header="支付宝" Width="80" Binding="{Binding Zhifubao, StringFormat=c2}"/>
+                <DataGridTextColumn Header="状态" Width="50" Binding="{Binding Flag}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,5,0,0">
+            <TextBlock x:Name="txtCount" Text="共 0 条记录"/>
+            <TextBlock x:Name="txtTotal" Text="" Foreground="Blue" Margin="20,0,0,0" FontWeight="Bold"/>
+            <TextBlock x:Name="txtPaid" Text="" Foreground="Green" Margin="20,0,0,0"/>
+            <TextBlock x:Name="txtArrear" Text="" Foreground="Red" Margin="20,0,0,0"/>
+        </StackPanel>
+    </Grid>
+</Window>

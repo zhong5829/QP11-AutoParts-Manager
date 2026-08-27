@@ -1,0 +1,36 @@
+<Window x:Class="QP11.Wpf.Views.RegionWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="地区管理" Height="500" Width="600"
+        WindowStartupLocation="CenterOwner">
+    <Grid Margin="10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <DockPanel>
+            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,5">
+                <Button Content="新增" Width="50" Height="24" Click="BtnAdd_Click"/>
+                <Button Content="删除" Width="50" Height="24" Margin="5,0" Click="BtnDelete_Click"/>
+            </StackPanel>
+            <TreeView x:Name="tvRegion" SelectedItemChanged="TvRegion_SelectedItemChanged"/>
+        </DockPanel>
+
+        <DockPanel Grid.Column="1" Margin="5,0,0,0">
+            <StackPanel DockPanel.Dock="Top" Margin="0,0,0,5">
+                <TextBlock Text="地区名称:" Margin="0,5"/>
+                <TextBox x:Name="txtName" Margin="0,2"/>
+                <TextBlock Text="编码:" Margin="0,5"/>
+                <TextBox x:Name="txtCode" Margin="0,2"/>
+                <Button Content="保存" Width="60" Height="26" HorizontalAlignment="Left" Margin="0,10,0,0" Click="BtnSave_Click"/>
+            </StackPanel>
+            <DataGrid x:Name="dgChildren" AutoGenerateColumns="False" CanUserAddRows="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="名称" Width="150" Binding="{Binding Name}"/>
+                    <DataGridTextColumn Header="编码" Width="100" Binding="{Binding Code}"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </DockPanel>
+    </Grid>
+</Window>

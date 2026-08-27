@@ -1,0 +1,80 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\QP11.Core\QP11.Core.csproj" />
+    <ProjectReference Include="..\QP11.Data\QP11.Data.csproj" />
+    <ProjectReference Include="..\QP11.Services\QP11.Services.csproj" />
+    <ProjectReference Include="..\QP11.WebApi\QP11.WebApi.csproj" ExcludeAssets="content" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
+    <PackageReference Include="Serilog" Version="4.3.1" />
+    <PackageReference Include="Serilog.Sinks.Debug" Version="3.0.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
+    <PackageReference Include="NPOI" Version="2.7.2" />
+    <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
+    <Version>2.2.9</Version>
+    <!-- 自包含发布：打包 .NET 运行时，目标机器无需预装 .NET -->
+    <SelfContained>true</SelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <PublishTrimmed>false</PublishTrimmed>
+    <!-- 允许发布时覆盖重复文件（WebApi的appsettings.json会被Wpf的覆盖） -->
+    <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Assets\app.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\app_full.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\carousel_1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\carousel_2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\carousel_3.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <!-- 构建后复制 WebApi 前端静态文件到输出目录（Build 和 Publish 均生效） -->
+  <Target Name="CopyWebRoot" AfterTargets="Build">
+    <PropertyGroup>
+      <WebSource>$(MSBuildProjectDirectory)\..\QP11.WebApi\wwwroot</WebSource>
+      <WebDest>$(TargetDir)wwwroot</WebDest>
+    </PropertyGroup>
+    <MakeDir Directories="$(WebDest)" Condition="!Exists('$(WebDest)')" />
+    <Exec Command="robocopy &quot;$(WebSource)&quot; &quot;$(WebDest)&quot; /E /IS /IT /NFL /NDL /NJH /NJS /NC /NS" IgnoreStandardErrorWarningFormat="true" ContinueOnError="true" />
+  </Target>
+  <!-- Publish 后也将 wwwroot 复制到发布目录 -->
+  <Target Name="CopyWebRootToPublish" AfterTargets="Publish">
+    <PropertyGroup>
+      <WebSource>$(MSBuildProjectDirectory)\..\QP11.WebApi\wwwroot</WebSource>
+      <WebPublishDest>$(PublishDir)wwwroot</WebPublishDest>
+    </PropertyGroup>
+    <MakeDir Directories="$(WebPublishDest)" Condition="!Exists('$(WebPublishDest)')" />
+    <Exec Command="robocopy &quot;$(WebSource)&quot; &quot;$(WebPublishDest)&quot; /E /IS /IT /NFL /NDL /NJH /NJS /NC /NS" IgnoreStandardErrorWarningFormat="true" ContinueOnError="true" />
+  </Target>
+
+</Project>

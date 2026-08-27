@@ -1,0 +1,16 @@
+- [x] class/n_qyqms_connectservice.sru 中 3 处截断代码已补全
+- [x] comclass 目录下 14 处截断代码已补全（n_cst_fileinfo、n_printer、u_button、u_dw_graph）
+- [x] comfunction 目录下 6 处截断代码已补全（f_checkdwvalid、f_checkdwvalid_gd、f_auto_ins_head、f_geterrorinfo、f_get_sn、f_setdropdown）
+- [x] base 目录下 41 处截断代码已补全（nvo_db_update、gf_dwcolumnwidth、m_main、w_print_preview_sell 等）
+- [x] qpxt 目录下 29 处截断代码已补全（w_main、w_check、w_database_backup 等）
+- [x] dw2xls 目录下 20 处截断代码已补全（n_cst_dw2excel、n_xls_worksheet 等）
+- [x] function 目录下 6 处截断代码已补全（f_getpy、f_code 等）
+- [x] toolbar 目录下 7 处截断代码已补全
+- [x] menu/commenu 目录下 5 处截断代码已补全
+- [x] comwindow 目录下 151 处截断代码已补全
+- [x] windows 目录下 337 处截断代码已补全
+- [x] 5 处 TODO_RECOVER_PASSWORD 已替换为空字符串
+- [x] 全局验证：无残留 TODO_RECOVER_LIMITED_CODE 标记
+- [x] 全局验证：无残留 TODO_RECOVER_PASSWORD 标记
+- [x] 全局验证：158 个文件添加 554 个 END IF，所有文件 IF/END IF 平衡
+- [x] 全局验证：CHOOSE CASE/END CHOOSE、FOR/NEXT、DO/LOOP 全部平衡

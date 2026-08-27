@@ -1,0 +1,28 @@
+- [x] IDbConnectionFactory 接口定义完成，包含 Create() 方法返回 DbConnection
+- [x] DbConnectionFactory 实现类完成，委托现有 DatabaseFactory
+- [x] App.xaml.cs 和 Program.cs 中注册 IDbConnectionFactory 到 DI 容器
+- [x] SellService/BuyService/FinanceService 通过构造函数注入 IDbConnectionFactory + IUnitOfWorkFactory，不再调用 DatabaseFactory.Create() 或 new UnitOfWork()
+- [x] PartQueryService/AuthService/SerialNumberService/PermissionService 通过构造函数注入 IDbConnectionFactory，不再调用 DatabaseFactory.Create()
+- [x] SellController 注入 IDbConnectionFactory，new UnitOfWork(_dbFactory) 替代静态调用
+- [x] BuyController — 不存在，跳过
+- [x] PartsController 注入 IDbConnectionFactory，DatabaseFactory.Create() 已替换
+- [x] AuthController 注入 IAuthService + IUserRepository，彻底消除 DatabaseFactory 依赖；ClientsController 同上
+- [x] SellViewModel/BuyViewModel 注入 IDbConnectionFactory + IUnitOfWorkFactory，DatabaseFactory.Create() 和 new UnitOfWork() 已替换
+- [x] WPF View (.xaml.cs) 29 个文件 DatabaseFactory.Create() 替换为 App.ServiceProvider DI 服务定位
+- [x] WPF 层除 App.xaml.cs 外零个文件包含 `using QP11.Data`
+- [x] 17 个 View 文件 new XxxRepository() → App.ServiceProvider.GetRequiredService<IXxxRepository>()
+- [x] BillFlag 从 static class 转换为 enum（Deleted=-1, Draft=0, Confirmed=1, Returned=2, Voided=3）
+- [x] BuyFlag 枚举定义完成（Unsettled=0, Settled=1）
+- [x] 18 个文件中 Flag 硬编码替换为 BusinessConstants.BillFlag.* 引用
+- [x] ArrearageRepository SQL flag=2 添加 BillFlag.Returned 注释 + IN(1,2) 改为字符串插值
+- [x] BillSell.CalculateTotal 方法实现
+- [x] DetailSell.ApplyFlag 方法实现
+- [x] ClientInfor.ValidateDiscount 方法实现
+- [x] CalcService.ValidateDiscountRate 委托 ClientInfor.ValidateDiscount
+- [x] BaseRepository 移除 FindAsync 和 GetPagedAsync
+- [x] IRepository<T> 移除 FindAsync 和 GetPagedAsync 声明
+- [x] QP11.Models 项目已不在解决方案中
+- [x] dotnet build 零编译错误
+- [x] Service 层零个 DatabaseFactory.Create() 调用
+- [x] WPF 层零个 DatabaseFactory.Create() 调用
+- [x] WebApi Controller 层零个 DatabaseFactory.Create() 调用

@@ -1,0 +1,37 @@
+<Window x:Class="QP11.Wpf.Views.LocationWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="仓位管理" Height="500" Width="750"
+        WindowStartupLocation="CenterOwner">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,5">
+            <Button Content="新增" Width="60" Height="26" Click="BtnAdd_Click"/>
+            <Button Content="编辑" Width="60" Height="26" Margin="5,0" Click="BtnEdit_Click"/>
+            <Button Content="删除" Width="60" Height="26" Margin="5,0" Click="BtnDelete_Click"/>
+            <Separator Width="20"/>
+            <TextBlock Text="名称:" VerticalAlignment="Center" Margin="5"/>
+            <TextBox x:Name="txtFilter" Width="150" Margin="2"/>
+            <Button Content="筛选" Width="60" Height="26" Margin="5,0" Click="BtnFilter_Click"/>
+        </StackPanel>
+
+        <DataGrid Grid.Row="1" x:Name="dgList" AutoGenerateColumns="False" CanUserAddRows="False"
+                  VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="编号" Width="70" Binding="{Binding Place}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="名称" Width="120" Binding="{Binding PlaceNm}"/>
+                <DataGridTextColumn Header="负责人" Width="80" Binding="{Binding PlaceUser}"/>
+                <DataGridTextColumn Header="类型" Width="80" Binding="{Binding PlaceType}"/>
+                <DataGridTextColumn Header="区域" Width="100" Binding="{Binding PlaceArea}"/>
+                <DataGridTextColumn Header="备注" Width="*" Binding="{Binding PlaceNote}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <TextBlock Grid.Row="2" x:Name="txtCount" VerticalAlignment="Center" Margin="5"/>
+    </Grid>
+</Window>

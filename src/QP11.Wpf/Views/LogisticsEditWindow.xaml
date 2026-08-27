@@ -1,0 +1,64 @@
+<Window x:Class="QP11.Wpf.Views.LogisticsEditWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="{Binding Title}" Height="420" Width="500"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="80"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="编号:" VerticalAlignment="Center" Margin="0,4"/>
+        <TextBox Grid.Row="0" Grid.Column="1" x:Name="txtSid" IsReadOnly="True" Background="#f0f0f0" Margin="0,4"/>
+
+        <TextBlock Grid.Row="1" Grid.Column="0" Text="名称:" VerticalAlignment="Center" Margin="0,4"/>
+        <TextBox Grid.Row="1" Grid.Column="1" x:Name="txtName" Margin="0,4"/>
+
+        <TextBlock Grid.Row="2" Grid.Column="0" Text="联系人:" VerticalAlignment="Center" Margin="0,4"/>
+        <TextBox Grid.Row="2" Grid.Column="1" x:Name="txtLinkman" Margin="0,4"/>
+
+        <TextBlock Grid.Row="3" Grid.Column="0" Text="电话:" VerticalAlignment="Center" Margin="0,4"/>
+        <TextBox Grid.Row="3" Grid.Column="1" x:Name="txtTel" Margin="0,4"/>
+
+        <TextBlock Grid.Row="4" Grid.Column="0" Text="手机:" VerticalAlignment="Center" Margin="0,4"/>
+        <TextBox Grid.Row="4" Grid.Column="1" x:Name="txtMobile" Margin="0,4"/>
+
+        <TextBlock Grid.Row="5" Grid.Column="0" Text="传真:" VerticalAlignment="Center" Margin="0,4"/>
+        <TextBox Grid.Row="5" Grid.Column="1" x:Name="txtFax" Margin="0,4"/>
+
+        <TextBlock Grid.Row="6" Grid.Column="0" Text="地址:" VerticalAlignment="Center" Margin="0,4"/>
+        <TextBox Grid.Row="6" Grid.Column="1" x:Name="txtAddress" Margin="0,4"/>
+
+        <TextBlock Grid.Row="7" Grid.Column="0" Text="邮编:" VerticalAlignment="Center" Margin="0,4"/>
+        <TextBox Grid.Row="7" Grid.Column="1" x:Name="txtZip" Width="100" HorizontalAlignment="Left" Margin="0,4"/>
+
+        <TextBlock Grid.Row="8" Grid.Column="0" Text="等级:" VerticalAlignment="Center" Margin="0,4"/>
+        <TextBox Grid.Row="8" Grid.Column="1" x:Name="txtLevel" Width="80" HorizontalAlignment="Left" Margin="0,4"/>
+
+        <StackPanel Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,8">
+            <TextBlock Text="信用额度:" VerticalAlignment="Center"/>
+            <TextBox x:Name="txtCredit" Width="120" Margin="8,0,0,0"/>
+            <TextBlock Text="银行账号:" VerticalAlignment="Center" Margin="16,0,0,0"/>
+            <TextBox x:Name="txtBank" Width="150" Margin="4,0,0,0"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+            <Button Content="确定" Width="70" Height="28" Click="BtnOk_Click" IsDefault="True" Margin="0,0,10,0"/>
+            <Button Content="取消" Width="70" Height="28" Click="BtnCancel_Click" IsCancel="True"/>
+        </StackPanel>
+    </Grid>
+</Window>

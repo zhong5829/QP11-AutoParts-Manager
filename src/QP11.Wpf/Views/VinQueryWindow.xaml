@@ -1,0 +1,582 @@
+<Window x:Class="QP11.Wpf.Views.VinQueryWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:QP11.Wpf.Views"
+        xmlns:cvt="clr-namespace:QP11.Wpf.Converters"
+        Title="VIN查询" Width="520" Height="700"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="CanResize"
+        ShowInTaskbar="False"
+        Background="#F5F5F5"
+        KeyDown="Window_KeyDown">
+    <Window.Resources>
+        <!-- 值转换器 -->
+        <cvt:BoolToVisibilityConverter x:Key="BoolToVis"/>
+        <cvt:InverseBoolToVisibilityConverter x:Key="InvBoolToVis"/>
+        <cvt:InverseBoolConverter x:Key="InvBool"/>
+        <cvt:NullToCollapsedConverter x:Key="NullToCollapsed"/>
+        <cvt:ObjectToVisibilityConverter x:Key="ObjToVis"/>
+
+        <!-- 用户消息气泡 -->
+        <DataTemplate x:Key="UserMsgTpl">
+            <StackPanel HorizontalAlignment="Right" Margin="40,4,8,4">
+                <Border Background="#2196F3" CornerRadius="8" Padding="10,8">
+                    <TextBox Text="{Binding Text}" Foreground="White" FontSize="14"
+                             TextWrapping="Wrap" MaxWidth="360"
+                             IsReadOnly="True" BorderThickness="0" Background="Transparent"
+                             Cursor="IBeam" CaretBrush="White" SelectionBrush="#64B5F6"/>
+                </Border>
+            </StackPanel>
+        </DataTemplate>
+
+        <!-- 系统消息气泡 -->
+        <DataTemplate x:Key="SysMsgTpl">
+            <StackPanel HorizontalAlignment="Left" Margin="8,4,40,4">
+                <!-- 纯文本消息 -->
+                <Border Background="#F0F0F0" CornerRadius="8" Padding="10,8"
+                        Visibility="{Binding Text, Converter={StaticResource NullToCollapsed}}">
+                    <TextBox Text="{Binding Text}" Foreground="#333333" FontSize="14"
+                             TextWrapping="Wrap" MaxWidth="420"
+                             IsReadOnly="True" BorderThickness="0" Background="Transparent"
+                             Cursor="IBeam"/>
+                </Border>
+
+                <!-- 车型信息卡片 -->
+                <Border Background="White" CornerRadius="8" BorderBrush="#E0E0E0" BorderThickness="1"
+                        Margin="0,4" Padding="12"
+                        Visibility="{Binding VehicleInfo, Converter={StaticResource ObjToVis}}">
+                    <Border.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="复制车型信息" Click="VehicleCard_CopyInfo" />
+                        </ContextMenu>
+                    </Border.ContextMenu>
+                    <StackPanel DataContext="{Binding VehicleInfo}">
+                        <TextBlock FontSize="15" FontWeight="Bold" Foreground="#2196F3" Margin="0,0,0,6">
+                            <Run Text="🚗 "/><Run Text="{Binding Brand, Mode=OneWay}"/>
+                            <Run Text=" "/><Run Text="{Binding Series, Mode=OneWay}"/>
+                        </TextBlock>
+                        <Grid Margin="0,2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="80"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="车型：" Foreground="#888"/>
+                            <TextBlock Grid.Column="1" Text="{Binding Models}" Foreground="#333"/>
+                        </Grid>
+                        <Grid Margin="0,2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="80"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="年款：" Foreground="#888"/>
+                            <TextBlock Grid.Column="1" Text="{Binding YearRange}" Foreground="#333"/>
+                        </Grid>
+                        <Grid Margin="0,2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="80"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="发动机：" Foreground="#888"/>
+                            <TextBlock Grid.Column="1" Text="{Binding EngineModel}" Foreground="#333"/>
+                        </Grid>
+                        <Grid Margin="0,2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="80"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="排量：" Foreground="#888"/>
+                            <TextBlock Grid.Column="1" Text="{Binding DisplacementWithT}" Foreground="#333"/>
+                        </Grid>
+                        <Grid Margin="0,2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="80"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="底盘号：" Foreground="#888"/>
+                            <TextBlock Grid.Column="1" Text="{Binding ChassisCode4}" Foreground="#333"/>
+                        </Grid>
+                        <Grid Margin="0,2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="80"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="驱动：" Foreground="#888"/>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <Border Background="#E3F2FD" CornerRadius="3" Padding="4,1" Margin="0,0,4,0"
+                                        Visibility="{Binding DriveMode, Converter={StaticResource NullToCollapsed}}">
+                                    <TextBlock Text="{Binding DriveMode}" FontSize="12" Foreground="#1565C0" FontWeight="Bold"/>
+                                </Border>
+                                <Border Background="#FFF3E0" CornerRadius="3" Padding="4,1"
+                                        Visibility="{Binding GearboxType, Converter={StaticResource NullToCollapsed}}">
+                                    <TextBlock Text="{Binding GearboxType}" FontSize="12" Foreground="#E65100" FontWeight="Bold"/>
+                                </Border>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- 配件汇总卡片（点击切换到配件列表视图） -->
+                <Border Background="White" CornerRadius="8" BorderBrush="#E0E0E0" BorderThickness="1"
+                        Margin="0,4" Padding="12,8" Cursor="Hand"
+                        MouseLeftButtonUp="BtnPartSummary_Click"
+                        Visibility="{Binding PartCategories, Converter={StaticResource ObjToVis}}">
+                    <StackPanel>
+                        <TextBlock FontSize="14" FontWeight="Bold" Foreground="#2196F3">
+                            <Run Text="配件适配结果"/>
+                        </TextBlock>
+                        <TextBlock FontSize="12" Foreground="#666" Margin="0,4,0,0">
+                            <Run Text="共 "/><Run Text="{Binding PartCount, Mode=OneWay}"/>
+                            <Run Text=" 个配件，已匹配 "/><Run Text="{Binding MatchedCount, Mode=OneWay}"/>
+                            <Run Text=" 个本地库存"/>
+                        </TextBlock>
+                        <TextBlock FontSize="11" Foreground="#2196F3" Margin="0,2,0,0" Text="点击查看详情 →"/>
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </DataTemplate>
+
+        <!-- 消息模板选择器 -->
+        <DataTemplate x:Key="MsgTpl">
+            <ContentControl Content="{Binding}">
+                <ContentControl.Style>
+                    <Style TargetType="ContentControl">
+                        <Setter Property="ContentTemplate" Value="{StaticResource SysMsgTpl}"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsUser}" Value="True">
+                                <Setter Property="ContentTemplate" Value="{StaticResource UserMsgTpl}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ContentControl.Style>
+            </ContentControl>
+        </DataTemplate>
+    </Window.Resources>
+
+    <Grid>
+        <!-- ===== 登录视图 ===== -->
+        <Grid Visibility="{Binding IsLoggedIn, Converter={StaticResource InvBoolToVis}}">
+            <Border Background="White" CornerRadius="12" Width="380" Padding="24,20"
+                    VerticalAlignment="Center" HorizontalAlignment="Center"
+                    BorderBrush="#E0E0E0" BorderThickness="1" Margin="0,0,0,40">
+                <StackPanel>
+                    <TextBlock Text="VIN查询 — 登录" FontSize="20" FontWeight="Bold"
+                               Foreground="#2196F3" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+
+                    <!-- 数据源登录列表 -->
+                    <ItemsControl x:Name="icSourceLogins">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="#FAFAFA" CornerRadius="6" BorderBrush="#E0E0E0" BorderThickness="1"
+                                        Margin="0,0,0,12" Padding="12,10">
+                                    <StackPanel>
+                                        <!-- 数据源标题 + 状态 -->
+                                        <Grid Margin="0,0,0,8">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding SourceName}" FontSize="14" FontWeight="Bold" Foreground="#333"/>
+                                            <TextBlock Grid.Column="1" FontSize="12" VerticalAlignment="Center">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Text" Value="未登录"/>
+                                                        <Setter Property="Foreground" Value="#999"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsSourceLoggedIn}" Value="True">
+                                                                <Setter Property="Text" Value="已登录 ✓"/>
+                                                                <Setter Property="Foreground" Value="#4CAF50"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Grid>
+
+                                        <!-- 登录表单（未登录时显示） -->
+                                        <StackPanel Visibility="{Binding IsSourceLoggedIn, Converter={StaticResource InvBoolToVis}}">
+                                            <Grid Margin="0,0,0,6">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBox Text="{Binding Phone, UpdateSourceTrigger=PropertyChanged}"
+                                                         FontSize="13" Padding="6,5" BorderBrush="#CCCCCC"
+                                                         Tag="{Binding}"/>
+                                                <Button Grid.Column="1" Content="{Binding SendSmsButtonText}"
+                                                        Click="BtnSourceSendSms_Click" Tag="{Binding}"
+                                                        FontSize="12" Padding="8,5" Margin="4,0,0,0"
+                                                        Background="#2196F3" Foreground="White" BorderThickness="0"
+                                                        IsEnabled="{Binding IsSendingSms, Converter={StaticResource InvBool}}"/>
+                                            </Grid>
+                                            <Grid Margin="0,0,0,6">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBox Text="{Binding SmsCode, UpdateSourceTrigger=PropertyChanged}"
+                                                         FontSize="13" Padding="6,5" BorderBrush="#CCCCCC"/>
+                                                <Button Grid.Column="1" Content="登录"
+                                                        Click="BtnSourceLogin_Click" Tag="{Binding}"
+                                                        FontSize="12" Padding="12,5" Margin="4,0,0,0"
+                                                        Background="#2196F3" Foreground="White" BorderThickness="0"/>
+                                            </Grid>
+                                            <TextBlock Text="{Binding LoginStatus}" FontSize="11" Foreground="#F44336" TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <TextBlock x:Name="txtLoginHint" FontSize="12" Foreground="#888"
+                               HorizontalAlignment="Center" Text="至少登录一个数据源即可查询"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- ===== 聊天视图 ===== -->
+        <Grid Visibility="{Binding IsLoggedIn, Converter={StaticResource BoolToVis}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- 标题栏 -->
+            <Border Grid.Row="0" Background="#2196F3" Padding="12,8">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="VIN查询" Foreground="White" FontSize="16" FontWeight="Bold"
+                                   VerticalAlignment="Center"/>
+                        <!-- 数据源状态标签 -->
+                        <ItemsControl ItemsSource="{Binding SourceLoginItems}" Margin="12,0,0,0"
+                                      VerticalAlignment="Center">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border CornerRadius="4" Padding="5,2" Margin="0,0,4,0" Cursor="Hand"
+                                            MouseLeftButtonDown="SourceTag_Click"
+                                            PreviewMouseLeftButtonDown="SourceTag_PreviewMouseDown">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="#E53935"/>
+                                                <Setter Property="ToolTip" Value="点击登录 · 双击重新登录"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsSourceLoggedIn}" Value="True">
+                                                        <Setter Property="Background" Value="#43A047"/>
+                                                        <Setter Property="ToolTip" Value="{Binding TokenExpiryText}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <TextBlock FontSize="10" Foreground="White" FontWeight="Bold">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Text">
+                                                        <Setter.Value>
+                                                            <MultiBinding StringFormat="{}{0} ⚠">
+                                                                <Binding Path="SourceName"/>
+                                                            </MultiBinding>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsSourceLoggedIn}" Value="True">
+                                                            <Setter Property="Text">
+                                                                <Setter.Value>
+                                                                    <MultiBinding StringFormat="{}{0} ✓">
+                                                                        <Binding Path="SourceName"/>
+                                                                    </MultiBinding>
+                                                                </Setter.Value>
+                                                            </Setter>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                    <Button Grid.Column="1" Content="✕"
+                            Click="BtnClose_Click" FontSize="14"
+                            Background="Transparent" Foreground="White" BorderThickness="0"
+                            Padding="6,2" Cursor="Hand"/>
+                </Grid>
+            </Border>
+
+            <!-- 数据源登录面板（聊天视图内可折叠） -->
+            <Border Grid.Row="1" x:Name="panelSourceLogin" Background="#FFF8E1" BorderBrush="#FFE082" BorderThickness="0,1,0,1"
+                    Padding="10,8" Visibility="Collapsed">
+                <StackPanel>
+                    <Grid Margin="0,0,0,4">
+                        <TextBlock Text="登录数据源" FontSize="12" FontWeight="Bold" Foreground="#F57C00"/>
+                        <Button HorizontalAlignment="Right" Content="✕ 收起" FontSize="10"
+                                Click="BtnCollapseSourcePanel_Click" Background="Transparent" Foreground="#999"
+                                BorderThickness="0" Padding="4,0"/>
+                    </Grid>
+                    <ItemsControl x:Name="icSourceLoginsChat" ItemsSource="{Binding SourceLoginItems}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="White" CornerRadius="4" BorderBrush="#E0E0E0" BorderThickness="1"
+                                        Margin="0,0,0,6" Padding="8,6">
+                                    <StackPanel>
+                                        <Grid Margin="0,0,0,4">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding SourceName}" FontSize="12" FontWeight="Bold" Foreground="#333"/>
+                                            <TextBlock Grid.Column="1" FontSize="11" VerticalAlignment="Center">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Text" Value="未登录"/>
+                                                        <Setter Property="Foreground" Value="#999"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsSourceLoggedIn}" Value="True">
+                                                                <Setter Property="Text" Value="已登录 ✓"/>
+                                                                <Setter Property="Foreground" Value="#4CAF50"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Grid>
+                                        <StackPanel Visibility="{Binding IsSourceLoggedIn, Converter={StaticResource InvBoolToVis}}">
+                                            <Grid Margin="0,0,0,4">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBox Text="{Binding Phone, UpdateSourceTrigger=PropertyChanged}"
+                                                         FontSize="12" Padding="4,3" BorderBrush="#CCCCCC"
+                                                         Tag="{Binding}"/>
+                                                <Button Grid.Column="1" Content="{Binding SendSmsButtonText}"
+                                                        Click="BtnSourceSendSms_Click" Tag="{Binding}"
+                                                        FontSize="11" Padding="6,3" Margin="3,0,0,0"
+                                                        Background="#FF9800" Foreground="White" BorderThickness="0"
+                                                        IsEnabled="{Binding IsSendingSms, Converter={StaticResource InvBool}}"/>
+                                            </Grid>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBox Text="{Binding SmsCode, UpdateSourceTrigger=PropertyChanged}"
+                                                         FontSize="12" Padding="4,3" BorderBrush="#CCCCCC"/>
+                                                <Button Grid.Column="1" Content="登录"
+                                                        Click="BtnSourceLogin_Click" Tag="{Binding}"
+                                                        FontSize="11" Padding="10,3" Margin="3,0,0,0"
+                                                        Background="#FF9800" Foreground="White" BorderThickness="0"/>
+                                            </Grid>
+                                            <TextBlock Text="{Binding LoginStatus}" FontSize="10" Foreground="#F44336" TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- 对话区域 -->
+            <ScrollViewer x:Name="scrollViewer" Grid.Row="2" VerticalScrollBarVisibility="Auto"
+                          Padding="4,8">
+                <ItemsControl ItemsSource="{Binding Messages}" ItemTemplate="{StaticResource MsgTpl}"/>
+            </ScrollViewer>
+
+            <!-- 底部输入栏 -->
+            <Border Grid.Row="3" Background="White" BorderBrush="#E0E0E0" BorderThickness="0,1,0,0"
+                    Padding="8,6">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox x:Name="txtVinInput" Text="{Binding VinInput, UpdateSourceTrigger=PropertyChanged}"
+                             FontSize="14" Padding="8,6" VerticalContentAlignment="Center"
+                             PreviewKeyDown="TxtVinInput_PreviewKeyDown"
+                             BorderBrush="#CCCCCC">
+                        <TextBox.ToolTip>输入17位VIN码后按回车或点击发送</TextBox.ToolTip>
+                    </TextBox>
+                    <Button Grid.Column="1" Content="发送" Click="BtnQuery_Click"
+                            FontSize="13" Padding="12,6" Margin="6,0,0,0"
+                            Background="#2196F3" Foreground="White" BorderThickness="0"
+                            IsEnabled="{Binding IsQuerying, Converter={StaticResource InvBool}}"/>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- ===== 配件列表视图（内嵌，替代弹窗） ===== -->
+        <Grid x:Name="partListPanel" Visibility="Collapsed" Background="#F5F5F5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- 顶部标题栏（含返回按钮） -->
+            <Border Grid.Row="0" Background="#2196F3" Padding="12,8">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0" Content="← 返回" Click="BtnPartListBack_Click"
+                            FontSize="13" Padding="8,4"
+                            Background="Transparent" Foreground="White" BorderThickness="0"
+                            Cursor="Hand"/>
+                    <TextBlock Grid.Column="1" Text="配件适配列表" Foreground="White" FontSize="16" FontWeight="Bold"
+                               VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    <Button Grid.Column="2" Content="✕"
+                            Click="BtnClose_Click" FontSize="14"
+                            Background="Transparent" Foreground="White" BorderThickness="0"
+                            Padding="6,2" Cursor="Hand"/>
+                </Grid>
+            </Border>
+
+            <!-- 统计信息 -->
+            <Border Grid.Row="1" Background="White" Padding="12,8" BorderBrush="#E0E0E0" BorderThickness="0,0,0,1">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock FontSize="14" FontWeight="Bold" Foreground="#2196F3" VerticalAlignment="Center" Text="配件适配列表"/>
+                    <TextBlock x:Name="txtPartListSummary" FontSize="12" Foreground="#888" Margin="16,0,0,0" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+
+            <!-- 左侧分类导航 + 右侧配件列表 -->
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="140"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- 左侧分类 -->
+                <Border Grid.Column="0" Background="White" BorderBrush="#E0E0E0" BorderThickness="0,0,1,0">
+                    <ListBox x:Name="lstPartCategories" DisplayMemberPath="DisplayName"
+                             SelectionChanged="LstPartCategories_SelectionChanged"
+                             BorderThickness="0" FontSize="12" Padding="2"/>
+                </Border>
+
+                <!-- 右侧配件列表 -->
+                <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" Padding="6">
+                    <ItemsControl x:Name="icPartItems">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="White" CornerRadius="6" BorderBrush="#E0E0E0" BorderThickness="1"
+                                        Margin="0,3" Padding="8">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="60"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- 图片 -->
+                                        <Border Grid.Column="0" Width="56" Height="56" CornerRadius="4"
+                                                Background="#F0F0F0" Margin="0,0,6,0"
+                                                Cursor="Hand" MouseLeftButtonUp="PartImg_Click" Tag="{Binding}">
+                                            <Image Source="{Binding FirstImgUrl}" Stretch="UniformToFill"
+                                                   RenderOptions.BitmapScalingMode="LowQuality"/>
+                                        </Border>
+
+                                        <!-- 信息区 -->
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                            <TextBlock FontWeight="Bold" FontSize="12" Foreground="#333" TextTrimming="CharacterEllipsis">
+                                                <Run Text="{Binding Model, Mode=OneWay}"/>
+                                                <Run Text=" "/>
+                                                <Run Text="{Binding Name, Mode=OneWay}"/>
+                                            </TextBlock>
+                                            <StackPanel Orientation="Horizontal" Margin="0,1,0,0">
+                                                <Border Background="#2196F3" CornerRadius="3" Padding="4,1" Margin="0,0,4,0"
+                                                        Visibility="{Binding SourceName, Converter={StaticResource NullToCollapsed}}">
+                                                    <TextBlock Text="{Binding SourceName}" FontSize="9" Foreground="White" FontWeight="Bold"/>
+                                                </Border>
+                                                <TextBlock FontSize="9" Foreground="#FF6600" Margin="0,0,2,0"
+                                                           Visibility="{Binding PartNumber, Converter={StaticResource NullToCollapsed}}">
+                                                    <Run Text="OE:"/><Run Text="{Binding PartNumber, Mode=OneWay}"/>
+                                                </TextBlock>
+                                            </StackPanel>
+                                            <TextBlock FontSize="10" Foreground="#999" Margin="0,1,0,0" TextTrimming="CharacterEllipsis">
+                                                <Run Text="{Binding TenantBrandName, Mode=OneWay}"/>
+                                                <Run Text=" | "/>
+                                                <Run Text="{Binding TenantCategoryName, Mode=OneWay}"/>
+                                            </TextBlock>
+                                            <TextBlock FontSize="10" Foreground="#FF6600" Margin="0,1,0,0" TextTrimming="CharacterEllipsis"
+                                                       Visibility="{Binding InstallationLocation, Converter={StaticResource NullToCollapsed}}">
+                                                <Run Text="{Binding InstallationLocation, Mode=OneWay}"/>
+                                            </TextBlock>
+                                            <TextBlock FontSize="10" Foreground="#666" Margin="0,1,0,0" TextTrimming="CharacterEllipsis"
+                                                       Visibility="{Binding Notes, Converter={StaticResource NullToCollapsed}}">
+                                                <Run Text="{Binding Notes, Mode=OneWay}"/>
+                                            </TextBlock>
+                                            <TextBlock FontSize="10" Foreground="#1565C0" Margin="0,1,0,0" TextTrimming="CharacterEllipsis"
+                                                       Visibility="{Binding VehicleNotes, Converter={StaticResource NullToCollapsed}}">
+                                                <Run Text="{Binding VehicleNotes, Mode=OneWay}"/>
+                                            </TextBlock>
+                                            <TextBlock FontSize="10" Foreground="#2E7D32" Margin="0,1,0,0" TextTrimming="CharacterEllipsis"
+                                                       Visibility="{Binding VehicleComment, Converter={StaticResource NullToCollapsed}}">
+                                                <Run Text="{Binding VehicleComment, Mode=OneWay}"/>
+                                            </TextBlock>
+                                            <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                                <TextBlock Text="¥" FontSize="11" Foreground="#E53935" VerticalAlignment="Center"/>
+                                                <TextBlock Text="{Binding Price, Mode=OneWay, StringFormat='{}{0:F0}'}"
+                                                           FontSize="12" FontWeight="Bold" Foreground="#E53935" VerticalAlignment="Center"/>
+                                                <TextBlock Text="  库存:" FontSize="10" Foreground="#888" VerticalAlignment="Center" Margin="4,0,0,0"/>
+                                                <TextBlock Text="{Binding StockAmount, Mode=OneWay}" FontSize="10" FontWeight="Bold"
+                                                           Foreground="#4CAF50" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </StackPanel>
+
+                                        <!-- 操作区 -->
+                                        <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="4,0,0,0">
+                                            <TextBlock FontSize="10" HorizontalAlignment="Center" Margin="0,0,0,2">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Text" Value="未匹配"/>
+                                                        <Setter Property="Foreground" Value="#999"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsLocalMatched}" Value="True">
+                                                                <Setter Property="Text" Value="已匹配"/>
+                                                                <Setter Property="Foreground" Value="#4CAF50"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                            <Button Content="添加" Tag="{Binding}" Click="BtnAddPartItem_Click"
+                                                    FontSize="11" Padding="10,3"
+                                                    Background="#2196F3" Foreground="White" BorderThickness="0">
+                                                <Button.Style>
+                                                    <Style TargetType="Button">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsLocalMatched}" Value="False">
+                                                                <Setter Property="IsEnabled" Value="False"/>
+                                                                <Setter Property="Background" Value="#CCCCCC"/>
+                                                                <Setter Property="Foreground" Value="#999"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Button.Style>
+                                            </Button>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>

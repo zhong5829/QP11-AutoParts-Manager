@@ -1,0 +1,318 @@
+/* ========== 基础重置 ========== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { font-size: 15px; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: #f0f2f5; color: #333; line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+}
+.app { max-width: 960px; margin: 0 auto; min-height: 100vh; }
+
+/* ========== 头部导航 ========== */
+.header {
+  background: linear-gradient(135deg, #1a73e8, #0d47a1);
+  color: #fff; padding: 10px 14px 0; position: sticky; top: 0; z-index: 100;
+}
+.header h1 { font-size: 1.05rem; font-weight: 600; margin-bottom: 8px; letter-spacing: 1px; }
+.tab-bar { display: flex; gap: 2px; }
+.tab-btn {
+  flex: 1; padding: 9px 0; border: none; background: rgba(255,255,255,.13);
+  color: rgba(255,255,255,.7); font-size: .88rem; cursor: pointer;
+  border-radius: 7px 7px 0 0; transition: all .2s; -webkit-tap-highlight-color: transparent;
+}
+.tab-btn.active { background: #fff; color: #1a73e8; font-weight: 600; }
+
+/* ========== Tab 内容 ========== */
+.tab-content { display: none; padding: 10px 12px 80px; }
+.tab-content.active { display: block; }
+
+/* ========== 卡片 ========== */
+.card {
+  background: #fff; border-radius: 10px; padding: 12px; margin-bottom: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+}
+.card-header {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: .88rem; font-weight: 600; color: #444; margin-bottom: 8px;
+  padding-bottom: 6px; border-bottom: 1px solid #eee;
+}
+.sub-hint { font-weight: 400; color: #999; font-size: .78rem; }
+
+/* ========== 查询条件行（三个输入框 + 匹配模式） ========== */
+.query-row {
+  display: grid; grid-template-columns: 1.3fr 1.5fr 1.2fr .75fr; gap: 6px;
+  align-items: end;
+}
+.query-field label { display: block; font-size: .72rem; color: #777; margin-bottom: 2px; font-weight: 500; }
+.query-field input, .query-field select {
+  width: 100%; padding: 7px 9px; border: 1px solid #ddd; border-radius: 6px;
+  font-size: .85rem; outline: none; transition: border-color .2s;
+  -webkit-appearance: none;
+}
+.query-field input:focus { border-color: #1a73e8; box-shadow: 0 0 0 2px rgba(26,115,232,.15); }
+.query-field.flex-2 { min-width: 0; }
+
+/* ========== 数据表格 ========== */
+.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 6px; }
+.data-table { width: 100%; border-collapse: collapse; font-size: .82rem; white-space: nowrap; }
+.data-table th {
+  background: #f5f7fa; padding: 7px 8px; text-align: left; font-weight: 600; color: #555;
+  border-bottom: 2px solid #e0e0e0; position: sticky; top: 0;
+}
+.data-table td { padding: 6px 8px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
+.data-table tbody tr { cursor: pointer; transition: background .15s; }
+.data-table tbody tr:hover { background: #e8f0fe; }
+.data-table tbody tr.selected { background: #d2e3fc; }
+.empty-hint { text-align: center; color: #bbb; padding: 24px 8px; font-size: .84rem; }
+
+/* 配件列表特殊样式 */
+.card-parts .data-table td:nth-child(4) { text-align: right; font-weight: 500; } /* 库存 */
+.card-parts .data-table td:nth-child(5), /* 零售价 */
+.card-parts .data-table td:nth-child(6) { text-align: right; color: #c62828; } /* 批发价 */
+
+/* 单据查询表格 */
+#billTable th:nth-child(5), /* 总额 */
+#billTable th:nth-child(6) { text-align: right; } /* 开票总额 */
+#billTable td:nth-child(5), /* 总额 */
+#billTable td:nth-child(6) { text-align: right; font-weight: 500; } /* 开票总额 */
+#billTable td:nth-child(6) { color: #1565c0; font-weight: 600; }
+
+/* 明细表格 */
+.detail-tbl td:nth-child(3) { text-align: center; } /* 数量 */
+.detail-tbl td:nth-child(4), /* 单价 */
+.detail-tbl td:nth-child(5) { text-align: right; font-weight: 500; } /* 小计 */
+.detail-tbl td:last-child { text-align: center; }
+
+/* ========== 单头信息网格 ========== */
+.bh-grid {
+  display: grid; grid-template-columns: 1.5fr 1fr .7fr .9fr .9fr; gap: 6px 8px;
+}
+.bh-grid .field { margin-bottom: 0; }
+.bh-grid label { display: block; font-size: .72rem; color: #777; margin-bottom: 2px; }
+.bh-grid input, .bh-grid select {
+  width: 100%; padding: 7px 9px; border: 1px solid #ddd; border-radius: 6px;
+  font-size: .86rem; outline: none; -webkit-appearance: none;
+}
+.bh-grid input:focus { border-color: #1a73e8; box-shadow: 0 0 0 2px rgba(26,115,232,.15); }
+.bh-grid input.readonly { background: #fafafa; color: #333; font-weight: 600; }
+.bh-grid input.highlight-blue { color: #1565c0; font-weight: 700; }
+.bh-grid input.arrear { color: #d32f2f; font-weight: 700; }
+.bh-memo-full { grid-column: span 5; }
+
+/* 客户下拉搜索 */
+.input-group { position: relative; }
+.dropdown {
+  display: none; position: absolute; top: 100%; left: 0; right: 0;
+  background: #fff; border: 1px solid #ddd; border-top: none;
+  border-radius: 0 0 6px 6px; max-height: 200px; overflow-y: auto;
+  z-index: 50; box-shadow: 0 4px 12px rgba(0,0,0,.12);
+}
+.dropdown.show { display: block; }
+.dropdown-item { padding: 8px 12px; cursor: pointer; border-bottom: 1px solid #f5f5f5; font-size: .84rem; }
+.dropdown-item:hover { background: #e8f0fe; }
+
+/* ========== 合计栏 ========== */
+#sumLabel { font-weight: 400; color: #666; font-size: .82rem; }
+
+/* ========== 按钮 ========== */
+.actions { display: flex; gap: 10px; margin-top: 12px; }
+.btn {
+  flex: 1; padding: 13px 0; border: none; border-radius: 10px;
+  font-size: .98rem; font-weight: 600; cursor: pointer; transition: all .2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-lg { padding: 14px 0; font-size: 1.05rem; }
+.btn-primary { background: #1a73e8; color: #fff; }
+.btn-primary:active { background: #1557b0; }
+.btn-clear { background: #eee; color: #555; }
+.btn-clear:active { background: #ddd; }
+.btn-danger { background: #d32f2f; color: #fff; }
+.btn-sm { padding: 5px 11px; font-size: .78rem; border-radius: 5px; }
+
+/* ========== 查询页面 ========== */
+#tab-query .query-row { grid-template-columns: 1.2fr 1.2fr 1fr .8fr auto; }
+
+/* 分页 */
+.pagination { display: flex; justify-content: center; gap: 6px; padding: 10px 0; align-items: center; }
+.pagination button { padding: 5px 13px; border: 1px solid #ddd; border-radius: 6px; background: #fff; cursor: pointer; font-size: .83rem; }
+.pagination button:disabled { opacity: .35; cursor: not-allowed; }
+.page-info { line-height: 30px; font-size: .82rem; color: #666; padding: 0 6px; }
+
+/* ========== 弹窗 ========== */
+.modal {
+  display: none; position: fixed; inset: 0; z-index: 999;
+  background: rgba(0,0,0,.45); align-items: center; justify-content: center;
+  padding: 16px;
+}
+.modal.show { display: flex; animation: fadeIn .15s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: scale(1); } }
+.modal-content {
+  background: #fff; border-radius: 12px; width: 100%; max-width: 480px;
+  max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.22);
+}
+.modal-md { max-width: 420px; }
+.modal-lg { max-width: 720px; }
+.modal-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 13px 18px; border-bottom: 1px solid #eee;
+}
+.modal-header h3 { font-size: .95rem; }
+.modal-close {
+  width: 30px; height: 30px; border: none; background: none; font-size: 1.35rem;
+  color: #999; cursor: pointer; border-radius: 50%;
+}
+.modal-close:hover { background: #f0f0f0; }
+.modal-body { padding: 16px 18px; }
+.modal-footer { display: flex; gap: 8px; padding: 12px 18px; border-top: 1px solid #ee; justify-content: flex-end; }
+
+/* 添加配件弹窗 - 两栏布局（对齐桌面端 SellEditDialog） */
+.modal-lg { max-width: 900px; }
+
+.dlg2-col {
+  display: flex; gap: 0; min-height: 400px;
+}
+.dlg-left {
+  width: 280px; flex-shrink: 0;
+  border-right: 1px solid #eee; padding: 12px 14px;
+  overflow-y: auto; max-height: 60vh;
+}
+.dlg-right {
+  flex: 1; padding: 10px 12px; display: flex; flex-direction: column;
+  overflow-y: auto; max-height: 60vh;
+}
+
+/* 左栏标题 */
+.dlg-section-title {
+  font-size: .85rem; font-weight: 600; color: #444;
+  padding-bottom: 6px; margin-bottom: 8px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+/* 左栏字段 */
+.dlg-left .field { margin-bottom: 8px; }
+.dlg-left label { display: block; font-size: .78rem; color: #666; margin-bottom: 3px; }
+.dlg-left input[type="text"],
+.dlg-left input[type="number"] {
+  width: 100%; padding: 7px 9px; border: 1px solid #ddd; border-radius: 6px;
+  font-size: .86rem; outline: none; -webkit-appearance: none;
+}
+.dlg-left input:focus { border-color: #1a73e8; box-shadow: 0 0 0 2px rgba(26,115,232,.15); }
+
+/* 只读字段 */
+.dlg-readonly .readonly-val {
+  padding: 7px 9px; background: #f5f7fa; border-radius: 6px;
+  font-size: .86rem; color: #333;
+}
+.dlg-readonly .readonly-val.bold { font-weight: 700; color: #1a73e8; }
+
+/* 价格提示 */
+.price-hint {
+  padding: 6px 10px; background: #fff3e0; border-radius: 6px;
+  font-size: .82rem; color: #e65100; font-weight: 600; margin-bottom: 8px;
+}
+.price-hint-danger {
+  padding: 6px 10px; background: #fdecea; border-radius: 6px;
+  font-size: .82rem; color: #c62828; font-weight: 600; margin-bottom: 8px;
+}
+
+/* 按钮禁用状态（对齐桌面端 btnOk.Opacity=0.5） */
+.btn-disabled { opacity: 0.5; cursor: not-allowed !important; }
+
+/* 零售/批发单选行 */
+.price-type-row { margin-bottom: 8px; }
+.price-type-row .price-radios {
+  display: flex; gap: 20px; padding-top: 4px;
+}
+.radio-label { font-size: .86rem; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+.radio-label input[type="radio"] { accent-color: #1a73e8; width: 16px; height: 16px; }
+
+/* 自动匹配 */
+.auto-match-row { margin-bottom: 4px; }
+.checkbox-label { font-size: .82rem; cursor: pointer; display: flex; align-items: center; gap: 5px; color: #555; }
+.checkbox-label input[type="checkbox"] { accent-color: #1a73e8; width: 16px; height: 16px; }
+.auto-match-hint { font-size: .74rem; color: #aaa; margin-bottom: 8px; }
+
+/* 右栏表格 */
+.table-wrap-sm { overflow-x: auto; border-radius: 4px; border: 1px solid #eee; max-height: 28vh; overflow-y: auto; }
+.dlg-tbl { width: 100%; border-collapse: collapse; font-size: .78rem; white-space: nowrap; }
+.dlg-tbl th { background: #f5f7fa; padding: 5px 7px; text-align: left; font-weight: 600; color: #555; border-bottom: 1px solid #ddd; position: sticky; top: 0; }
+.dlg-tbl td { padding: 4px 7px; border-bottom: 1px solid #f5f5f5; }
+.dlg-tbl td:nth-child(3), /* 数量/进价 */
+.dlg-tbl td:nth-child(4), /* 单价 */
+.dlg-tbl td:nth-child(5) { text-align: right; }
+.empty-hint-sm { text-align: center; color: #bbb; padding: 16px 4px; font-size: .78rem; }
+
+/* 历史售价按钮 */
+.btn-default { background: #f0f0f0; color: #555; border: 1px solid #ddd; }
+.btn-default:hover { background: #e8e8e8; }
+
+/* 单据详情 */
+.bill-detail-head {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 6px;
+  background: #f5f5f5; padding: 10px 12px; border-radius: 6px; font-size: .84rem; margin-bottom: 10px;
+}
+.bill-detail-head bdp { display: flex; justify-content: space-between; }
+.bill-detail-head bdp label { color: #888; }
+.bill-detail-head bdp value { font-weight: 600; }
+.flag-badge { font-size: .74rem; padding: 2px 8px; border-radius: 10px; font-weight: 500; }
+.flag-0 { background: #fff3e0; color: #e65100; }
+.flag-1 { background: #e8f5e9; color: #2e7d32; }
+.flag-2 { background: #fce4ec; color: #c62828; }
+.flag-3 { background: #eceff1; color: #607d8b; }
+
+/* ========== Toast 提示 ========== */
+.toast {
+  position: fixed; top: 16px; left: 50%; transform: translateX(-50%) translateY(-100px);
+  background: #323232; color: #fff; padding: 10px 24px; border-radius: 8px;
+  font-size: .87rem; z-index: 9999; opacity: 0; transition: all .3s ease;
+  white-space: nowrap; max-width: 90vw;
+}
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+.toast.error { background: #c62828; }
+.toast.success { background: #2e7d32; }
+
+/* ========== 响应式适配 ========== */
+@media (max-width: 650px) {
+  .query-row { grid-template-columns: 1fr 1fr; }
+  .q-match { grid-column: span 2; }
+  .bh-grid { grid-template-columns: 1fr 1fr; }
+  .bh-client, .bh-memo-full { grid-column: span 2; }
+  #tab-query .query-row { grid-template-columns: 1fr 1fr; }
+  #tab-query .query-row button { grid-column: span 2; }
+  /* 弹窗移动端：两栏变单栏 */
+  .dlg2-col { flex-direction: column; }
+  .dlg-left { width: 100%; border-right: none; border-bottom: 1px solid #eee; max-height: none; }
+  .dlg-right { max-height: none; }
+}
+@media (min-width: 800px) {
+  .bh-grid { grid-template-columns: 1.5fr 1fr .7fr .9fr .9fr 1fr; }
+  .bh-memo-full { grid-column: span 1; }
+}
+
+/* ========== 登录遮罩层 ========== */
+.login-overlay {
+  position: fixed; inset: 0; z-index: 10000;
+  background: linear-gradient(135deg, #1565c0, #0d47a1);
+  display: flex; align-items: center; justify-content: center;
+}
+.login-overlay.hidden { display: none !important; }
+.login-card {
+  width: 340px; padding: 32px 28px;
+  background: #fff; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,.3);
+}
+.login-logo { text-align: center; margin-bottom: 24px; }
+.login-logo h2 { margin: 0; font-size: 22px; color: #1565c0; }
+.login-logo p { margin: 4px 0 0; font-size: 13px; color: #999; }
+.login-form { display: flex; flex-direction: column; gap: 14px; }
+.login-field label { font-size: 13px; color: #555; margin-bottom: 4px; display: block; }
+.login-field input,
+.login-field select {
+  width: 100%; height: 40px; border: 1px solid #ddd; border-radius: 8px;
+  padding: 0 12px; font-size: 15px; box-sizing: border-box; outline: none;
+  transition: border-color .2s; background: #fff;
+}
+.login-field input:focus,
+.login-field select:focus { border-color: #1565c0; box-shadow: 0 0 0 3px rgba(21,101,192,.12); }
+.login-error { color: #c62828; font-size: 13px; min-height: 18px; text-align: center; }
+.login-btn { width: 100%; height: 44px; font-size: 16px; letter-spacing: 4px; border-radius: 8px; margin-top: 4px; }
+.login-footer { text-align: center; margin-top: 16px; font-size: 12px; color: #bbb; }

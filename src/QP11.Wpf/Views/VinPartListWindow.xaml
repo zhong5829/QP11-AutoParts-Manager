@@ -1,0 +1,121 @@
+<Window x:Class="QP11.Wpf.Views.VinPartListWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="配件适配列表" Width="900" Height="650"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="CanResize"
+        Background="#F5F5F5">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- 顶部统计 -->
+        <Border Grid.Row="0" Background="White" Padding="12,8" BorderBrush="#E0E0E0" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock FontSize="14" FontWeight="Bold" Foreground="#2196F3" VerticalAlignment="Center" Text="配件适配列表"/>
+                <TextBlock x:Name="txtSummary" FontSize="12" Foreground="#888" Margin="16,0,0,0" VerticalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
+        <!-- 左侧分类导航 + 右侧配件列表 -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="160"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- 左侧分类 -->
+            <Border Grid.Column="0" Background="White" BorderBrush="#E0E0E0" BorderThickness="0,0,1,0">
+                <ListBox x:Name="lstCategories" DisplayMemberPath="CategoryName"
+                         SelectionChanged="LstCategories_SelectionChanged"
+                         BorderThickness="0" FontSize="13" Padding="4"/>
+            </Border>
+
+            <!-- 右侧配件列表 -->
+            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" Padding="8">
+                <ItemsControl x:Name="icParts">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="White" CornerRadius="6" BorderBrush="#E0E0E0" BorderThickness="1"
+                                    Margin="0,4" Padding="10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="80"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- 图片 -->
+                                    <Border Grid.Column="0" Width="72" Height="72" CornerRadius="4"
+                                            Background="#F0F0F0" Margin="0,0,8,0"
+                                            Cursor="Hand" MouseLeftButtonUp="Img_Click" Tag="{Binding}">
+                                        <Image Source="{Binding FirstImgUrl}" Stretch="UniformToFill"
+                                               RenderOptions.BitmapScalingMode="LowQuality"/>
+                                    </Border>
+
+                                    <!-- 信息区 -->
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                        <TextBlock FontWeight="Bold" FontSize="13" Foreground="#333">
+                                            <Run Text="{Binding Model, Mode=OneWay}"/>
+                                            <Run Text="  "/>
+                                            <Run Text="{Binding Name, Mode=OneWay}"/>
+                                        </TextBlock>
+                                        <TextBlock FontSize="11" Foreground="#999" Margin="0,2,0,0">
+                                            <Run Text="{Binding TenantBrandName, Mode=OneWay}"/>
+                                            <Run Text=" | "/>
+                                            <Run Text="{Binding TenantCategoryName, Mode=OneWay}"/>
+                                        </TextBlock>
+                                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                            <TextBlock Text="¥" FontSize="12" Foreground="#E53935" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding Price, Mode=OneWay, StringFormat='{}{0:F0}'}"
+                                                       FontSize="13" FontWeight="Bold" Foreground="#E53935" VerticalAlignment="Center"/>
+                                            <TextBlock Text="  库存:" FontSize="11" Foreground="#888" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                                            <TextBlock Text="{Binding StockAmount, Mode=OneWay}" FontSize="11" FontWeight="Bold"
+                                                       Foreground="#4CAF50" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <!-- 操作区 -->
+                                    <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="8,0,0,0">
+                                        <!-- 已匹配状态 -->
+                                        <TextBlock FontSize="11" HorizontalAlignment="Center" Margin="0,0,0,4">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Text" Value="未匹配"/>
+                                                    <Setter Property="Foreground" Value="#999"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsLocalMatched}" Value="True">
+                                                            <Setter Property="Text" Value="已匹配"/>
+                                                            <Setter Property="Foreground" Value="#4CAF50"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                        <Button Content="添加" Tag="{Binding}" Click="BtnAdd_Click"
+                                                FontSize="12" Padding="12,4"
+                                                Background="#2196F3" Foreground="White" BorderThickness="0">
+                                            <Button.Style>
+                                                <Style TargetType="Button">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsLocalMatched}" Value="False">
+                                                            <Setter Property="IsEnabled" Value="False"/>
+                                                            <Setter Property="Background" Value="#CCCCCC"/>
+                                                            <Setter Property="Foreground" Value="#999"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</Window>

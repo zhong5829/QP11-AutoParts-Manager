@@ -1,0 +1,61 @@
+# Tasks
+
+- [x] Task 1: 引入 IDbConnectionFactory 接口与实现
+  - [x] SubTask 1.1: 在 QP11.Core/Interfaces/ 下创建 IDbConnectionFactory.cs（接口方法 `DbConnection Create()`）
+  - [x] SubTask 1.2: 在 QP11.Data/Infrastructure/ 下创建 DbConnectionFactory.cs 实现 IDbConnectionFactory，内部委托 DatabaseFactory
+  - [x] SubTask 1.3: 在 App.xaml.cs 和 WebApi Program.cs 中注册 `services.AddSingleton<IDbConnectionFactory, DbConnectionFactory>()`
+- [x] Task 2: Service 层替换 DatabaseFactory 为 IDbConnectionFactory 注入
+  - [x] SubTask 2.1: SellService 构造函数注入 IDbConnectionFactory + IUnitOfWorkFactory，`new UnitOfWork()` → `_uowFactory.Create()`
+  - [x] SubTask 2.2: BuyService 同上
+  - [x] SubTask 2.3: FinanceService 同上
+  - [x] SubTask 2.4: PartQueryService 构造函数注入 IDbConnectionFactory，`DatabaseFactory.Create()` → `_dbFactory.Create()`
+  - [x] SubTask 2.5: AuthService 同上
+  - [x] SubTask 2.6: SerialNumberService 同上（GenerateSN 从 static 改为实例方法）
+  - [x] SubTask 2.7: PermissionService 同上（改为 DI 注册而非静态 new）
+- [x] Task 3: WebApi Controller 层替换 DatabaseFactory 并委托 Service
+  - [x] SubTask 3.1: SellController 注入 IDbConnectionFactory，`new UnitOfWork(_dbFactory)`
+  - [x] SubTask 3.2: BuyController — 不存在，跳过
+  - [x] SubTask 3.3: PartsController 注入 IDbConnectionFactory，`DatabaseFactory.Create()` → `_dbFactory.Create()`
+  - [x] SubTask 3.4: AuthController 注入 IAuthService + IUserRepository，彻底消除 DatabaseFactory 依赖；ClientsController 同上
+- [x] Task 4: WPF ViewModel 层替换 DatabaseFactory 并委托 Service
+  - [x] SubTask 4.1: SellViewModel 注入 IDbConnectionFactory + IUnitOfWorkFactory，替换 4 处 DatabaseFactory.Create() 和 2 处 new UnitOfWork()
+  - [x] SubTask 4.2: BuyViewModel 同上，替换 2 处 DatabaseFactory.Create() 和 2 处 new UnitOfWork()
+  - [x] SubTask 4.3: SellReturnViewModel 替换 3 处 DatabaseFactory.Create()
+  - [x] SubTask 4.4: WPF View (.xaml.cs) 29 个文件替换 62 处 DatabaseFactory.Create()，使用 App.ServiceProvider 服务定位
+- [x] Task 5: WPF 层解耦 QP11.Data（除 Composition Root 外）
+  - [x] SubTask 5.1: 新增 IUnitOfWorkFactory、IDatabaseInfoService 接口到 Core 层
+  - [x] SubTask 5.2: ViewModel 使用 IUnitOfWorkFactory 替代 new UnitOfWork()
+  - [x] SubTask 5.3: View 文件使用 IDatabaseInfoService 替代 DatabaseFactory.Provider/TestConnection
+  - [x] SubTask 5.4: 17 个 View 文件 new XxxRepository() → App.ServiceProvider.GetRequiredService<IXxxRepository>()
+  - [x] SubTask 5.5: WPF 层 `using QP11.Data` 仅剩 App.xaml.cs（Composition Root，合理保留）
+  - [x] SubTask 5.6: QP11.Wpf.csproj 保留 Data 项目引用（Composition Root 需要具体实现类）
+- [x] Task 6: Flag 枚举化与 SQL 参数化
+  - [x] SubTask 6.1: BuyFlag 枚举添加到 BusinessConstants；SellService 硬编码替换为 BusinessConstants 引用
+  - [x] SubTask 6.2: BillFlag 从 static class 转换为 enum（Deleted=-1, Draft=0, Confirmed=1, Returned=2, Voided=3）
+  - [x] SubTask 6.3: ArrearageRepository SQL flag 硬编码添加 BillFlag.Returned 注释 + IN(1,2) 改为字符串插值 $(int)BillFlag
+  - [x] SubTask 6.4: 18 个文件中 Flag 硬编码替换为 BusinessConstants.BillFlag.* 引用
+- [x] Task 7: 核心实体添加行为方法
+  - [x] SubTask 7.1: BillSell 添加 CalculateTotal(List<DetailSell>, decimal, decimal) 方法
+  - [x] SubTask 7.2: DetailSell 添加 ApplyFlag(bool isReturn, bool isExchange) 方法
+  - [x] SubTask 7.3: ClientInfor 添加 ValidateDiscount(decimal) 方法
+  - [x] SubTask 7.4: CalcService.ValidateDiscountRate 委托 ClientInfor.ValidateDiscount
+- [x] Task 8: 清理死代码和空项目
+  - [x] SubTask 8.1: BaseRepository 移除 FindAsync 和 GetPagedAsync；同步移除 12 个子 Repository 显式接口实现
+  - [x] SubTask 8.2: IRepository<T> 接口移除 FindAsync 和 GetPagedAsync 声明
+  - [x] SubTask 8.3: QP11.Models 项目已不在解决方案中
+- [x] Task 9: 编译验证与回归测试
+  - [x] SubTask 9.1: `dotnet build` 零编译错误
+  - [x] SubTask 9.2: Service 层 DatabaseFactory.Create() = 0
+  - [x] SubTask 9.3: WebApi 层 DatabaseFactory.Create() = 0
+  - [x] SubTask 9.4: WPF 层 DatabaseFactory.Create() = 0
+  - [x] SubTask 9.5: WPF 层 using QP11.Data 仅剩 App.xaml.cs
+
+# Task Dependencies
+
+- [Task 2] 依赖 [Task 1] ✅
+- [Task 3] 依赖 [Task 1, 2] ✅
+- [Task 4] 依赖 [Task 1, 2] ✅
+- [Task 5] 依赖 [Task 4] ✅
+- [Task 6] 部分完成
+- [Task 7] 待实施
+- [Task 9] ✅

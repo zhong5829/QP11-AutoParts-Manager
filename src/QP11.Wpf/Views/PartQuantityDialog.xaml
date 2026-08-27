@@ -1,0 +1,55 @@
+<Window x:Class="QP11.Wpf.Views.PartQuantityDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="设置数量和价格" Height="220" Width="380"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False">
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 配件信息 -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,8">
+            <TextBlock x:Name="txtPartInfo" FontWeight="Bold" TextWrapping="Wrap" Margin="0,0,0,2"/>
+            <TextBlock x:Name="txtPartDetail" Foreground="Gray" TextWrapping="Wrap"/>
+        </StackPanel>
+
+        <!-- 数量 -->
+        <Grid Grid.Row="1" Margin="0,0,0,6">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="60"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="数量:" VerticalAlignment="Center"/>
+            <TextBox Grid.Column="1" x:Name="txtAmount" Text="1" Margin="4,2" GotFocus="TextBox_GotFocus"/>
+        </Grid>
+
+        <!-- 采购价 -->
+        <Grid Grid.Row="2" Margin="0,0,0,6">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="60"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="采购价:" VerticalAlignment="Center"/>
+            <TextBox Grid.Column="1" x:Name="txtInPrice" Margin="4,2" GotFocus="TextBox_GotFocus"/>
+        </Grid>
+
+        <!-- 小计 -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,0,0,8">
+            <TextBlock Text="小计: " FontWeight="Bold" VerticalAlignment="Center"/>
+            <TextBlock x:Name="txtSubTotal" FontWeight="Bold" Foreground="Red" VerticalAlignment="Center"/>
+        </StackPanel>
+
+        <!-- 按钮 -->
+        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button Content="确定" Width="80" Height="28" Margin="4,0" Click="BtnConfirm_Click" IsDefault="True"/>
+            <Button Content="取消" Width="80" Height="28" Margin="4,0" Click="BtnCancel_Click" IsCancel="True"/>
+        </StackPanel>
+    </Grid>
+</Window>

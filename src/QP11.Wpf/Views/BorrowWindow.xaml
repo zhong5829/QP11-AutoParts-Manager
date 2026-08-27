@@ -1,0 +1,40 @@
+<Window x:Class="QP11.Wpf.Views.BorrowWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="借还管理" Height="500" Width="850"
+        WindowStartupLocation="CenterOwner">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,5">
+            <TextBlock Text="状态:" VerticalAlignment="Center"/>
+            <ComboBox x:Name="cboStatus" Width="80" Margin="5,0" SelectedIndex="0" SelectionChanged="CboStatus_SelectionChanged">
+                <ComboBoxItem Content="全部"/>
+                <ComboBoxItem Content="借出"/>
+                <ComboBoxItem Content="已还"/>
+            </ComboBox>
+            <Button Content="新增借出" Width="80" Margin="10,0" Click="BtnAdd_Click"/>
+            <Button Content="确认归还" Width="80" Margin="5,0" Click="BtnReturn_Click"/>
+        </StackPanel>
+
+        <DataGrid Grid.Row="1" x:Name="dgBorrows" AutoGenerateColumns="False" IsReadOnly="True">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="工具编号" Width="100" Binding="{Binding Gjbh}"/>
+                <DataGridTextColumn Header="工具名称" Width="150" Binding="{Binding Gjmc}"/>
+                <DataGridTextColumn Header="借用人" Width="80" Binding="{Binding Jyr}"/>
+                <DataGridTextColumn Header="借用标志" Width="80" Binding="{Binding Jybz}"/>
+                <DataGridTextColumn Header="工具价值" Width="80" Binding="{Binding Gjjz, StringFormat=c2}"/>
+                <DataGridTextColumn Header="状态" Width="60" Binding="{Binding Zt}"/>
+                <DataGridTextColumn Header="借用日期" Width="100" Binding="{Binding Jyrq, StringFormat=yyyy-MM-dd}"/>
+                <DataGridTextColumn Header="归还日期" Width="100" Binding="{Binding Ghrq, StringFormat=yyyy-MM-dd}"/>
+                <DataGridTextColumn Header="备注" Width="*" Binding="{Binding Bz}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <TextBlock Grid.Row="2" x:Name="txtCount" Text="共 0 条记录" Margin="0,5,0,0"/>
+    </Grid>
+</Window>

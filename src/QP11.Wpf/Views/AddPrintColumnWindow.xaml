@@ -1,0 +1,71 @@
+<Window x:Class="QP11.Wpf.Views.AddPrintColumnWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="添加打印列" Width="360" Height="320"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="80"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Grid.Row="0" Text="列标题:" VerticalAlignment="Center" Margin="4"/>
+        <TextBox Grid.Row="0" Grid.Column="1" x:Name="txtHeader" Margin="4" VerticalContentAlignment="Center"/>
+
+        <TextBlock Grid.Row="1" Text="绑定字段:" VerticalAlignment="Center" Margin="4"/>
+        <ComboBox Grid.Row="1" Grid.Column="1" x:Name="cboDataField" IsEditable="True" Margin="4" VerticalContentAlignment="Center">
+            <ComboBoxItem Content="Index"/>
+            <ComboBoxItem Content="PartNo"/>
+            <ComboBoxItem Content="PartName"/>
+            <ComboBoxItem Content="Cartype"/>
+            <ComboBoxItem Content="Price"/>
+            <ComboBoxItem Content="PfPrice"/>
+            <ComboBoxItem Content="BillPrice"/>
+            <ComboBoxItem Content="Unit"/>
+            <ComboBoxItem Content="Amount"/>
+            <ComboBoxItem Content="Subtotal"/>
+            <ComboBoxItem Content="Place"/>
+            <ComboBoxItem Content="Area"/>
+            <ComboBoxItem Content="Brand"/>
+            <ComboBoxItem Content="DiscountRate"/>
+            <ComboBoxItem Content="Memo"/>
+        </ComboBox>
+
+        <TextBlock Grid.Row="2" Text="列宽:" VerticalAlignment="Center" Margin="4"/>
+        <TextBox Grid.Row="2" Grid.Column="1" x:Name="txtWidth" Text="80" Margin="4" VerticalContentAlignment="Center"/>
+
+        <TextBlock Grid.Row="3" Text="格式化:" VerticalAlignment="Center" Margin="4"/>
+        <ComboBox Grid.Row="3" Grid.Column="1" x:Name="cboFormat" IsEditable="True" Margin="4" VerticalContentAlignment="Center">
+            <ComboBoxItem Content="" IsSelected="True"/>
+            <ComboBoxItem Content="N0"/>
+            <ComboBoxItem Content="N2"/>
+            <ComboBoxItem Content="N4"/>
+            <ComboBoxItem Content="D"/>
+        </ComboBox>
+
+        <TextBlock Grid.Row="4" Text="对齐方式:" VerticalAlignment="Center" Margin="4"/>
+        <ComboBox Grid.Row="4" Grid.Column="1" x:Name="cboAlignment" Margin="4" VerticalContentAlignment="Center">
+            <ComboBoxItem Content="Left" IsSelected="True"/>
+            <ComboBoxItem Content="Right"/>
+            <ComboBoxItem Content="Center"/>
+        </ComboBox>
+
+        <TextBlock Grid.Row="5" Text="标识Key:" VerticalAlignment="Center" Margin="4"/>
+        <TextBox Grid.Row="5" Grid.Column="1" x:Name="txtKey" Margin="4" VerticalContentAlignment="Center"/>
+
+        <StackPanel Grid.Row="7" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
+            <Button Content="确定" Width="65" Margin="4,0" Click="BtnOk_Click" IsDefault="True"/>
+            <Button Content="取消" Width="65" Margin="4,0" Click="BtnCancel_Click" IsCancel="True"/>
+        </StackPanel>
+    </Grid>
+</Window>

@@ -1,0 +1,3675 @@
+﻿=== c_gcs ===
+  nno|char|18|YES
+  na1|char|20|YES
+  ty|char|14|YES
+  iprc|numeric||YES
+  amount|numeric||YES
+  l_gc|char|7|YES
+  iprj|numeric||YES
+  oprc|numeric||YES
+  oprb|numeric||YES
+  oprct|numeric||YES
+  cp|char|10|YES
+  posi|char|10|YES
+  fa|char|8|YES
+  indate|datetime||YES
+  gyname|char|50|YES
+  depotno|char|20|YES
+  DpmName|char|60|YES
+  DC|char|50|YES
+  dpm|char|10|YES
+
+=== dtproperties ===
+  id|int||NO
+  objectid|int||YES
+  property|varchar|64|NO
+  value|varchar|255|YES
+  uvalue|nvarchar|255|YES
+  lvalue|image|2147483647|YES
+  version|int||NO
+
+=== finaleger ===
+  dpm|char|10|NO
+  subcode|char|18|NO
+  subname|char|40|NO
+  period|char|6|NO
+  recoid|char|1|NO
+  csummary|char|10|NO
+  desum|float||NO
+  cresum|float||NO
+  dcdir|char|2|NO
+  balance|float||NO
+
+=== finamsum ===
+  dpm|char|10|NO
+  subcode|char|18|NO
+  subname|char|40|NO
+  period|char|6|NO
+  bdcdir|char|2|NO
+  bamount|float||NO
+  bbalance|float||NO
+  cdeamou|float||NO
+  cdesum|float||NO
+  ccreamou|float||NO
+  ccresum|float||NO
+  ydeamou|float||NO
+  ydesum|float||NO
+  ycreamou|float||NO
+  ycresum|float||NO
+  edcdir|char|2|NO
+  eamount|float||NO
+  ebalance|float||NO
+  unit|char|10|NO
+  isdetail|bit||NO
+
+=== finbs ===
+  dpm|char|10|NO
+  reno|int||NO
+  asset|char|50|NO
+  areid|int||NO
+  absum|float||NO
+  aesum|float||NO
+  aexpresb|char|60|NO
+  aexprese|char|60|NO
+  queer|char|50|NO
+  qreid|int||NO
+  qbsum|float||NO
+  qesum|float||NO
+  qexpresb|char|60|NO
+  qexprese|char|60|NO
+  date|datetime||NO
+
+=== fincadistr ===
+  id|int||NO
+  dpm|char|10|NO
+  cashid|char|15|NO
+  cashna|char|60|NO
+  iodir|int||NO
+  vouchid|int||NO
+  period|char|6|NO
+  date|datetime||NO
+  desum|float||NO
+  cresum|float||NO
+
+=== fincash ===
+  id|int||NO
+  dpm|char|10|NO
+  cashid|char|15|NO
+  cashna|char|60|NO
+  reid|int||NO
+  balance|float||NO
+  express|char|40|NO
+  date|datetime||NO
+
+=== fincashba ===
+  dpm|char|10|NO
+  period|char|2|NO
+  cashid|char|15|NO
+  cashna|char|60|NO
+  iodir|float||NO
+  desum|float||NO
+  cresum|float||NO
+
+=== fincashitem ===
+  dpm|char|10|NO
+  cashid|char|15|NO
+  cashna|char|60|NO
+  iodir|int||NO
+
+=== fincolumn ===
+  dpm|char|10|NO
+  c_no|char|10|NO
+  reid|int||NO
+  c_code|char|18|NO
+  c_name|char|40|NO
+  fdc|char|2|NO
+  subcode|char|18|NO
+  subname|char|40|NO
+
+=== finempl ===
+  dpm|char|10|NO
+  ecode|char|8|NO
+  ename|char|20|NO
+  dept|char|10|NO
+  type|char|10|NO
+  sex|char|2|NO
+  duty|char|10|NO
+  degree|char|10|NO
+  birthday|datetime||NO
+  native|char|20|NO
+  bankacc|char|20|NO
+  joindate|datetime||NO
+  dimdate|datetime||NO
+  basepay|float||NO
+  idcard|char|20|NO
+  tel|char|20|NO
+  addr|char|40|NO
+  postcode|char|6|NO
+  pyid|char|10|NO
+  wbid|char|10|NO
+  note|char|100|NO
+
+=== finhisbal ===
+  dpm|char|10|NO
+  period|char|6|NO
+  subcode|char|18|NO
+  subname|char|40|NO
+  type|char|1|NO
+  fdc|char|1|NO
+  fcash|bit||NO
+  forcur|bit||NO
+  fcurname|char|10|NO
+  famou|bit||NO
+  unit|char|10|NO
+  fdept|bit||NO
+  fempl|bit||NO
+  fitem|bit||NO
+  fclient|bit||NO
+  fastcode|bit||NO
+  detacode|bit||NO
+  pyid|char|20|NO
+  wbid|char|20|NO
+  quota|float||NO
+  ybdesum|float||NO
+  ybcresum|float||NO
+  bdesum|float||NO
+  bcresum|float||NO
+  cdesum|float||NO
+  ccresum|float||NO
+  ydesum|float||NO
+  ycresum|float||NO
+  edesum|float||NO
+  ecresum|float||NO
+  mpalsum|float||NO
+  ypalsum|float||NO
+
+=== finitsub ===
+  id|int||NO
+  dpm|char|10|NO
+  itemty|char|1|NO
+  itemna|char|40|NO
+  period|char|6|NO
+  subcode|char|18|NO
+  subname|char|40|NO
+  vouword|char|4|NO
+  bdcdir|char|2|NO
+  bbalance|float||NO
+  cdesum|float||NO
+  ccresum|float||NO
+  edcdir|char|2|NO
+  ebalance|float||NO
+
+=== finmoney ===
+  dpm|char|10|NO
+  mcode|char|10|NO
+  mname|char|20|NO
+  rate|float||NO
+
+=== finprol ===
+  dpm|char|10|NO
+  itemna|char|40|NO
+  reid|int||NO
+  itemty|char|1|NO
+  csum|float||NO
+  nsum|float||NO
+  cexpress|char|60|NO
+  nexpress|char|60|NO
+  date|datetime||NO
+
+=== finreclist ===
+  dpm|char|10|NO
+  subcode|char|18|NO
+  vouchid|int||NO
+  date|datetime||NO
+  note|char|30|NO
+  opertype|char|3|NO
+  opercode|char|18|NO
+  invtype|char|1|NO
+  invcode|char|20|NO
+  debit|float||NO
+  credit|float||NO
+  ebalance|float||NO
+  fincheck|bit||NO
+  id|int||NO
+
+=== finrecout ===
+  id|int||NO
+  dpm|char|10|NO
+  accname|char|40|NO
+  subcode|char|18|NO
+  subname|char|40|NO
+  date|datetime||NO
+  type|char|1|NO
+  accounts|char|20|NO
+  bbalance|float||NO
+  desum|float||NO
+  cresum|float||NO
+  ebalance|float||NO
+
+=== finset ===
+  id|int||NO
+  dpm|char|10|NO
+  c_id|char|10|NO
+  c_name|char|30|NO
+  l_use|bit||NO
+  note|char|30|NO
+  c_item|int||NO
+
+=== finsoursub ===
+  dpm|char|10|NO
+  subcode|char|18|NO
+  subname|char|40|NO
+  type|char|1|NO
+  fdc|char|1|NO
+  fcash|bit||NO
+  forcur|bit||NO
+  fcurname|char|10|NO
+  famou|bit||NO
+  unit|char|10|NO
+  fdept|bit||NO
+  fempl|bit||NO
+  fitem|bit||NO
+  fclient|bit||NO
+  fastcode|bit||NO
+  detacode|bit||NO
+  pyid|char|20|NO
+  wbid|char|20|NO
+  quota|float||NO
+  ybdesum|float||NO
+  ybcresum|float||NO
+  bdesum|float||NO
+  bcresum|float||NO
+  cdesum|float||NO
+  ccresum|float||NO
+  ydesum|float||NO
+  ycresum|float||NO
+  edesum|float||NO
+  ecresum|float||NO
+  mpalsum|float||NO
+  ypalsum|float||NO
+
+=== finsub ===
+  id|int||NO
+  dpm|char|10|NO
+  period|char|6|NO
+  subcode|char|18|NO
+  subname|char|40|NO
+  type|char|1|NO
+  fdc|char|1|NO
+  fcash|bit||NO
+  forcur|bit||NO
+  fcurname|char|10|NO
+  famou|bit||NO
+  unit|char|10|NO
+  fdept|bit||NO
+  fempl|bit||NO
+  fitem|bit||NO
+  fclient|bit||NO
+  fastcode|bit||NO
+  detacode|bit||NO
+  pyid|char|20|NO
+  wbid|char|20|NO
+  quota|float||NO
+  ybdesum|float||NO
+  ybcresum|float||NO
+  bdesum|float||NO
+  bcresum|float||NO
+  cdesum|float||NO
+  ccresum|float||NO
+  ydesum|float||NO
+  ycresum|float||NO
+  edesum|float||NO
+  ecresum|float||NO
+  mpalsum|float||NO
+  ypalsum|float||NO
+  code|char|20|YES
+  code1|char|20|YES
+
+=== finsub_auto ===
+  subcode|varchar|15|YES
+  type|char|20|YES
+  isuser|bit||YES
+  subname|varchar|60|NO
+
+=== finsubit ===
+  id|int||NO
+  dpm|char|10|NO
+  period|char|6|NO
+  itemty|char|1|NO
+  itemna|char|40|NO
+  vouword|char|4|NO
+  bdcdir|char|2|NO
+  bbalance|float||NO
+  cdesum|float||NO
+  ccresum|float||NO
+  edcdir|char|2|NO
+  ebalance|float||NO
+
+=== finsumary ===
+  id|int||NO
+  dpm|char|10|NO
+  sumaryty|char|10|NO
+  sumaryna|char|30|NO
+  pyid|char|15|NO
+  wbid|char|15|NO
+
+=== FINTY ===
+  id|int||NO
+  ty|char|40|NO
+  k3ty|char|40|NO
+  facctidsp|char|40|NO
+  facctidsr|char|40|NO
+  facctidcb|char|40|NO
+
+=== finvid ===
+  dpm|char|10|NO
+  vid|int||NO
+
+=== finvouch ===
+  id|int||NO
+  dpm|char|10|NO
+  vouchid|int||NO
+  vcode|int||NO
+  date|datetime||NO
+  period|char|6|NO
+  recoid|int||NO
+  note|char|60|NO
+  subcode|char|18|NO
+  subname|char|40|NO
+  type|char|1|NO
+  fcash|bit||NO
+  debit|decimal||NO
+  credit|decimal||NO
+  vouword|char|4|NO
+  abill|int||NO
+  paytype|char|10|NO
+  payno|char|15|NO
+  paydate|datetime||NO
+  amount|float||NO
+  unit|char|10|NO
+  price|float||NO
+  forcur|char|10|NO
+  rate|float||NO
+  formoney|float||NO
+  dept|char|20|NO
+  item|char|20|NO
+  empl|char|10|NO
+  client|char|40|NO
+  invtype|char|1|NO
+  invcode|char|20|NO
+  opertype|char|3|NO
+  opercode|char|18|NO
+  audit|bit||NO
+  post|bit||NO
+  fincheck|bit||NO
+  chedate|datetime||NO
+  maker|char|10|NO
+  auditer|char|10|NO
+  poster|char|10|NO
+  fcolor|bit||NO
+  dcdir|char|2|NO
+  balance|float||NO
+  retsdate|datetime||NO
+  retedate|datetime||NO
+  cashdis|bit||NO
+  depotno|char|10|NO
+
+=== ISTOKCJJ ===
+  cp|char|10|NO
+  nno|char|18|NO
+  posi|char|8|NO
+  depotno|char|10|NO
+  id|int||NO
+  kcamount|numeric||NO
+  jine|numeric||NO
+
+=== perassty ===
+  perasid|int||NO
+  perasty|char|20|NO
+  deprty|int||NO
+  remrate|float||NO
+
+=== perchgty ===
+  chgid|int||NO
+  chgna|char|20|NO
+  chgty|int||NO
+  subcode|char|20|NO
+  vouword|char|6|NO
+  vnote|char|40|NO
+
+=== rname0 ===
+  name1|char|20|NO
+  code1|char|10|NO
+  name11|char|20|NO
+  code11|char|10|NO
+
+=== syscontrol ===
+  c_id|char|10|NO
+  dpm|char|10|NO
+  c_accna|char|20|NO
+  c_name|char|80|NO
+  c_path|char|40|NO
+  addr|char|40|NO
+  c_type|char|20|NO
+  standcur|char|10|NO
+  attri|int||NO
+  artper|char|10|NO
+  taxid|char|18|NO
+  bank|char|20|NO
+  bankid|char|10|NO
+  tel|char|20|NO
+  fax|char|20|NO
+  l_use|bit||NO
+  leng1|int||NO
+  leng2|int||NO
+  leng3|int||NO
+  leng4|int||NO
+  leng5|int||NO
+  leng6|int||NO
+  gramount|int||NO
+  cashsub|varchar|18|NO
+  balasub|varchar|18|NO
+  accsub|varchar|18|NO
+  paysub|varchar|18|NO
+  uperiod|varchar|6|NO
+  udate|datetime||NO
+  period|varchar|6|NO
+
+=== tbbank ===
+  id|int||NO
+  facctid|char|40|NO
+  bank_name|char|73|NO
+  fcyid|char|10|NO
+  bank_account|char|50|NO
+  fkfstype|char|30|NO
+  fkfs|varchar|60|NO
+
+=== tbbell ===
+  id|int||NO
+  belldate|datetime||NO
+  tzname|char|20|NO
+  title|char|100|NO
+  lr|char|400|NO
+
+=== tbbxbj ===
+  id|int||NO
+  dp|char|17|NO
+  ch|char|13|NO
+  gname|char|60|NO
+  insurna|char|20|NO
+  bjdate|datetime||NO
+  bjje|numeric||NO
+  iscj|bit||NO
+  cjje|numeric||NO
+  fac|char|60|NO
+  per|char|12|NO
+  adddate|datetime||NO
+  bjno|char|10|NO
+
+=== tbbxwarn ===
+  id|int||NO
+  datet|datetime||NO
+  badate|datetime||NO
+  ch|char|13|NO
+  gname|char|60|NO
+  tel|varchar|50|NO
+  insurna|char|20|NO
+  bxbano|varchar|50|NO
+  dangerous|varchar|200|NO
+  djper|char|10|NO
+  remarks|varchar|100|NO
+  islc|char|20|NO
+  xldw|char|30|NO
+  gh|char|10|NO
+
+=== tbcarfjtmp ===
+  id|int||NO
+  carid|int||NO
+  fjtype|char|2|NO
+  sub_proj|varchar|60|NO
+  sub_fee|float||NO
+  sub_amou|int||NO
+  sub_fee2|float||NO
+  company|varchar|50|NO
+  remark|varchar|50|NO
+  valued|datetime||NO
+  valuel|bit||NO
+  note|varchar|1000|NO
+  jsr|char|10|NO
+  sub_fee3|numeric||NO
+  jlshren|char|10|NO
+  cwshren|char|10|NO
+  nno|char|15|NO
+  gyname|varchar|50|NO
+  guidfj|int||NO
+  cwshdate|datetime||NO
+  gydzdate|datetime||NO
+  cpjp|char|10|NO
+
+=== tbchatlist ===
+  id|int||NO
+  senderid|int||NO
+  sendername|char|20|NO
+  acceptid|int||NO
+  acceptname|char|10|NO
+  contain|char|250|NO
+  sendtime|datetime||NO
+  ctype|char|1|NO
+
+=== tbchex ===
+  a|char|5|NO
+  b|char|9|NO
+  c|char|22|NO
+  d|char|10|NO
+  e|char|254|NO
+
+=== tbclient ===
+  client|char|10|NO
+  name|char|10|NO
+  newname|char|10|NO
+
+=== tbcode ===
+  id|int||NO
+  chn|char|2|NO
+  wbzx|char|5|NO
+  wbh|char|5|NO
+  py|char|5|NO
+  cj|char|5|NO
+  cjf|char|5|NO
+  qp|char|6|NO
+
+=== tbcomid ===
+  id|int||NO
+  companyid|char|10|NO
+  comname|char|50|NO
+  comtel|char|50|NO
+  comadd|char|100|NO
+  note|char|100|NO
+  setdate|datetime||NO
+
+=== tbcomplex ===
+  code_ts|char|12|NO
+  code_s|char|8|NO
+  g_name|char|30|NO
+  low_rate|numeric||NO
+  high_rate|numeric||NO
+  out_rate|numeric||NO
+  reg_mark|char|1|NO
+  reg_rate|numeric||NO
+  tax_type|char|1|NO
+  tax_rate|numeric||NO
+  comm_rate|numeric||NO
+  taiwan_rat|numeric||NO
+  other_type|char|1|NO
+  other_rate|numeric||NO
+  unit_1|char|3|NO
+  unit_2|char|3|NO
+  ilow_price|numeric||NO
+  ihigh_pric|numeric||NO
+  elow_price|numeric||NO
+  ehigh_pric|numeric||NO
+  max_in|numeric||NO
+  max_out|numeric||NO
+  control_ma|char|10|NO
+  chk_price|char|1|NO
+  tarif_mark|char|4|NO
+  note_s|char|50|NO
+
+=== tbcset ===
+  id|int||NO
+  ccode|char|2|NO
+  yhl|numeric||NO
+  note|char|50|NO
+
+=== tbcskg ===
+  id|int||NO
+  name|varchar|50|NO
+  fieldname|char|10|NO
+  valuel|bit||NO
+  valuec|varchar|8000|NO
+  valuen|float||NO
+  note|varchar|8000|NO
+  csdate|datetime||NO
+  tcren|char|10|NO
+  form|varchar|8000|NO
+  cstype|char|10|YES
+  fkey|char|10|NO
+  skey|char|20|NO
+
+=== tbdbflist ===
+  英文名|char|10|NO
+  中文名|char|20|NO
+  位置|char|15|NO
+  说明|char|40|NO
+
+=== tbdbmgr ===
+  id|int||NO
+  dpm|char|10|NO
+  dbname|char|50|NO
+  qty|numeric||NO
+  oprc|numeric||NO
+  iprj|numeric||NO
+  dbno|char|20|NO
+  note|char|50|NO
+  dbdate|datetime||NO
+  jsr|char|10|NO
+  per|char|10|NO
+  ywr|char|10|NO
+  skqrr|char|10|NO
+  skdate|datetime||NO
+  fkqrr|char|10|NO
+  fkdate|datetime||NO
+  gname|char|60|NO
+  ch|char|20|NO
+  mark|int||NO
+  zgsh|char|10|NO
+  zgshdate|datetime||NO
+  sjfk|numeric||NO
+  tuikuan|numeric||NO
+  tkqrr|char|10|NO
+  tkdate|datetime||NO
+  wgdate|datetime||NO
+
+=== tbdccoef ===
+  dc|char|8|NO
+  coeffict|decimal||YES
+
+=== tbdjgs ===
+  id|int||NO
+  djname|char|16|NO
+  djjx|char|4|NO
+  lsh|int||NO
+  dyear|char|4|NO
+  dpm|char|10|NO
+  dmonth|char|2|NO
+
+=== tbdjq ===
+  id|int||NO
+  dpm|char|10|NO
+  djqno|char|20|NO
+  jine|int||NO
+  gname|char|60|NO
+  btime|datetime||NO
+  etime|datetime||NO
+  per|char|10|NO
+  fkdate|datetime||NO
+  note|char|60|NO
+  mark|int||NO
+  djqname|char|50|NO
+  ywbumen|char|20|NO
+  zgsh|char|10|NO
+  zgshdate|datetime||NO
+
+=== tbdpm ===
+  id|int||NO
+  dpmbh|char|2|NO
+  dpm|char|20|NO
+
+=== tbemkey ===
+  id|int||NO
+  datet|datetime||NO
+  f_per|char|50|NO
+  s_per|char|10|NO
+  i_o|char|1|NO
+  emdbf|char|8|NO
+  what|varchar|1000|NO
+  type|char|8|NO
+  lnew|char|1|NO
+  dpm|char|10|NO
+
+=== tberror ===
+  id|int||NO
+  f_code|char|200|NO
+  f_msg|char|100|NO
+  f_no|numeric||NO
+  f_proc|char|70|NO
+  f_date|datetime||NO
+
+=== tbfh ===
+  id|int||NO
+  fh_paper|char|15|NO
+  sada_paper|char|15|NO
+  sada_id|int||NO
+  nno|char|18|NO
+  na1|char|40|NO
+  fhamount|numeric||NO
+  ty|char|14|NO
+  fa|char|8|NO
+  unit|char|4|NO
+  fhdate|datetime||NO
+  box|char|20|NO
+  per_jhr|char|10|NO
+  per_dbr|char|10|NO
+  fhgs|char|20|NO
+  fhcount|numeric||NO
+  fhgl|numeric||NO
+  gname|char|60|NO
+  CKAMOUNT|numeric||NO
+  fhstate|char|1|NO
+
+=== tbfinlist ===
+  id|int||NO
+  be_selected|smallint||NO
+  verify1|char|2|NO
+  verify2|char|2|NO
+  bank_name|char|73|NO
+  fdate|datetime||NO
+  ftransdate|datetime||NO
+  fperiod|numeric||NO
+  fgroup|char|10|NO
+  fnum|numeric||NO
+  fentryid|numeric||NO
+  fexp|char|133|NO
+  facctid|char|40|NO
+  fdebit|numeric||NO
+  fcredit|numeric||NO
+  fclsname1|char|80|NO
+  fobjid1|char|80|NO
+  fobjname1|char|80|NO
+  fclsname2|char|80|NO
+  fobjid2|char|80|NO
+  fobjname2|char|80|NO
+  fclsname3|char|80|NO
+  fobjid3|char|80|NO
+  fobjname3|char|80|NO
+  fclsname4|char|80|NO
+  fobjid4|char|80|NO
+  fobjname4|char|80|NO
+  fclsname5|char|80|NO
+  fobjid5|char|80|NO
+  fobjname5|char|80|NO
+  fclsname6|char|80|NO
+  fobjid6|char|80|NO
+  fobjname6|char|80|NO
+  fclsname7|char|80|NO
+  fobjid7|char|80|NO
+  fobjname7|char|80|NO
+  fclsname8|char|80|NO
+  fobjid8|char|80|NO
+  fobjname8|char|80|NO
+  ftransid|char|254|NO
+  fcyid|char|10|NO
+  fexchrate|numeric||NO
+  fdc|char|1|NO
+  ffcyamt|numeric||NO
+  fqty|numeric||NO
+  fprice|numeric||NO
+  fsettlcode|char|80|NO
+  fsettleno|char|40|NO
+  fprepare|char|80|NO
+  fpay|char|10|NO
+  fcash|char|10|NO
+  fposter|char|80|NO
+  fchecker|char|80|NO
+  fattchment|numeric||NO
+  fposted|bit||NO
+  fmodule|char|10|NO
+  fdeleted|bit||NO
+  fserialno|char|10|NO
+  funitname|char|80|NO
+  freference|char|80|NO
+  fcashflow|numeric||NO
+  cash_bank|char|10|NO
+  gdh|char|33|NO
+  jsy|char|12|NO
+  fkfs|varchar|60|NO
+  data_type|char|13|NO
+  tqr|char|12|NO
+  tqdate|datetime||YES
+  copy_status|char|10|NO
+  color_status|char|1|NO
+  order_fnum|int||NO
+  fl|varchar|50|NO
+  or_id|int||NO
+  dpm|varchar|10|NO
+
+=== tbfinlistsets ===
+  id|int||NO
+  type|char|10|NO
+  ord|smallint||NO
+  valuc|char|73|NO
+  dpm|char|10|NO
+  wfy_rate|numeric||NO
+  cfy_rate|numeric||NO
+  other1|char|30|NO
+  other2|char|30|NO
+  other3|char|30|NO
+  other4|char|30|NO
+  other5|char|30|NO
+
+=== tbfkqr ===
+  id|int||NO
+  DPM|char|10|NO
+  mark|char|10|NO
+  seano|char|15|NO
+  gyname|char|60|NO
+  indate|datetime||NO
+  fkfs|char|10|NO
+  zffs|char|20|NO
+  fkje|numeric||NO
+  fkdate|datetime||NO
+  qrr|char|10|NO
+  fpno|char|50|NO
+  bhsj|numeric||NO
+  sj|numeric||NO
+  fpdate|datetime||NO
+  fkno|char|15|NO
+  per|char|10|NO
+  cwno|char|50|NO
+
+=== tbfl ===
+  id|int||NO
+  nno|char|18|NO
+  na1|char|40|NO
+  oprc|numeric||NO
+  unit|char|4|NO
+  dc|char|10|NO
+  fltype|char|6|NO
+
+=== tbformula ===
+  id|int||NO
+  formula_name|char|30|NO
+  formula|varchar|500|NO
+
+=== tbfpgl ===
+  id|int||NO
+  pno|char|50|NO
+  fpdate|datetime||NO
+  fpje|numeric||NO
+  jsr|char|10|NO
+  djno|char|15|NO
+  ctype|char|10|NO
+  fptype|char|10|NO
+  gname|char|50|NO
+  note|varchar|50|NO
+  fl|varchar|50|NO
+  fkfs|char|10|NO
+  dpm|char|10|NO
+
+=== tbgath ===
+  id|int||NO
+  type|char|4|NO
+  gdate|datetime||NO
+  cno|char|30|NO
+  payterm|char|10|NO
+  pacct|char|20|NO
+  amt|numeric||NO
+  per|char|10|NO
+  payno|char|15|NO
+  dpm|char|10|NO
+  djqno|char|20|NO
+
+=== tbgu ===
+  id|int||NO
+  dpm|char|40|NO
+  gno|char|10|NO
+  gname|char|60|NO
+  linkman|char|8|NO
+  job|char|8|NO
+  tel|varchar|50|NO
+  mobile|char|15|NO
+  qq|char|20|NO
+  web|char|40|NO
+  email|char|40|NO
+  adr|char|40|NO
+  zip|char|6|NO
+  fax|char|16|NO
+  bank|char|40|NO
+  checkno|char|20|NO
+  type1|char|18|NO
+  type2|char|10|NO
+  note|varchar|200|NO
+  code|char|20|NO
+  code1|char|20|NO
+  name1|char|60|NO
+  yhl|numeric||NO
+  xs1|numeric||NO
+  xs2|numeric||NO
+  xs3|numeric||NO
+  xs4|numeric||NO
+  xs5|numeric||NO
+  xs6|numeric||NO
+  xs7|numeric||NO
+  xs8|numeric||NO
+  xs9|numeric||NO
+  xs10|numeric||NO
+  xs11|numeric||NO
+  xs12|numeric||NO
+  ys1|numeric||NO
+  ys2|numeric||NO
+  ys3|numeric||NO
+  ys4|numeric||NO
+  ys5|numeric||NO
+  ys6|numeric||NO
+  ys7|numeric||NO
+  ys8|numeric||NO
+  ys9|numeric||NO
+  ys10|numeric||NO
+  ys11|numeric||NO
+  ys12|numeric||NO
+  note1|text|2147483647|NO
+  birthday|datetime||NO
+  ywy|char|20|NO
+  tick|int||NO
+  cb|numeric||NO
+  sendcom|char|60|NO
+  cpict|char|40|NO
+  formula_name|char|30|NO
+  ch|char|13|NO
+  dp|char|17|NO
+  cx|char|14|NO
+  color|char|14|NO
+  clcp|char|10|NO
+  Pwd|char|6|NO
+  guno|char|10|NO
+  cwfzr|char|20|NO
+  pno|char|12|NO
+
+=== tbgu_vis ===
+  id|int||NO
+  gname|char|60|NO
+  v_date|datetime||NO
+  r_man|char|20|NO
+  v_state|char|10|NO
+  v_phone|varchar|50|NO
+  v_lxr|char|20|NO
+  mark|varchar|300|NO
+  v_nextdate|datetime||NO
+
+=== tbgugys ===
+  id|int||NO
+  gyno|char|10|NO
+  gyname|char|40|NO
+  linkman|char|8|NO
+  tel|char|30|NO
+  fax|char|14|NO
+  zip|char|6|NO
+  cno|char|8|NO
+  adr|char|40|NO
+  code|char|20|NO
+  code1|char|20|NO
+  zq|numeric||NO
+  email|char|40|NO
+  note|char|40|NO
+  note1|text|2147483647|NO
+  bank|char|40|NO
+  checkno|char|20|NO
+  sl|decimal||NO
+  lb|char|4|NO
+
+=== tbgys ===
+  id|int||NO
+  cp|char|10|NO
+  nno|char|18|NO
+  oenno|char|18|NO
+  na1|char|40|NO
+  gyno|char|10|NO
+  gyname|char|40|NO
+  iprj|numeric||NO
+  zq|numeric||NO
+  updadate|datetime||NO
+  lb|char|10|NO
+  bzlx|char|10|NO
+  DPM|char|5|NO
+
+=== tbhfts ===
+  id|int||NO
+  type|char|4|NO
+  gh|char|9|NO
+  ch|char|13|NO
+  hftsdate|datetime||NO
+  note|varchar|2000|NO
+  jlr|char|10|NO
+  clr|char|10|NO
+  cljg|varchar|2000|NO
+  lb|char|100|NO
+  v_state|char|10|NO
+  v_state_mx|varchar|2000|NO
+  gjr|char|10|NO
+  tsid|int||NO
+  beid|int||NO
+  being|int||NO
+  yx|char|10|NO
+  gs|char|100|NO
+  tsfs|char|30|NO
+  clfs|char|30|NO
+  myd|char|30|NO
+  dpm|char|10|NO
+  carid|int||NO
+
+=== TBhhm ===
+  nno|char|18|NO
+  hhid|int||NO
+  id|int||NO
+
+=== TBHYCZTEMP ===
+  id|int||NO
+  ch|char|13|NO
+  type|char|10|NO
+  jfxm|char|30|NO
+  integral|float||NO
+  jfdate|datetime||NO
+  per|char|10|NO
+  note|varchar|100|NO
+  gh|char|9|NO
+  cardno|char|15|NO
+  carid|int||NO
+  integralbak|float||NO
+  mark|int||NO
+  cwqrman|char|10|NO
+  cwqrdate|datetime||NO
+  yhje|int||NO
+  zgsh|char|10|NO
+  zgshdate|datetime||NO
+  fkfs|char|10|NO
+  zong_id|int||NO
+
+=== tbImage ===
+  id|int||NO
+  nno|char|50|NO
+  imgs|text|2147483647|NO
+  fn|char|254|NO
+  imgtype|char|10|NO
+  chksum|char|20|NO
+
+=== TBINDT ===
+  ifile|char|15|NO
+  mfield|char|8|NO
+  desc|char|8|NO
+  mtag|char|25|NO
+
+=== tbindtconfig ===
+  tablename|varchar|20|NO
+  morder|int||NO
+  FieldList|varchar|500|NO
+
+=== tbintegral ===
+  id|int||NO
+  ch|char|13|NO
+  type|char|10|NO
+  jfxm|char|30|NO
+  integral|float||NO
+  jfdate|datetime||NO
+  per|char|10|NO
+  gh|char|9|NO
+  note|varchar|100|NO
+  cardno|char|15|NO
+  carid|int||NO
+  integralbak|float||NO
+  hycz_id|int||NO
+  zong_id|int||NO
+  dpmname|char|50|NO
+
+=== tbisorsm ===
+  id|int||NO
+  cp|char|10|NO
+  dpm|char|10|NO
+  nno|char|18|NO
+  na1|char|40|NO
+  ty|char|14|NO
+  fa|char|8|NO
+  dc|char|8|NO
+  unit|char|4|NO
+  jkamount|numeric||NO
+  fpamount|numeric||NO
+  iprj|numeric||NO
+  iprc|numeric||NO
+  oprc|numeric||NO
+  oprb|numeric||NO
+  posi|char|10|NO
+  indate|datetime||NO
+  per|char|6|NO
+  cno|char|15|NO
+  item|int||NO
+  box|char|15|NO
+  seano|char|15|NO
+  pno|char|12|NO
+  xno|int||NO
+  ono|char|14|NO
+  key1|numeric||NO
+  note|char|100|NO
+  cxnno|char|18|NO
+  depotno|char|10|NO
+  fkfs|char|10|NO
+  gyname|char|60|NO
+  suttle|numeric||NO
+  nvol|numeric||NO
+  ywr|char|10|NO
+  orno|char|15|NO
+  Freight|numeric||NO
+
+=== tbisto ===
+  id|int||NO
+  dpm|char|10|NO
+  cp|char|10|NO
+  nno|char|18|NO
+  na1|char|40|NO
+  ty|char|14|NO
+  fa|char|8|NO
+  dc|char|8|NO
+  unit|char|4|NO
+  kcamount|numeric||NO
+  iprj|numeric||NO
+  iprc|numeric||NO
+  oprc|numeric||NO
+  oprb|numeric||NO
+  posi|char|10|NO
+  kcbhdate|datetime||NO
+  note|char|100|NO
+  xno|int||NO
+  tno|int||NO
+  cxnno|char|18|NO
+  depotno|char|10|NO
+  none|varchar|20|YES
+
+=== tbisto_lx ===
+  id|int||NO
+  dpm|char|10|NO
+  cp|char|10|NO
+  nno|char|18|NO
+  na1|char|40|NO
+  ty|char|14|NO
+  fa|char|8|NO
+  dc|char|8|NO
+  unit|char|4|NO
+  kcamount|numeric||NO
+  iprj|numeric||NO
+  iprc|numeric||NO
+  oprc|numeric||NO
+  oprb|numeric||NO
+  posi|char|10|NO
+  kcbhdate|datetime||NO
+  note|char|100|NO
+  xno|int||NO
+  tno|int||NO
+  cxnno|char|18|NO
+  depotno|char|10|NO
+  gs|char|50|NO
+
+=== tbistoch ===
+  id|int||NO
+  cp|char|10|NO
+  dpm|char|10|NO
+  nno|char|18|NO
+  na1|char|40|NO
+  fa|char|8|NO
+  ty|char|14|NO
+  unit|char|2|NO
+  xgamount|numeric||NO
+  iprc|numeric||NO
+  posi|char|10|NO
+  xgdate|datetime||NO
+  per|char|6|NO
+  cno|char|8|NO
+  cxnno|char|18|NO
+  depotno|char|10|NO
+  note|varchar|100|NO
+  iprj|numeric||NO
+
+=== tbistoed ===
+  id|int||NO
+  cp|char|10|NO
+  dpm|char|10|NO
+  nno|char|18|NO
+  na1|char|40|NO
+  ty|char|14|NO
+  fa|char|8|NO
+  dc|char|8|NO
+  unit|char|4|NO
+  jkamount|numeric||NO
+  kcamount|numeric||NO
+  iprj|numeric||NO
+  iprc|numeric||NO
+  oprc|numeric||NO
+  posi|char|10|NO
+  indate|datetime||NO
+  item|int||NO
+  cno|char|15|NO
+  box|char|10|NO
+  seano|char|15|NO
+  pno|char|12|NO
+  gyno|char|10|NO
+  gyname|char|60|NO
+  per|char|10|NO
+  note|char|100|NO
+  cxnno|char|18|NO
+  fkfs|char|10|NO
+  depotno|char|10|NO
+  ro|numeric||NO
+  audit|bit||NO
+  Type1|char|10|NO
+  Type|char|10|NO
+  mark|char|6|NO
+  ywr|char|10|NO
+  isord|char|10|NO
+  Freight|numeric||NO
+  QRR|char|10|NO
+  qrdate|datetime||NO
+
+=== tbistoed_lx ===
+  id|int||NO
+  cp|char|10|NO
+  dpm|char|10|NO
+  nno|char|18|NO
+  na1|char|40|NO
+  ty|char|14|NO
+  fa|char|8|NO
+  dc|char|8|NO
+  unit|char|4|NO
+  jkamount|numeric||NO
+  kcamount|numeric||NO
+  iprj|numeric||NO
+  iprc|numeric||NO
+  oprc|numeric||NO
+  posi|char|10|NO
+  indate|datetime||NO
+  item|int||NO
+  cno|char|15|NO
+  box|char|10|NO
+  seano|char|15|NO
+  pno|char|12|NO
+  gyno|char|10|NO
+  gyname|char|60|NO
+  per|char|10|NO
+  note|char|100|NO
+  cxnno|char|18|NO
+  fkfs|char|10|NO
+  depotno|char|10|NO
+  ro|numeric||NO
+  audit|bit||NO
+  Type1|char|10|NO
+  Type|char|10|NO
+  mark|char|6|NO
+  gs|char|50|NO
+
+=== tbistojj ===
+  id|int||NO
+  dpm|char|10|NO
+  cp|char|10|NO
+  nno|char|18|NO
+  na1|char|40|NO
+  ty|char|14|NO
+  dc|char|8|NO
+  amjj|numeric||NO
+  bmjj|numeric||NO
+  depotno|char|10|NO
+
+=== tbistomk ===
+  id|int||NO
+  name|char|4|YES
+  froms|numeric||YES
+  tos|numeric||YES
+  mark|char|10|YES
+
+=== tbistopd ===
+  id|int||NO
+  cp|char|10|NO
+  dpm|char|10|NO
+  nno|char|18|NO
+  cxnno|char|10|NO
+  na1|char|40|NO
+  ty|char|14|NO
+  fa|char|8|NO
+  unit|char|4|NO
+  iprj|numeric||NO
+  kcamount|numeric||NO
+  iprc|numeric||NO
+  posi|char|10|NO
+  pdposi|char|10|NO
+  oprc|numeric||NO
+  bmjj|numeric||NO
+  pd_date|datetime||NO
+  note|char|100|NO
+  nyk|numeric||NO
+  npd|numeric||NO
+  zt|char|1|NO
+  dc|char|10|NO
+  depotno|char|10|NO
+  kcid|int||NO
+  pdpaper|char|15|NO
+  per|char|10|NO
+  mark|int||NO
+
+=== tbistosav ===
+  dpm|char|10|NO
+  cp|char|10|NO
+  nno|char|18|NO
+  kcamount|numeric||NO
+  iprj|numeric||NO
+  iprc|numeric||NO
+  oprc|numeric||NO
+  oprb|numeric||NO
+  posi|char|10|NO
+  back_date|datetime||NO
+  depotno|char|10|NO
+  kcid|int||NO
+
+=== tbistosm ===
+  id|int||NO
+  cp|char|10|NO
+  dpm|char|10|NO
+  nno|char|18|NO
+  na1|char|40|NO
+  ty|char|14|NO
+  fa|char|8|NO
+  dc|char|8|NO
+  unit|char|4|NO
+  jkamount|numeric||NO
+  iprj|numeric||NO
+  iprc|numeric||NO
+  oprc|numeric||NO
+  oprb|numeric||NO
+  posi|char|10|NO
+  indate|datetime||NO
+  per|char|6|NO
+  cno|char|15|NO
+  xno|int||NO
+  gyno|char|10|NO
+  gyname|char|60|NO
+  pno|char|12|NO
+  note|char|100|NO
+  cxnno|char|18|NO
+  fkfs|char|10|NO
+  depotno|char|10|NO
+  ro|numeric||NO
+  mark|char|6|NO
+  ywr|char|10|NO
+  Freight|numeric||NO
+
+=== tbjpcode ===
+  id|int||NO
+  xlcode|char|12|NO
+  xlxm|char|60|NO
+  xltime|numeric||NO
+  fy|numeric||NO
+  xltype|char|8|NO
+  fktype|char|10|NO
+  mark|char|1|NO
+  xmid|int||NO
+  iszh|bit||NO
+  code|char|30|NO
+  code1|char|30|NO
+  zq|int||NO
+  smsg|varchar|254|NO
+  cx|varchar|100|NO
+  bzfy|numeric||NO
+  khfy|numeric||NO
+  dpm|char|10|NO
+  gstype|char|20|NO
+
+=== tbjpcode1 ===
+  id|int||NO
+  xlcode|char|12|NO
+  xlxm|char|60|NO
+  xltime|numeric||NO
+  fy|numeric||NO
+  xltype|char|8|NO
+  ls1|int||NO
+  ls2|int||NO
+  zq|int||NO
+  smsg|varchar|254|NO
+
+=== tbjpgl ===
+  id|int||NO
+  type|char|10|NO
+  paper|char|15|NO
+  outcno|char|15|NO
+  ch|char|10|NO
+  dp|char|17|NO
+  gname|char|40|NO
+  cp|char|10|NO
+  nno|char|18|NO
+  na1|char|40|NO
+  ty|char|10|NO
+  fa|char|10|NO
+  oprc|numeric||NO
+  ckamount|numeric||NO
+  depotno|char|10|NO
+  posi|char|10|NO
+  per|char|10|NO
+  ywr|char|10|NO
+  dept|char|10|NO
+  dpm|char|10|NO
+  shdate|datetime||NO
+  shren|char|10|NO
+  iprc|numeric||NO
+  iprj|numeric||NO
+  yhl|numeric||NO
+  dc|char|10|NO
+  kcid|int||NO
+  mark|char|2|NO
+  skdate|datetime||NO
+  outdate|datetime||NO
+  OPRCT|numeric||NO
+  unit|char|4|NO
+  guno|char|10|NO
+  t_mode|char|10|NO
+  pno|char|12|NO
+  remark|varchar|250|NO
+  pnno|char|18|NO
+  pna1|char|20|NO
+  pfa|char|8|NO
+  pty|char|14|NO
+  back1|char|10|NO
+  back2|char|20|NO
+  TRIGGER_MARK|bit||NO
+  jzdate|datetime||NO
+  ypaper|char|10|NO
+  per1|char|10|NO
+
+=== tbjpzhcl ===
+  id|int||NO
+  xmid|int||NO
+  xlcode|char|12|NO
+  cp|char|10|NO
+  nno|char|18|NO
+  na1|char|40|NO
+  depotno|char|10|NO
+  clamou|int||NO
+  fl|varchar|50|NO
+
+=== tbjpzhxm ===
+  id|int||NO
+  xmid|int||NO
+  xlcode|char|12|NO
+  xlxm|char|60|NO
+  xltime|numeric||NO
+  fy|numeric||NO
+  xltype|char|10|NO
+  fktype|char|10|NO
+  fl|varchar|50|NO
+  khfy|numeric||NO
+
+=== tbkc ===
+  id|int||NO
+  nno|char|18|NO
+  na1|char|40|NO
+  ty|char|14|NO
+  oprc|numeric||NO
+  dc|char|8|NO
+  kcamount|numeric||NO
+  mark|bit||NO
+  nnp|char|16|NO
+
+=== tbKcageset ===
+  id|int||NO
+  kcage|int||YES
+
+=== tbkey ===
+  id|int||NO
+  dpmbh|char|10|NO
+  role|char|20|NO
+  per|char|12|NO
+  password|char|20|NO
+  usem|varchar|1000|NO
+  usem1|char|50|NO
+  dpmusem|char|50|NO
+  emdbf|char|8|NO
+  dpmisto|varchar|50|NO
+  uno|char|20|NO
+
+=== tbkyhl ===
+  id|int||NO
+  kname|char|50|NO
+  sfname|char|20|NO
+  sftype|char|20|NO
+  clyhl|numeric||NO
+  xmyhl|numeric||NO
+
+=== tblcisto ===
+  id|int||NO
+  dpm|char|10|NO
+  cp|char|10|NO
+  nno|char|18|NO
+  na1|char|40|NO
+  ty|char|14|NO
+  fa|char|8|NO
+  dc|char|8|NO
+  unit|char|4|NO
+  kcamount|numeric||NO
+  iprj|numeric||NO
+  iprc|numeric||NO
+  oprc|numeric||NO
+  oprb|numeric||NO
+  posi|char|10|NO
+  kcbhdate|datetime||NO
+  note|char|100|NO
+  xno|int||NO
+  tno|int||NO
+  cxnno|char|18|NO
+  depotno|char|10|NO
+
+=== tbljkcbg ===
+  id|int||NO
+  ny|char|7|YES
+  dc|char|12|YES
+  kcs|int||YES
+  kciprc|numeric||YES
+  kcys|numeric||YES
+  jks|int||YES
+  jkiprc|numeric||YES
+  cks|int||YES
+  ckiprc|numeric||YES
+  bz|numeric||YES
+
+=== tblogin ===
+  id|int||NO
+  dpm|varchar|50|NO
+  mac|varchar|50|NO
+  allowlogin|int||NO
+  comName|char|20|NO
+  regNo|char|40|NO
+  cpuNO|char|40|NO
+  SQLMAC|char|12|NO
+
+=== tblsz ===
+  id|int||NO
+  guno|char|10|NO
+  ls_date|datetime||NO
+  ytu|char|20|NO
+  ys|numeric||NO
+  yf|numeric||NO
+  lj|numeric||NO
+  remark|char|50|NO
+  skno|char|10|NO
+  paper|char|30|NO
+  wfy|numeric||NO
+  cfy|numeric||NO
+  flfy|numeric||NO
+  pno|char|10|NO
+  mark|bit||NO
+  gname|char|60|NO
+  bankname|char|40|NO
+  note|char|200|NO
+  dpm|char|10|NO
+
+=== TBMARK ===
+  MARK|char|10|NO
+  MDATE|datetime||NO
+  SPID|int||NO
+  LOGINAME|char|20|NO
+  HOSTNAME|char|30|NO
+  DBNAME|char|20|NO
+
+=== tbmindex ===
+  id|int||NO
+  ifile|char|15|NO
+  name|char|20|NO
+  mfield|char|36|NO
+  mtag|char|10|NO
+  indexdate|datetime||NO
+  mark|char|4|NO
+  ft|bit||NO
+
+=== tbmodu ===
+  rec|numeric||NO
+  mod|char|16|NO
+  per|char|6|NO
+  usem|char|30|NO
+  dati|char|17|NO
+  dati1|char|17|NO
+  work|numeric||NO
+
+=== tbmsgset ===
+  id|int||NO
+  xmid|int||YES
+  xmnr|char|80|YES
+  power|char|10|YES
+  isval|bit||YES
+  wavpath|char|200|YES
+
+=== tbmsinf ===
+  id|int||NO
+  balance|numeric||NO
+  unitpri|numeric||NO
+  autsend|bit||NO
+  autsdco|char|254|NO
+  autrecv|bit||NO
+  receivt|int||NO
+  isTips|bit||NO
+  ischgre|bit||NO
+  chgrece|char|50|NO
+  OverTime|int||NO
+  senmsbt|char|10|NO
+  senmset|char|10|NO
+  mspstfix|char|20|NO
+  recvper|char|10|NO
+
+=== tbmsreceive ===
+  ID|int||NO
+  Sname|char|10|NO
+  Mobile|char|15|NO
+  SDate|datetime||NO
+  Smsg|char|254|NO
+  Readed|bit||NO
+
+=== tbmsrecset ===
+  id|int||NO
+  recmsg|char|10|NO
+  remark|varchar|50|NO
+  smsg|varchar|254|NO
+  expres|varchar|254|NO
+  syssm|bit||NO
+
+=== tbmssendhis ===
+  id|int||NO
+  gname|char|60|NO
+  mobile|char|15|NO
+  sdate|datetime||NO
+  operty|char|10|NO
+  sendty|char|10|NO
+  SMsg|varchar|254|NO
+  sendtm|int||NO
+  ctype|char|10|NO
+  state|char|10|NO
+  cp|char|10|NO
+  cx|char|15|NO
+  ch|char|13|NO
+  dp|char|17|NO
+  engine|char|15|NO
+  lxr|char|10|NO
+  remark|varchar|100|NO
+  SMSid|int||NO
+  split|int||NO
+  sender|char|10|NO
+  lxrtel|char|40|NO
+  lsms|bit||NO
+
+=== tbmssendtmp ===
+  id|int||NO
+  sdate|datetime||NO
+  operty|char|10|NO
+  sendty|char|10|NO
+  sendtm|int||NO
+  ctype|char|10|NO
+  state|char|10|NO
+  cp|char|10|NO
+  cx|char|15|NO
+  ch|char|13|NO
+  dp|char|17|NO
+  engine|char|15|NO
+  gname|char|60|NO
+  mobile|char|15|NO
+  lxr|char|10|NO
+  SMsg|varchar|254|NO
+  remark|varchar|100|NO
+  SMSid|int||NO
+  smark|char|10|NO
+  lxrtel|char|40|NO
+  sender|char|10|NO
+
+=== tbmssetd ===
+  id|int||NO
+  smid|int||NO
+  SMsg|varchar|254|NO
+  intv|int||NO
+  Atsend|bit||NO
+  syssm|bit||NO
+
+=== tbmsseth ===
+  id|int||NO
+  smid|int||NO
+  smty|char|10|NO
+  operty|char|10|NO
+  remark|varchar|20|NO
+  expres|varchar|250|NO
+
+=== tbmymenu ===
+  id|int||NO
+  Number|char|51|NO
+  Power|char|10|NO
+  Menu|char|50|NO
+  Command|char|250|NO
+  SkipFor|char|250|NO
+  KeyLabel|char|20|NO
+  Picture|char|50|NO
+  Control|numeric||NO
+  Active|bit||NO
+  SetPower|bit||NO
+  SubPower|bit||NO
+  MenuId|char|37|NO
+
+=== tbname0 ===
+  id|int||NO
+  name|char|20|NO
+  code|char|10|NO
+  name1|char|20|NO
+  code1|char|10|NO
+
+=== tboil ===
+  id|int||NO
+  gh|char|9|NO
+  nno|char|18|NO
+  na1|char|40|NO
+  iprc|numeric||NO
+  amount|numeric||NO
+  unit|char|4|NO
+  type|char|10|NO
+
+=== TBOLDRECY ===
+  type|varchar|30|NO
+  xlsaid|int||NO
+  note|varchar|30|NO
+  gh|char|10|NO
+
+=== tborder ===
+  id|int||NO
+  cp|char|10|YES
+  dpm|char|10|YES
+  orno|char|15|YES
+  cno|char|15|YES
+  item|int||YES
+  nno|char|18|YES
+  na1|char|40|YES
+  ty|char|14|YES
+  fa|char|8|YES
+  dc|char|8|YES
+  unit|char|4|YES
+  oqty|numeric||YES
+  qty|numeric||YES
+  iprj|numeric||NO
+  getdate|datetime||YES
+  itemc|numeric||YES
+  note|char|25|YES
+  orderdate|datetime||YES
+  type|char|4|YES
+  cxnno|char|18|YES
+  bzlx|char|10|YES
+  cgy|char|10|YES
+  gyname|char|60|YES
+  iprc|numeric||NO
+  gname|char|40|YES
+  fkfs|char|10|YES
+  pno|char|12|YES
+  per|char|10|YES
+  oprc|numeric||YES
+
+=== tborderexp ===
+  expid|int||NO
+  expna|char|20|NO
+  cexpress|char|200|NO
+  basexp|bit||NO
+
+=== tbordergu ===
+  orno|char|10|NO
+  cno|char|8|NO
+  gu|char|20|NO
+  ordate|datetime||NO
+  subs|float||NO
+  oprc|float||NO
+  amount|int||NO
+  type|char|12|NO
+  car|char|40|NO
+  color|char|10|NO
+  stat|char|1|NO
+  fkfs|char|10|NO
+  jdate|datetime||NO
+  jsr|char|10|NO
+  skjl|char|1|NO
+
+=== tborexppara ===
+  paraid|char|3|NO
+  parana|char|20|NO
+  nvalue|decimal||NO
+  c_prg|varchar|50|NO
+  baspara|bit||NO
+  const|bit||NO
+
+=== tbperid ===
+  id|int||NO
+  companyid|int||NO
+  pername|char|20|NO
+  ifon|int||NO
+  badlist|char|120|NO
+  note|char|100|NO
+  psd|char|10|NO
+  indate|datetime||NO
+
+=== tbposi ===
+  id|int||NO
+  posi|char|10|YES
+  nno|char|18|YES
+  isfree|bit||YES
+  dpm|char|10|YES
+
+=== tbprnoty ===
+  id|int||NO
+  cp|char|10|NO
+  nno|char|18|NO
+  na1|char|40|NO
+  ty|char|14|NO
+  fa|char|8|NO
+  dc|char|8|NO
+  unit|char|4|NO
+  note|varchar|254|NO
+  iprj|numeric||NO
+  xno|int||NO
+  nnp|char|18|NO
+  nnq|char|18|NO
+  uqty|numeric||NO
+  tno|int||NO
+  amjj|numeric||NO
+  bmjj|numeric||NO
+  code_ts|char|12|NO
+  cxnno|char|18|NO
+  eng|char|30|NO
+  cpict|char|40|NO
+  nvol|numeric||NO
+  suttle|numeric||NO
+  note1|varchar|200|NO
+  oprc_cp|numeric||YES
+  oprc_min|numeric||NO
+
+=== tbprtj ===
+  id|int||NO
+  cp|char|10|NO
+  tj|char|18|NO
+  nno|char|18|NO
+  na1|char|40|NO
+  ty|char|14|NO
+  fa|char|8|NO
+  unit|char|2|NO
+  note|char|30|NO
+  iprj|numeric||NO
+  dc|char|8|NO
+  num|numeric||NO
+
+=== tbqtgs ===
+  id|int||NO
+  cp|char|10|NO
+  nno|char|18|NO
+  na1|char|20|NO
+  ty|char|14|NO
+  iprj|numeric||NO
+  oprc|numeric||NO
+  cxnno|char|18|NO
+  qtamount|numeric||NO
+  gno|char|10|NO
+  gname|char|60|NO
+  updadate|datetime||NO
+
+=== tbqylc ===
+  id|int||NO
+  mobile|char|15|NO
+  gname|char|60|NO
+  ch|char|13|NO
+  dp|char|17|NO
+  djdate|datetime||NO
+  jlr|char|10|NO
+  jcdate|datetime||NO
+  state|char|1|NO
+
+=== tbreif ===
+  id|int||NO
+  cp|char|10|NO
+  type|char|4|NO
+  nno|char|18|NO
+  na1|char|40|NO
+  ty|char|14|NO
+  fa|char|6|NO
+  unit|char|2|NO
+  note|char|25|NO
+  posi|char|10|NO
+  iprc|numeric||NO
+  iprj|numeric||NO
+  oprc|numeric||NO
+  oprct|numeric||NO
+  ckamount|numeric||NO
+  yhl|numeric||NO
+  paper|char|10|NO
+  ypaper|char|10|NO
+  gno|char|10|NO
+  gname|char|60|NO
+  per|char|6|NO
+  outdate|datetime||NO
+  ro|numeric||NO
+  sxf|numeric||NO
+  rdate|datetime||NO
+  rper|char|6|NO
+  dc|char|8|NO
+  pno|char|1|NO
+  guno|char|4|NO
+  m|char|1|NO
+  xno|int||NO
+  path|char|4|NO
+  depotno|char|10|NO
+
+=== tbreys ===
+  qkdate|datetime||NO
+  cno|char|9|NO
+  pno|char|10|NO
+  gno|char|10|NO
+  gname|char|60|NO
+  xm|char|20|NO
+  ys|numeric||NO
+  yf|numeric||NO
+  cb|numeric||NO
+  fkfs|char|4|NO
+  lj|numeric||NO
+
+=== tbrole ===
+  id|int||NO
+  dpmbh|char|10|NO
+  role|char|20|NO
+  usem|text|2147483647|NO
+  usem1|text|2147483647|NO
+  usem2|text|2147483647|NO
+  dpmusem|char|50|NO
+  dpmisto|char|50|NO
+  usemcp|varchar|1000|NO
+  xlyhl|int||NO
+  xlpyhl|int||NO
+  myrun|char|50|NO
+  usemdepotno|varchar|1000|NO
+  usempapertype|varchar|200|NO
+  usemindt|varchar|1000|NO
+
+=== tbrtcbk ===
+  id|int||NO
+  tjdate|datetime||NO
+  prfactory|char|10|NO
+  faname|char|30|NO
+  begininv|float||NO
+  lp|float||NO
+  abroad|float||NO
+  rvat|float||NO
+  a_total|float||NO
+  a_cumt|float||NO
+  retail|float||NO
+  serv|float||NO
+  trans|float||NO
+  inter1|float||NO
+  s_total|float||NO
+  s_cumt|float||NO
+  cost|float||NO
+  titbm|float||NO
+  remark|char|10|NO
+  margin|float||NO
+  sretail|float||NO
+  sserv|float||NO
+  stran|float||NO
+  sinter|float||NO
+  ss_total|float||NO
+  w_sale|float||NO
+  sw_sale|float||NO
+
+=== tbrtsamo ===
+  id|int||NO
+  dpm|char|10|NO
+  cp|char|10|NO
+  nno|char|18|NO
+  na1|char|40|NO
+  ty|char|14|NO
+  unit|char|2|NO
+  oamou1|numeric||NO
+  oamou2|numeric||NO
+  oamou3|numeric||NO
+  oamou4|numeric||NO
+  oamou5|numeric||NO
+  oamou6|numeric||NO
+  oamou7|numeric||NO
+  oamou8|numeric||NO
+  oamou9|numeric||NO
+  oamou10|numeric||NO
+  oamou11|numeric||NO
+  oamou12|numeric||NO
+
+=== tbsada ===
+  id|int||NO
+  cp|char|10|NO
+  type|char|10|NO
+  dpm|char|10|NO
+  nno|char|18|NO
+  na1|char|40|NO
+  ty|char|14|NO
+  fa|char|8|NO
+  unit|char|4|NO
+  note|varchar|250|NO
+  posi|char|10|NO
+  ckamount|numeric||NO
+  iprj|numeric||NO
+  iprc|numeric||NO
+  oprc|numeric||NO
+  oprct|numeric||NO
+  yhl|numeric||NO
+  paper|char|10|NO
+  ypaper|char|10|NO
+  gno|char|10|NO
+  gname|char|60|NO
+  per|char|10|NO
+  outdate|datetime||NO
+  jzdate|datetime||NO
+  guno|char|10|NO
+  dc|char|8|NO
+  pno|char|12|NO
+  ro|numeric||NO
+  xno|int||NO
+  tno|int||NO
+  mark|char|1|NO
+  pnno|char|18|NO
+  pna1|char|40|NO
+  pty|char|14|NO
+  pfa|char|8|NO
+  per1|char|10|NO
+  per2|char|10|NO
+  back2|char|20|NO
+  back1|char|10|NO
+  kcamount|numeric||NO
+  cxnno|char|18|NO
+  t_mode|char|10|NO
+  depotno|char|10|NO
+  audit|bit||NO
+  kcid|int||NO
+  trigger_mark|bit||NO
+  remark|varchar|250|NO
+  qrdate|datetime||NO
+  jianshou|numeric||NO
+  dscp|char|10|NO
+  fhdate|datetime||NO
+  cjdate|datetime||NO
+  skper|char|10|NO
+  skdate|datetime||NO
+  jpid|int||NO
+  GZperson|char|10|NO
+
+=== tbsada_header ===
+  id|int||NO
+  paper|char|10|NO
+  dp|char|17|NO
+  fkgname|char|60|NO
+  dpm|varchar|20|NO
+  dpmbh|varchar|30|NO
+  ywr|varchar|50|NO
+  jptype|char|10|NO
+  jppaper|char|15|NO
+  shren|char|10|NO
+  shdate|datetime||NO
+  printype|int||NO
+  papertype|varchar|20|NO
+  prinku|varchar|50|NO
+  spname|varchar|60|NO
+  bhmark|char|10|NO
+  zxmark|char|10|NO
+  ywzg|char|20|NO
+
+=== tbsada_lx ===
+  id|int||NO
+  cp|char|10|NO
+  type|char|10|NO
+  dpm|char|10|NO
+  nno|char|18|NO
+  na1|char|40|NO
+  ty|char|14|NO
+  fa|char|8|NO
+  unit|char|4|NO
+  note|varchar|250|NO
+  posi|char|10|NO
+  ckamount|numeric||NO
+  iprj|numeric||NO
+  iprc|numeric||NO
+  oprc|numeric||NO
+  oprct|numeric||NO
+  yhl|numeric||NO
+  paper|char|10|NO
+  ypaper|char|10|NO
+  gno|char|10|NO
+  gname|char|60|NO
+  per|char|10|NO
+  outdate|datetime||NO
+  guno|char|10|NO
+  dc|char|8|NO
+  pno|char|12|NO
+  ro|numeric||NO
+  xno|int||NO
+  tno|int||NO
+  mark|char|1|NO
+  pnno|char|18|NO
+  pna1|char|20|NO
+  pty|char|14|NO
+  pfa|char|8|NO
+  per1|char|10|NO
+  per2|char|10|NO
+  back2|char|20|NO
+  back1|char|10|NO
+  kcamount|numeric||NO
+  cxnno|char|18|NO
+  t_mode|char|10|NO
+  depotno|char|10|NO
+  audit|bit||NO
+  kcid|int||NO
+  trigger_mark|bit||NO
+  gs|char|50|NO
+
+=== tbsadc ===
+  id|int||NO
+  cp|char|10|NO
+  dpm|char|10|NO
+  nno|char|18|NO
+  na1|char|40|NO
+  ty|char|14|NO
+  fa|char|10|NO
+  unit|char|2|NO
+  note|char|100|NO
+  posi|char|10|NO
+  posi1|char|10|NO
+  ckamount|numeric||NO
+  iprj|numeric||NO
+  iprc|numeric||NO
+  oprc|numeric||NO
+  oprb|numeric||NO
+  oprct|numeric||NO
+  yhl|numeric||NO
+  paper|char|10|NO
+  per|char|10|NO
+  outdate|datetime||NO
+  guno|char|4|NO
+  dc|char|8|NO
+  pno|char|12|NO
+  path|char|4|NO
+  xno|int||NO
+  m|char|1|NO
+  depotno|char|10|NO
+  depotno1|char|10|NO
+  kcid|int||YES
+
+=== tbsaxg ===
+  id|int||NO
+  cp|char|10|NO
+  type|char|10|NO
+  dpm|char|10|NO
+  nno|char|18|NO
+  fa|char|8|NO
+  editdate|datetime||NO
+  outdate|datetime||NO
+  ckamount|numeric||NO
+  posi|char|10|NO
+  per|char|8|NO
+  o_change|char|40|NO
+  depotno|char|10|NO
+  paper|char|15|NO
+  iprc|numeric||NO
+  iprj|numeric||NO
+  na1|char|40|NO
+  kcid|int||NO
+  gh|char|10|NO
+
+=== TbSmart ===
+  Id|int||NO
+  标识|varchar|500|NO
+  代码|text|2147483647|NO
+  备用字段1|varchar|250|NO
+  备用字段2|varchar|250|NO
+  原始代码|text|2147483647|NO
+
+=== tbspgo ===
+  id|int||NO
+  tr_type|char|20|NO
+  spno|char|10|NO
+  spname|char|60|NO
+  sf|char|20|NO
+  dq|char|20|NO
+  zip|char|6|NO
+  lxr|char|20|NO
+  v_tel|char|15|NO
+  mobile|char|15|NO
+  fax|char|15|NO
+  djtime|datetime||NO
+  bank|char|30|NO
+  khname|char|20|NO
+  checkno|char|19|NO
+  p_no|char|12|NO
+  note|char|100|NO
+  code|char|20|NO
+  code1|char|20|NO
+  guno|char|10|NO
+  y_mode|char|10|NO
+
+=== tbsqlerr ===
+  id|int||NO
+  dates|datetime||NO
+  programs|varchar|100|NO
+  strings|varchar|2000|NO
+  username|varchar|50|NO
+  status|char|1|NO
+  usercom|varchar|50|NO
+
+=== tbstru ===
+  id|int||NO
+  table_name|char|20|NO
+  table_cnam|char|20|NO
+  field_name|char|20|NO
+  field_type|char|20|NO
+  field_len|numeric||NO
+  field_dec|numeric||NO
+  explain|char|30|NO
+  editdate|datetime||NO
+  defexp|char|30|NO
+  re_table|char|15|NO
+  re_field|char|15|NO
+  isedit|char|1|NO
+  pict|char|20|NO
+  issort|char|10|NO
+  con_type|char|60|NO
+  column_def|char|50|NO
+  is_nullabl|char|10|NO
+  isupdate|char|5|NO
+
+=== tbsyslog ===
+  id|int||NO
+  intime|datetime||NO
+  computer|char|12|NO
+  modu|char|18|NO
+  per|char|8|NO
+  op|varchar|2000|NO
+  outtime|datetime||NO
+
+=== tbsysset ===
+  id|int||NO
+  name|char|40|NO
+  type|char|10|NO
+  valuec|char|40|NO
+  valuen|numeric||NO
+  valuel|bit||NO
+  valued|datetime||NO
+  note|char|50|NO
+  cxnno|char|18|NO
+  valuec1|char|254|NO
+  valuec2|char|254|NO
+  dpm|char|10|NO
+  code|char|20|NO
+  code1|char|20|NO
+  xtype|char|10|NO
+  valuec3|varchar|8000|NO
+
+=== tbtest ===
+  testid|int||NO
+  testcount|int||NO
+
+=== TBTOOLCK ===
+  id|int||NO
+  tool_type|char|10|NO
+  tool_kcid|int||NO
+  outdate|datetime||NO
+  yjghdate|datetime||NO
+  ghdate|datetime||NO
+  outper|char|10|NO
+  inper|char|10|NO
+  paper|char|15|NO
+  ckstatus|char|10|NO
+  per|char|10|NO
+  bm|char|20|NO
+  wfy|numeric||NO
+
+=== TBTOOLMANAG ===
+  id|int||NO
+  tool_nno|varchar|18|NO
+  tool_cp|varchar|20|NO
+  tool_ty|varchar|50|NO
+  tool_fa|varchar|40|NO
+  tool_iprc|numeric||NO
+  tool_indate|datetime||NO
+  tool_bxdate|datetime||NO
+  tool_status|char|10|NO
+  tool_na1|varchar|60|NO
+  tool_jkr|varchar|10|NO
+  tool_note|varchar|100|NO
+  tool_bgr|varchar|10|NO
+  tool_jkqr|varchar|10|NO
+  gyno|varchar|20|NO
+  posi|varchar|20|NO
+
+=== tbty ===
+  id|int||NO
+  cp|char|12|NO
+  ty|char|20|NO
+
+=== Tbupdate ===
+  id|int||NO
+  prg_date|datetime||NO
+  prg_strings|text|2147483647|NO
+
+=== tbupdate_sql ===
+  id|int||NO
+  sqlcmd|text|2147483647|NO
+  note|varchar|500|NO
+
+=== tbviewuser ===
+  id|int||NO
+  name|char|20|NO
+  cname|char|20|NO
+  type|char|10|NO
+  findstr|varchar|1000|NO
+  remark|varchar|3000|NO
+  note|varchar|200|YES
+  keys|char|10|NO
+
+=== tbwarn ===
+  id|int||NO
+  xm|char|40|YES
+  warnday|int||YES
+  mselect1|varchar|500|YES
+  mwhere|varchar|800|YES
+  mgroup1|char|40|YES
+  mselect2|varchar|8000|YES
+  mgroup2|varchar|5000|YES
+  per|char|20|YES
+  desumk|char|100|YES
+  isnullshow|bit||YES
+
+=== tbwjg ===
+  id|int||NO
+  paper|char|10|NO
+  gh|char|9|NO
+  xlcode|char|10|NO
+  xlxm|char|40|NO
+  fy|numeric||NO
+  jsr|char|10|NO
+  sxdate|datetime||NO
+  dw|char|40|NO
+  ysy|char|10|NO
+  type|char|10|NO
+  code|char|10|NO
+  xm|char|40|NO
+  tgh|char|10|NO
+
+=== tbwjset ===
+  id|int||NO
+  id1|char|10|NO
+  id2|char|10|NO
+  type|char|20|NO
+  wjname|char|50|NO
+  xmname|char|50|NO
+  drname|char|50|NO
+  darx|char|50|NO
+  sfdx|char|2|NO
+  wjxm|char|50|NO
+  cid|char|18|NO
+  ch|char|10|NO
+  job|varchar|50|NO
+  ty|char|10|NO
+  ls|numeric||NO
+  bxco|char|50|NO
+  bxdate|datetime||NO
+  dcdate|datetime||NO
+  fwgw|char|8|NO
+  lxtel|char|11|NO
+  lxadd|varchar|100|NO
+  xsgw|char|8|NO
+  cjh|char|20|NO
+  da|char|20|NO
+  paper|char|10|NO
+  qzz|numeric||NO
+  note|varchar|1000|NO
+  dcper|char|8|NO
+  lErr|bit||NO
+
+=== tbwlfh ===
+  id|int||NO
+  dpm|char|10|NO
+  cp|char|10|NO
+  fh_paper|char|15|NO
+  fhdate|datetime||NO
+  outdate|datetime||NO
+  gname|char|60|NO
+  salsecount|numeric||NO
+  paper|char|15|NO
+  spname|char|60|NO
+  fhamount|numeric||NO
+  ckamount|numeric||NO
+  tscount|numeric||NO
+  jkr|char|10|NO
+  jkdate|datetime||NO
+  postdate|datetime||NO
+  per|char|20|NO
+  jknote|varchar|50|NO
+  shr|char|20|NO
+  shrphone|char|20|NO
+  muzhan|char|20|NO
+  WLBJ|numeric||NO
+  FHJS|varchar|100|NO
+
+=== tbxfk ===
+  id|int||NO
+  carid|int||NO
+  xfkno|char|15|NO
+  xfkname|varchar|50|NO
+  startdate|datetime||NO
+  enddate|datetime||NO
+  oprc|numeric||NO
+  fkfs|char|10|NO
+  per|char|10|NO
+  jsy|char|10|NO
+  ywr|char|10|NO
+  cwqrman|char|10|NO
+  cwqrdate|datetime||NO
+  saledate|datetime||NO
+  dpm|char|10|NO
+
+=== TBXFKclMX ===
+  id|int||NO
+  xfkno|char|15|NO
+  xlcode|char|18|NO
+  xlxm|varchar|60|NO
+  xfkci|int||NO
+  xfkye|int||NO
+  xfkyci|int||NO
+  xfkname|varchar|50|NO
+  xfkxf|int||NO
+  danjine|int||NO
+
+=== tbxfkmx ===
+  id|int||NO
+  xfkno|char|15|NO
+  xlcode|char|12|NO
+  xlxm|varchar|60|NO
+  xfkci|int||NO
+  xfkye|int||NO
+  xfkyci|int||NO
+  xfkname|varchar|50|NO
+  xfkxf|int||NO
+  danjine|int||NO
+
+=== tbxlbxls ===
+  id|int||NO
+  bxdjdate|datetime||NO
+  dp|char|17|NO
+  bxno|char|45|NO
+  insurna|char|20|NO
+  bxssfee|numeric||NO
+  jsr|char|10|NO
+  bxdate|datetime||NO
+  ksdate|datetime||NO
+  carprice|numeric||NO
+  logdate|datetime||NO
+  seat|numeric||NO
+  darea|char|20|NO
+  driver|char|30|NO
+  driverno|char|60|NO
+  bxysfeesum|numeric||NO
+  cwqrman|char|10|NO
+  cwqrdate|datetime||NO
+  fkfs|char|10|NO
+  bxzl|char|10|NO
+  type|char|10|NO
+  dpm|char|10|NO
+  yf_money|numeric||NO
+  bxfl|numeric||NO
+  bxzsiprc|numeric||NO
+  per|char|15|NO
+  zgsh|char|10|NO
+  zgshdate|datetime||NO
+  tuikuan|numeric||NO
+  tksh|char|10|NO
+  tkshdate|datetime||NO
+  cwtksh|char|10|NO
+  cwtkshrq|datetime||NO
+  note|char|50|NO
+  assured|char|10|NO
+  ywy|char|10|NO
+
+=== tbxlbxxm ===
+  id|int||NO
+  bxno|char|45|NO
+  bxtype|char|20|NO
+  bxfee|numeric||NO
+  bxysfee|numeric||NO
+  ywy|char|10|NO
+  fl|numeric||NO
+  subbxssfee|numeric||NO
+
+=== tbxlcjdd ===
+  id|int||NO
+  xlcode|char|12|NO
+  gh|char|9|NO
+  xlxm|char|60|NO
+  xltype|char|8|NO
+  fktype|char|10|NO
+  bz|varchar|50|NO
+  xltime|numeric||NO
+  fy|numeric||NO
+  pgdate|datetime||NO
+  wgdate|datetime||NO
+  fl|varchar|50|NO
+  tlfy|numeric||NO
+  tcgz|numeric||NO
+  wgsdate|datetime||NO
+  yhl|numeric||NO
+  rate|numeric||NO
+  wxlx2|char|10|NO
+  whybad|varchar|50|NO
+  howdo|varchar|50|NO
+  xfkno|char|15|NO
+  ddy|char|10|NO
+  khfy|numeric||NO
+  GSTYPE|char|4|NO
+  djtype|char|4|NO
+  gs|varchar|50|NO
+
+=== tbxlcjdd_cf ===
+  id|int||NO
+  xlcode|char|12|NO
+  gh|char|9|NO
+  xlxm|char|60|NO
+  xltype|char|8|NO
+  fktype|char|10|NO
+  bz|varchar|50|NO
+  xltime|numeric||NO
+  fy|numeric||NO
+  pgdate|datetime||NO
+  wgdate|datetime||NO
+  fl|varchar|50|NO
+  tlfy|numeric||NO
+  tcgz|numeric||NO
+  wgsdate|datetime||NO
+  yhl|numeric||NO
+  rate|numeric||NO
+  wxlx2|char|10|NO
+  whybad|varchar|50|NO
+  howdo|varchar|50|NO
+  xfkno|char|15|NO
+  ddy|char|10|NO
+  khfy|numeric||NO
+  djtype|char|4|NO
+  hzid|int||NO
+  gs|varchar|50|NO
+  iddate|datetime||NO
+  xlcjdd_id|int||YES
+
+=== tbxlcjdd_lx ===
+  id|int||NO
+  xlcode|char|12|NO
+  gh|char|10|NO
+  xlxm|char|60|NO
+  xltype|char|8|NO
+  fktype|char|10|NO
+  bz|varchar|50|NO
+  xltime|numeric||NO
+  fy|numeric||NO
+  pgdate|datetime||NO
+  wgdate|datetime||NO
+  fl|varchar|50|NO
+  tlfy|numeric||NO
+  tcgz|numeric||NO
+  wgsdate|datetime||NO
+  yhl|numeric||NO
+  rate|numeric||NO
+  gs|char|50|NO
+
+=== tbxlclzl ===
+  carid|int||NO
+  guid|int||NO
+  cno|char|15|NO
+  writedate|datetime||NO
+  sale|varchar|50|NO
+  sale1|bit||NO
+  cx|char|15|NO
+  area|char|10|NO
+  cp|char|10|NO
+  dp|char|17|NO
+  ch|char|13|NO
+  pql|char|10|NO
+  cyear|char|10|NO
+  color|char|10|NO
+  engine|char|15|NO
+  bsq|varchar|50|NO
+  nzdm|varchar|50|NO
+  yxmm|varchar|50|NO
+  ykmm|varchar|50|NO
+  ysmm|varchar|50|NO
+  fdmm|varchar|50|NO
+  per|char|10|NO
+  nsdate|datetime||NO
+  bxdate|datetime||NO
+  djdate|datetime||NO
+  lxdate|datetime||NO
+  jsdate|datetime||NO
+  xsdate|datetime||NO
+  note|varchar|500|NO
+  lxr|char|10|NO
+  lxrjob|char|15|NO
+  lxrtel|varchar|50|NO
+  lxrfax|varchar|30|NO
+  lxradr|varchar|60|NO
+  hyno|char|10|NO
+  setdate|datetime||NO
+  term|int||NO
+  validate|datetime||NO
+  ktype|char|10|NO
+  kyhl|numeric||NO
+  k_yhl2|numeric||NO
+  k_yhl3|numeric||NO
+  scdate|datetime||NO
+  mark|char|1|NO
+  czxm|char|10|NO
+  czjob|char|10|NO
+  cztel|varchar|50|NO
+  czfax|varchar|30|NO
+  czadr|varchar|60|NO
+  sex|char|4|NO
+  gj|varchar|50|NO
+  zjcode|char|20|NO
+  marrage|char|6|NO
+  sity|char|15|NO
+  email|varchar|30|NO
+  gno|char|10|NO
+  gname|char|60|NO
+  code|char|30|NO
+  code1|char|30|NO
+  zip|char|6|NO
+  type1|char|18|NO
+  bank|varchar|30|NO
+  checkno|varchar|20|NO
+  grlike|varchar|50|NO
+  khnote|varchar|500|NO
+  bsno|char|15|NO
+  fdtype|char|20|NO
+  fddate|datetime||NO
+  opno|char|8|NO
+  jxno|char|8|NO
+  jtno|char|10|NO
+  gys|varchar|50|NO
+  cardno|char|15|NO
+  cardsale|char|20|NO
+  bno|char|30|NO
+  birthday|datetime||NO
+  mobile|char|15|NO
+  linkmob|char|15|NO
+  gutype|char|20|NO
+  cuse|varchar|50|NO
+  insurna|char|20|NO
+  awycens|bit||NO
+  awemaint|bit||NO
+  awguart|bit||NO
+  nwmaintd|datetime||NO
+  famaintd|datetime||NO
+  maintcyc|int||NO
+  uactive|bit||NO
+  logdate|datetime||NO
+  gwcxlno|char|10|NO
+  gwctype|char|15|NO
+  xueli|char|6|NO
+  khly|varchar|50|NO
+  hangye|varchar|50|NO
+  saleman|char|10|NO
+  lslast|int||NO
+  jdy|char|10|NO
+  lxtype|char|10|NO
+  bydate|datetime||NO
+  dpm|char|10|NO
+  Provincial|char|20|NO
+  municipal|char|20|NO
+  county|varchar|20|NO
+  Town|varchar|20|NO
+  dzyxdate|datetime||NO
+  Pwd|char|6|NO
+  YWR|char|10|NO
+  zong_id|int||NO
+
+=== tbxlcode ===
+  id|int||NO
+  xlcode|char|12|NO
+  xlxm|char|60|NO
+  xltime|numeric||NO
+  fy|numeric||NO
+  xltype|char|8|NO
+  fktype|char|10|NO
+  mark|char|1|NO
+  xmid|int||NO
+  iszh|bit||NO
+  code|char|30|NO
+  code1|char|30|NO
+  zq|int||NO
+  smsg|varchar|254|NO
+  cx|varchar|100|NO
+  bzfy|numeric||NO
+  khfy|numeric||NO
+  dpm|char|10|NO
+  gstype|char|4|NO
+
+=== tbxlcode1 ===
+  id|int||NO
+  xlcode|char|12|NO
+  xlxm|char|60|NO
+  xltime|numeric||NO
+  fy|numeric||NO
+  xltype|char|8|NO
+  ls1|int||NO
+  ls2|int||NO
+  zq|int||NO
+  smsg|varchar|254|NO
+
+=== tbxldcl ===
+  tid|int||NO
+  lcmonth|char|7|YES
+  jcr|varchar|12|YES
+  type|varchar|12|YES
+  mbz|numeric||YES
+
+=== tbxldj ===
+  gh|char|9|NO
+  type|char|15|NO
+  l_sh|bit||NO
+  note|varchar|50|NO
+
+=== tbxldyjl ===
+  id|int||NO
+  type|char|30|NO
+  fsdate|datetime||NO
+  jsr|char|8|NO
+  gh|char|9|NO
+  xlcode|char|17|NO
+  xlxm|varchar|60|NO
+  xltype|char|8|NO
+  bz|varchar|50|NO
+  xltime|numeric||NO
+  fy|numeric||NO
+  fl|varchar|50|NO
+  ctype|char|10|NO
+  xlrcid|int||NO
+
+=== tbxldzf ===
+  gh|char|10|NO
+  gname|char|60|NO
+  item|int||NO
+  sswfy|numeric||NO
+  sscfy|numeric||NO
+  iprc|numeric||NO
+  jsdate|datetime||NO
+  fkfs|char|10|NO
+  jdy|char|8|NO
+
+=== tbxlff ===
+  ch|char|13|NO
+  per|char|8|NO
+  datime|datetime||NO
+  fdate|datetime||NO
+  note|text|2147483647|NO
+
+=== tbxlfl ===
+  id|int||NO
+  gh|char|10|NO
+  nno|char|18|NO
+  na1|char|40|NO
+  amount|numeric||NO
+  oprc|numeric||NO
+  unit|char|4|NO
+  dc|char|10|NO
+  fltype|char|6|NO
+
+=== tbxlfuwu ===
+  id|int||NO
+  ch|char|13|NO
+  endate|datetime||NO
+  fuwu|char|40|NO
+
+=== tbxlfx ===
+  id|int||NO
+  gh|char|9|NO
+  fxgh|char|9|NO
+
+=== tbxlgs ===
+  id|int||NO
+  gh|char|9|NO
+  xlcode|char|12|NO
+  xlxm|char|60|NO
+  fy|numeric||NO
+  fl|varchar|50|NO
+  xltype|char|8|NO
+  xltime|numeric||NO
+  fktype|char|10|NO
+  rate|numeric||NO
+  bz|varchar|50|NO
+  khfy|numeric||NO
+
+=== tbxlgscl ===
+  id|int||NO
+  cp|char|10|NO
+  type|char|10|NO
+  dpm|char|10|NO
+  nno|char|18|NO
+  na1|char|40|NO
+  ty|char|38|NO
+  fa|char|16|NO
+  unit|char|2|NO
+  note|char|25|NO
+  posi|char|10|NO
+  ckamount|numeric||NO
+  iprj|numeric||NO
+  iprc|numeric||NO
+  oprc|numeric||NO
+  oprct|numeric||NO
+  yhl|numeric||NO
+  paper|char|10|NO
+  gno|char|10|NO
+  gname|char|60|NO
+  gh|char|9|NO
+  per|char|8|NO
+  outdate|datetime||NO
+  bz|varchar|50|NO
+  dc|char|8|NO
+  fl|varchar|50|NO
+  pnno|char|18|NO
+  pna1|char|20|NO
+  pty|char|14|NO
+  pfa|char|8|NO
+  kcamount|numeric||NO
+  cxnno|char|18|NO
+  depotno|char|10|NO
+  fktype|char|10|NO
+  kcid|int||NO
+  tgh|char|10|NO
+  rate|numeric||NO
+  xltype2|char|10|NO
+  llwxlx|char|10|NO
+  xmid|int||NO
+
+=== tbxlje ===
+  id|int||NO
+  gh|char|9|NO
+  fl|varchar|50|NO
+  wfy|numeric||NO
+  cfy|numeric||NO
+  zfy|numeric||NO
+  zfr|varchar|50|NO
+  ssje|numeric||NO
+  sswfy|numeric||NO
+  sscfy|numeric||NO
+  dfje|numeric||NO
+  fatherid|int||NO
+
+=== tbxljsdyjl ===
+  id|int||NO
+  gh|char|10|NO
+  type|char|30|NO
+  pdate|datetime||NO
+  pcount|int||NO
+  per|char|10|NO
+  ch|char|13|NO
+
+=== tbxlkd ===
+  id|int||NO
+  gh|char|9|NO
+  xlcode|char|12|NO
+  xlxm|char|60|NO
+  xltime|numeric||NO
+  fy|numeric||NO
+  fl|varchar|50|NO
+  fktype|char|10|NO
+  rate|numeric||NO
+  yhl|numeric||NO
+
+=== tbxlkdcl ===
+  id|int||NO
+  gh|char|9|NO
+  nno|char|18|NO
+  na1|char|40|NO
+  ckamount|numeric||NO
+  oprc|numeric||NO
+  ty|char|14|NO
+  unit|char|2|NO
+  fl|varchar|50|NO
+  depotno|char|10|NO
+  fktype|char|10|NO
+  rate|numeric||NO
+  xltype2|char|10|NO
+  xmid|int||NO
+  yhl|numeric||NO
+
+=== tbxlmx ===
+  id1|int||NO
+  gh1|char|30|YES
+  xlcode1|char|20|YES
+  xlxm1|char|60|YES
+  fy1|numeric||YES
+  id|int||NO
+
+=== tbxlrc ===
+  id|int||NO
+  gh|char|9|NO
+  ch|char|13|NO
+  cp|char|10|NO
+  cx|char|14|NO
+  gno|char|10|NO
+  gname|char|60|NO
+  xm|varchar|50|NO
+  lxr|char|10|NO
+  jyy|char|14|NO
+  wxlx|varchar|200|NO
+  wfy|numeric||NO
+  jcdate|datetime||NO
+  wgdate|datetime||NO
+  jsdate|datetime||NO
+  lxdate|datetime||NO
+  bxdate|datetime||NO
+  tcdate|datetime||NO
+  djdate|datetime||NO
+  jzdate|datetime||NO
+  tel|varchar|50|NO
+  cfy|numeric||NO
+  zf|char|4|NO
+  dp|char|17|NO
+  cyear|char|8|NO
+  jdy|char|10|NO
+  yl|char|6|NO
+  ls|char|10|NO
+  yhl|numeric||NO
+  pyhl|numeric||NO
+  gyhl|numeric||NO
+  qfy|numeric||NO
+  fkfs|char|10|NO
+  note|varchar|200|NO
+  cardno|char|15|NO
+  engine|char|15|NO
+  jzr|char|10|NO
+  xlstatus|char|1|NO
+  note1|varchar|500|NO
+  audit|bit||NO
+  v_content|varchar|3000|NO
+  v_date|datetime||NO
+  v_per|char|10|NO
+  satisfaction|char|10|NO
+  ywlx|varchar|50|NO
+  gfy|numeric||NO
+  jsy|char|10|NO
+  bno|char|30|NO
+  tgh|char|12|NO
+  isyy|bit||NO
+  outdate|datetime||NO
+  advice|int||NO
+  cust_note|varchar|200|NO
+  wxqk|char|10|NO
+  amt|numeric||NO
+  lxrtel|char|12|NO
+  fail|bit||NO
+  flfy|numeric||NO
+  pno|varchar|50|NO
+  bx|char|2|NO
+  v_tel|char|15|NO
+  v_lxr|char|10|NO
+  insurna|char|20|NO
+  lcdate|datetime||NO
+  jianshou|numeric||NO
+  gwclqno|char|15|NO
+  gwcsxyy|varchar|500|NO
+  gwcjszd|varchar|500|NO
+  bxbano|varchar|50|NO
+  bxsano|varchar|50|NO
+  bxsadate|datetime||NO
+  kpdate|datetime||NO
+  v_state|char|10|NO
+  dpm|char|10|NO
+  isby|bit||NO
+  actmoney|numeric||NO
+  colmoney|numeric||NO
+  gdty|char|20|NO
+  hftime|varchar|20|NO
+
+=== tbxlrc_lx ===
+  id|int||NO
+  gh|char|10|NO
+  ch|char|13|NO
+  cp|char|10|NO
+  cx|char|14|NO
+  gno|char|10|NO
+  gname|char|60|NO
+  xm|varchar|50|NO
+  lxr|char|10|NO
+  jyy|char|14|NO
+  wxlx|varchar|200|NO
+  wfy|numeric||NO
+  jcdate|datetime||NO
+  wgdate|datetime||NO
+  jsdate|datetime||NO
+  lxdate|datetime||NO
+  bxdate|datetime||NO
+  tcdate|datetime||NO
+  djdate|datetime||NO
+  jzdate|datetime||NO
+  tel|varchar|50|NO
+  cfy|numeric||NO
+  zf|char|4|NO
+  dp|char|17|NO
+  cyear|char|8|NO
+  jdy|char|10|NO
+  yl|char|6|NO
+  ls|char|10|NO
+  yhl|numeric||NO
+  pyhl|numeric||NO
+  gyhl|numeric||NO
+  qfy|numeric||NO
+  fkfs|char|10|NO
+  note|varchar|200|NO
+  cardno|char|15|NO
+  engine|char|15|NO
+  jzr|char|10|NO
+  xlstatus|char|1|NO
+  note1|varchar|500|NO
+  audit|bit||NO
+  v_content|varchar|3000|NO
+  v_date|datetime||NO
+  v_per|char|10|NO
+  satisfaction|char|10|NO
+  ywlx|varchar|50|NO
+  gfy|numeric||NO
+  jsy|char|10|NO
+  bno|char|30|NO
+  tgh|char|12|NO
+  isyy|bit||NO
+  outdate|datetime||NO
+  advice|int||NO
+  cust_note|varchar|200|NO
+  wxqk|char|10|NO
+  amt|numeric||NO
+  lxrtel|char|12|NO
+  fail|bit||NO
+  flfy|numeric||NO
+  pno|varchar|50|NO
+  bx|char|2|NO
+  gs|char|50|NO
+  v_tel|char|15|NO
+  v_lxr|char|10|NO
+
+=== tbxlrcbx ===
+  id|int||NO
+  gh|char|9|NO
+  bxcxdate|datetime||YES
+  bxdsdate|datetime||YES
+  bxdsy|char|10|YES
+  bxdsnote|varchar|500|YES
+  bxjadate|datetime||YES
+  bxjay|char|10|YES
+  bxjanote|varchar|500|YES
+  bxjsnote|varchar|500|YES
+  bxsay|char|10|YES
+  bxsanote|varchar|500|YES
+  bxdkdate|datetime||YES
+  bxdky|char|10|YES
+  bxdknote|varchar|500|YES
+  bxenddate|datetime||YES
+  bxendy|char|10|YES
+  bxendnote|varchar|500|YES
+  bxzsjsy|char|10|YES
+  bxspbz|bit||YES
+  jccj|char|10|YES
+  jccjjdy|char|10|YES
+  bxxz|char|20|YES
+  bxwfy|numeric||YES
+  bxcfy|numeric||YES
+  bxzje|numeric||YES
+  ismp|bit||YES
+  feemp|numeric||YES
+  isjqx|bit||YES
+  feeyj|numeric||YES
+  bxstat|char|10|YES
+  endtype|char|10|YES
+  qsfz|bit||YES
+  qsfzname|varchar|50|YES
+  qjsz|bit||YES
+  qjszname|varchar|50|YES
+  qxsz|bit||YES
+  qxszname|varchar|50|YES
+  qdwgz|bit||YES
+  qdwzname|varchar|50|YES
+  qsy|bit||YES
+  qjq|bit||YES
+  qtuoyin|bit||YES
+  qdsz|bit||YES
+  qzl|bit||YES
+  yjdsdate|datetime||YES
+  shigu|varchar|20|YES
+  checkcar|bit||YES
+  jiujian|bit||YES
+  bxjatui|bit||YES
+  bxsatui|bit||YES
+  gkgs|char|50|YES
+  mpl|numeric||YES
+  dsz|char|50|YES
+  sh|bit||YES
+  sgper|char|20|YES
+  qbank|bit||YES
+  qbankname|char|50|YES
+  qwxfp|bit||YES
+  qwxfpname|char|50|YES
+  qtjhz|bit||YES
+  qtjhzname|char|50|YES
+  qzrs|bit||YES
+  qzrsname|char|50|YES
+  bxfkfs|varchar|20|NO
+  billamount|numeric||NO
+  billdate|datetime||NO
+  bxnote|varchar|200|NO
+  spnote|varchar|20|NO
+  bxinsurna|varchar|50|NO
+
+=== tbxlsa ===
+  id|int||NO
+  cp|char|10|NO
+  type|char|10|NO
+  dpm|char|10|NO
+  nno|char|18|NO
+  na1|char|40|NO
+  ty|char|38|NO
+  fa|char|16|NO
+  unit|char|2|NO
+  note|char|25|NO
+  posi|char|10|NO
+  ckamount|numeric||NO
+  iprj|numeric||NO
+  iprc|numeric||NO
+  oprc|numeric||NO
+  oprct|numeric||NO
+  yhl|numeric||NO
+  paper|char|10|NO
+  gno|char|10|NO
+  gname|char|60|NO
+  gh|char|9|NO
+  per|char|8|NO
+  outdate|datetime||NO
+  bz|varchar|50|NO
+  dc|char|8|NO
+  fl|varchar|50|NO
+  pnno|char|18|NO
+  pna1|char|40|NO
+  pty|char|14|NO
+  pfa|char|8|NO
+  kcamount|numeric||NO
+  cxnno|char|18|NO
+  depotno|char|10|NO
+  fktype|char|10|NO
+  kcid|int||NO
+  ro|numeric||NO
+  paper_old|char|10|NO
+  tgh|char|6|NO
+  dis|bit||NO
+  rate|numeric||NO
+  xltype2|char|8|NO
+  ywr|varchar|50|NO
+  dscp|char|10|NO
+  cjdate|datetime||NO
+  xmid|int||NO
+  llwxlx|char|10|NO
+  GZperson|char|10|NO
+  tlnote|varchar|250|NO
+  jpid|int||NO
+  gs|varchar|50|NO
+  xfkno|char|15|NO
+
+=== tbxlsa_cf ===
+  id|int||NO
+  cp|char|10|NO
+  type|char|10|NO
+  dpm|char|10|NO
+  nno|char|18|NO
+  na1|char|40|NO
+  ty|char|38|NO
+  fa|char|16|NO
+  unit|char|2|NO
+  note|char|25|NO
+  posi|char|10|NO
+  ckamount|numeric||NO
+  iprj|numeric||NO
+  iprc|numeric||NO
+  oprc|numeric||NO
+  oprct|numeric||NO
+  yhl|numeric||NO
+  paper|char|15|NO
+  gno|char|10|NO
+  gname|char|60|NO
+  gh|char|9|NO
+  per|char|8|NO
+  outdate|datetime||NO
+  bz|varchar|50|NO
+  dc|char|8|NO
+  fl|varchar|50|NO
+  pnno|char|18|NO
+  pna1|char|40|NO
+  pty|char|14|NO
+  pfa|char|8|NO
+  kcamount|numeric||NO
+  cxnno|char|18|NO
+  depotno|char|10|NO
+  fktype|char|10|NO
+  kcid|int||NO
+  ro|numeric||NO
+  paper_old|char|10|NO
+  tgh|char|6|NO
+  dis|bit||NO
+  rate|numeric||NO
+  xltype2|char|8|NO
+  ywr|varchar|50|NO
+  dscp|char|10|NO
+  cjdate|datetime||NO
+  xmid|int||NO
+  llwxlx|char|10|NO
+  gzperson|char|10|YES
+  tlnote|varchar|250|NO
+  hzid|int||NO
+  gs|varchar|50|NO
+  iddate|datetime||NO
+  jpid|int||NO
+  jpid1|int||NO
+  xlsa_id|int||NO
+
+=== tbxlsa_lx ===
+  id|int||NO
+  cp|char|10|NO
+  type|char|10|NO
+  dpm|char|10|NO
+  nno|char|18|NO
+  na1|char|40|NO
+  ty|char|38|NO
+  fa|char|16|NO
+  unit|char|2|NO
+  note|char|25|NO
+  posi|char|10|NO
+  ckamount|numeric||NO
+  iprj|numeric||NO
+  iprc|numeric||NO
+  oprc|numeric||NO
+  oprct|numeric||NO
+  yhl|numeric||NO
+  paper|char|10|NO
+  gno|char|10|NO
+  gname|char|60|NO
+  gh|char|10|NO
+  per|char|8|NO
+  outdate|datetime||NO
+  bz|varchar|50|NO
+  dc|char|8|NO
+  fl|varchar|50|NO
+  pnno|char|18|NO
+  pna1|char|40|NO
+  pty|char|14|NO
+  pfa|char|8|NO
+  kcamount|numeric||NO
+  cxnno|char|18|NO
+  depotno|char|10|NO
+  fktype|char|10|NO
+  kcid|int||NO
+  ro|numeric||NO
+  paper_old|char|10|NO
+  tgh|char|6|NO
+  dis|bit||NO
+  rate|numeric||NO
+  gs|char|50|NO
+
+=== tbxlsh ===
+  id|int||NO
+  gh|char|9|NO
+  nx|numeric||NO
+  ny|numeric||NO
+  note|char|16|NO
+  type|char|5|NO
+
+=== tbxltj ===
+  gh|char|9|NO
+  type|char|15|NO
+  l_sh|bit||NO
+  note|char|15|NO
+
+=== tbxltslb ===
+  id|int||NO
+  carid|int||NO
+  tslb|char|40|NO
+  valuec|char|40|NO
+
+=== tbxltype ===
+  tid|char|6|YES
+  type|char|20|NO
+
+=== tbxlyy ===
+  id|int||NO
+  type|char|4|NO
+  gh|char|9|NO
+  ch|char|13|NO
+  cp|char|10|NO
+  cx|char|15|NO
+  guid|int||NO
+  gno|char|10|NO
+  gname|char|60|NO
+  per|char|10|NO
+  lxr|char|8|NO
+  writedate|datetime||NO
+  lxdate|datetime||NO
+  djdate|datetime||NO
+  nsdate|datetime||NO
+  tel|char|40|NO
+  dp|char|17|NO
+  cyear|char|4|NO
+  note|varchar|500|NO
+  note1|char|50|NO
+  bz|bit||NO
+  jcdate|datetime||NO
+  mobile|char|15|NO
+  jdy|char|10|NO
+  yytype|char|16|NO
+  yystat|char|10|NO
+  dpm|char|10|NO
+
+=== tbxlzhcl ===
+  id|int||NO
+  xmid|int||NO
+  xlcode|char|12|NO
+  cp|char|10|NO
+  nno|char|18|NO
+  na1|char|40|NO
+  depotno|char|10|NO
+  clamou|int||NO
+  fl|varchar|50|NO
+
+=== tbxlzhxm ===
+  id|int||NO
+  xmid|int||NO
+  xlcode|char|12|NO
+  xlxm|char|60|NO
+  xltime|numeric||NO
+  fy|numeric||NO
+  xltype|char|10|NO
+  fktype|char|10|NO
+  fl|varchar|50|NO
+  khfy|numeric||NO
+
+=== tbxlzx ===
+  id|int||NO
+  gh|char|9|NO
+  ch|char|13|NO
+  bz|varchar|50|NO
+  xlxm|varchar|60|NO
+  startdate|datetime||NO
+  enddate|datetime||NO
+  endtype|char|10|NO
+
+=== tbxsnno ===
+  nno|varchar|18|NO
+  na1|varchar|40|YES
+  outdate|datetime||YES
+
+=== tbxzb ===
+  id|int||NO
+  tablename|char|20|NO
+  fieldname|char|10|NO
+  variable|char|100|NO
+
+=== tbyhxm ===
+  id|int||NO
+  xm|char|50|NO
+  XLcode|char|10|NO
+  nno|char|18|NO
+  ntime|int||NO
+  note|char|20|NO
+  bk1|char|10|NO
+  ch|char|10|NO
+
+=== tbyj ===
+  id|int||NO
+  yjdate|datetime||NO
+  per|char|10|NO
+  dpm|char|10|NO
+
+=== tbysyf ===
+  id|int||NO
+  dpm|char|10|NO
+  datime|datetime||NO
+  cno|char|30|NO
+  pno|varchar|50|NO
+  gno|char|10|NO
+  gname|char|60|NO
+  xm|varchar|250|NO
+  ys|numeric||NO
+  yf|numeric||NO
+  cb|numeric||NO
+  tick|int||NO
+  fkfs|char|10|NO
+  lj|numeric||NO
+  type|char|8|NO
+  skmoney|numeric||NO
+  per|char|10|NO
+  mark|char|10|NO
+  isord|char|10|NO
+  sknote|varchar|250|NO
+  note|varchar|250|NO
+  spname|char|60|NO
+  yjb|numeric||NO
+  htno|varchar|50|NO
+  htbtime|datetime||NO
+  htetime|datetime||NO
+
+=== TBYSYF_TYPE ===
+  id|int||NO
+  dpm|char|10|NO
+  datime|datetime||NO
+  cno|char|30|NO
+  pno|varchar|50|NO
+  gno|char|10|NO
+  gname|char|60|NO
+  xm|varchar|250|NO
+  ys|numeric||NO
+  yf|numeric||NO
+  cb|numeric||YES
+  fkfs|char|10|NO
+  lj|numeric||NO
+  type|char|8|NO
+  skmoney|numeric||NO
+  tick|int||NO
+  per|char|10|NO
+  mark|char|10|NO
+  isord|char|10|NO
+  sknote|varchar|250|NO
+  note|varchar|250|NO
+  spname|char|60|NO
+  yjb|numeric||NO
+  htno|varchar|50|NO
+  htbtime|datetime||NO
+  htetime|datetime||NO
+
+=== tbzjjc ===
+  id|int||NO
+  type|varchar|50|NO
+  name|varchar|50|NO
+  FindStr|varchar|500|NO
+  FindWhere|varchar|100|NO
+  SelectStr|text|2147483647|NO
+  keys|char|10|NO
+  cwhere|varchar|200|NO
+  note|varchar|500|NO
+  shoptype|char|1|NO
+  twoWhere|varchar|8000|NO
+  SelectStrLEft|text|2147483647|NO
+  SelectStrRigth|text|2147483647|NO
+
+
+=== TABLE ROW COUNTS ===
+  c_gcs: 0 rows
+  dtproperties: 0 rows
+  finaleger: 0 rows
+  finamsum: 0 rows
+  finbs: 152 rows
+  fincadistr: 0 rows
+  fincash: 268 rows
+  fincashba: 1980 rows
+  fincashitem: 172 rows
+  fincolumn: 10 rows
+  finempl: 7 rows
+  finhisbal: 0 rows
+  finitsub: 0 rows
+  finmoney: 2 rows
+  finprol: 88 rows
+  finreclist: 0 rows
+  finrecout: 1 rows
+  finset: 20 rows
+  finsoursub: 0 rows
+  finsub: 4447 rows
+  finsub_auto: 0 rows
+  finsubit: 0 rows
+  finsumary: 2 rows
+  FINTY: 0 rows
+  finvid: 4 rows
+  finvouch: 97789 rows
+  ISTOKCJJ: 0 rows
+  perassty: 1 rows
+  perchgty: 0 rows
+  rname0: 0 rows
+  syscontrol: 4 rows
+  tbbank: 0 rows
+  tbbell: 4 rows
+  tbbxbj: 0 rows
+  tbbxwarn: 0 rows
+  tbcarfjtmp: 0 rows
+  tbchatlist: 0 rows
+  tbchex: 0 rows
+  tbclient: 0 rows
+  tbcode: 6762 rows
+  tbcomid: 0 rows
+  tbcomplex: 12300 rows
+  tbcset: 0 rows
+  tbcskg: 45 rows
+  tbdbflist: 0 rows
+  tbdbmgr: 0 rows
+  tbdccoef: 11 rows
+  tbdjgs: 20 rows
+  tbdjq: 2 rows
+  tbdpm: 1 rows
+  tbemkey: 308989 rows
+  tberror: 0 rows
+  tbfh: 0 rows
+  tbfinlist: 0 rows
+  tbfinlistsets: 0 rows
+  tbfkqr: 0 rows
+  tbfl: 0 rows
+  tbformula: 9 rows
+  tbfpgl: 96 rows
+  tbgath: 395472 rows
+  tbgu: 3794 rows
+  tbgu_vis: 0 rows
+  tbgugys: 80 rows
+  tbgys: 0 rows
+  tbhfts: 0 rows
+  TBhhm: 2 rows
+  TBHYCZTEMP: 0 rows
+  tbImage: 9 rows
+  TBINDT: 28 rows
+  tbindtconfig: 119 rows
+  tbintegral: 1 rows
+  tbisorsm: 0 rows
+  tbisto: 25541 rows
+  tbisto_lx: 0 rows
+  tbistoch: 19530 rows
+  tbistoed: 206963 rows
+  tbistoed_lx: 0 rows
+  tbistojj: 0 rows
+  tbistomk: 20 rows
+  tbistopd: 836 rows
+  tbistosav: ERROR - ERROR [HYT00] [Microsoft][ODBC SQL Server Driver]查询超时已过期
+  tbistosm: 39 rows
+  tbjpcode: 1 rows
+  tbjpcode1: 0 rows
+  tbjpgl: 0 rows
+  tbjpzhcl: 1 rows
+  tbjpzhxm: 0 rows
+  tbkc: 0 rows
+  tbKcageset: 3 rows
+  tbkey: 5 rows
+  tbkyhl: 4 rows
+  tblcisto: 0 rows
+  tbljkcbg: 165 rows
+  tblogin: 1 rows
+  tblsz: 388638 rows
+  TBMARK: 0 rows
+  tbmindex: 0 rows
+  tbmodu: 0 rows
+  tbmsgset: 2 rows
+  tbmsinf: 1 rows
+  tbmsreceive: 0 rows
+  tbmsrecset: 3 rows
+  tbmssendhis: 0 rows
+  tbmssendtmp: 0 rows
+  tbmssetd: 660 rows
+  tbmsseth: 35 rows
+  tbmymenu: 754 rows
+  tbname0: 11977 rows
+  tboil: 0 rows
+  TBOLDRECY: 0 rows
+  tborder: 559 rows
+  tborderexp: 5 rows
+  tbordergu: 0 rows
+  tborexppara: 12 rows
+  tbperid: 0 rows
+  tbposi: 5 rows
+  tbprnoty: 25903 rows
+  tbprtj: 0 rows
+  tbqtgs: 0 rows
+  tbqylc: 1 rows
+  tbreif: 0 rows
+  tbreys: 0 rows
+  tbrole: 9 rows
+  tbrtcbk: 1 rows
+  tbrtsamo: 4286 rows
+  tbsada: 1058561 rows
+  tbsada_header: 313111 rows
+  tbsada_lx: 0 rows
+  tbsadc: 1 rows
+  tbsaxg: 100074 rows
+  TbSmart: 3 rows
+  tbspgo: 0 rows
+  tbsqlerr: 5695277 rows
+  tbstru: 2318 rows
+  tbsyslog: 1257821 rows
+  tbsysset: 499 rows
+  tbtest: 1 rows
+  TBTOOLCK: 0 rows
+  TBTOOLMANAG: 0 rows
+  tbty: 0 rows
+  Tbupdate: 1 rows
+  tbupdate_sql: 0 rows
+  tbviewuser: 6 rows
+  tbwarn: 11 rows
+  tbwjg: 0 rows
+  tbwjset: 38 rows
+  tbwlfh: 0 rows
+  tbxfk: 0 rows
+  TBXFKclMX: 2 rows
+  tbxfkmx: 18 rows
+  tbxlbxls: 0 rows
+  tbxlbxxm: 0 rows
+  tbxlcjdd: 0 rows
+  tbxlcjdd_cf: 0 rows
+  tbxlcjdd_lx: 0 rows
+  tbxlclzl: 0 rows
+  tbxlcode: 0 rows
+  tbxlcode1: 2 rows
+  tbxldcl: 0 rows
+  tbxldj: 137 rows
+  tbxldyjl: 0 rows
+  tbxldzf: 0 rows
+  tbxlff: 0 rows
+  tbxlfl: 0 rows
+  tbxlfuwu: 0 rows
+  tbxlfx: 0 rows
+  tbxlgs: 0 rows
+  tbxlgscl: 0 rows
+  tbxlje: 0 rows
+  tbxljsdyjl: 0 rows
+  tbxlkd: 0 rows
+  tbxlkdcl: 0 rows
+  tbxlmx: 0 rows
+  tbxlrc: 0 rows
+  tbxlrc_lx: 0 rows
+  tbxlrcbx: 47 rows
+  tbxlsa: 0 rows
+  tbxlsa_cf: 0 rows
+  tbxlsa_lx: 0 rows
+  tbxlsh: 31 rows
+  tbxltj: 23 rows
+  tbxltslb: 0 rows
+  tbxltype: 4 rows
+  tbxlyy: 0 rows
+  tbxlzhcl: 28 rows
+  tbxlzhxm: 49 rows
+  tbxlzx: 0 rows
+  tbxsnno: 0 rows
+  tbxzb: 55 rows
+  tbyhxm: 0 rows
+  tbyj: 2 rows
+  tbysyf: 496052 rows
+  TBYSYF_TYPE: 0 rows
+  tbzjjc: 32 rows

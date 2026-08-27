@@ -1,0 +1,70 @@
+<UserControl x:Class="QP11.Wpf.Views.ArrearageControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Loaded="UserControl_Loaded">
+    <Grid Margin="6">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,4">
+            <TextBlock Text="客户名称/拼音:" VerticalAlignment="Center"/>
+            <TextBox x:Name="txtSearch" Width="140" Margin="4,0"/>
+            <Button Content="搜索" Width="55" Click="BtnSearch_Click"/>
+            <TextBlock Text="模式:" VerticalAlignment="Center" Margin="12,0,0,0"/>
+            <ComboBox x:Name="cboMode" Width="80" Margin="4,0" SelectedIndex="0" SelectionChanged="CboMode_SelectionChanged">
+                <ComboBoxItem Content="应付款" Tag="1"/>
+                <ComboBoxItem Content="应收款" Tag="2"/>
+            </ComboBox>
+        </StackPanel>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="3*"/>
+            </Grid.ColumnDefinitions>
+
+            <GroupBox Header="客户列表" Margin="0,0,4,0">
+                <DataGrid x:Name="dgClients" AutoGenerateColumns="False" IsReadOnly="True"
+                          SelectionMode="Single" SelectionChanged="DgClients_SelectionChanged"
+                          AlternatingRowBackground="#F8F8F8" GridLinesVisibility="Horizontal">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="编号" Width="60" Binding="{Binding bid}"/>
+                        <DataGridTextColumn Header="名称" Width="*" Binding="{Binding name}"/>
+                        <DataGridTextColumn Header="欠款总额" Width="90" Binding="{Binding total_je, StringFormat=N2}"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </GroupBox>
+
+            <GroupBox Header="欠款明细" Grid.Column="1" Margin="4,0,0,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <DataGrid Grid.Row="0" x:Name="dgDetail" AutoGenerateColumns="False"
+                              CanUserAddRows="False" CanUserDeleteRows="False"
+                              AlternatingRowBackground="#F8F8F8" GridLinesVisibility="Horizontal"
+                              LoadingRow="DgDetail_LoadingRow">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="单号" Width="100" Binding="{Binding Sn}" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="日期" Width="85" Binding="{Binding Datetime, StringFormat=yyyy-MM-dd}" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="欠款" Width="70" Binding="{Binding Je, StringFormat=N2}" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="已付" Width="60" Binding="{Binding Charge, StringFormat=N2}" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="未付" Width="70" Binding="{Binding Owe, StringFormat=N2}" IsReadOnly="True"/>
+                            <DataGridCheckBoxColumn Header="选择" Width="45" Binding="{Binding IsSelected}"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,6,0,0">
+                        <Button Content="打印对账单" Width="80" Click="BtnPrint_Click"/>
+                        <Button Content="全选" Width="55" Margin="12,0,0,0" Click="BtnSelectAll_Click"/>
+                        <Button Content="确认到账" Width="70" Margin="4,0" Click="BtnConfirm_Click"/>
+                    </StackPanel>
+                </Grid>
+            </GroupBox>
+        </Grid>
+    </Grid>
+</UserControl>

@@ -1,0 +1,49 @@
+<Window x:Class="QP11.Wpf.Views.ArrearageWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="应收应付管理" Height="550" Width="900"
+        WindowStartupLocation="CenterOwner">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 查询条件栏 -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,5">
+            <TextBlock Text="类型:" VerticalAlignment="Center"/>
+            <ComboBox x:Name="cboType" Width="100" Margin="5,0" SelectedIndex="0">
+                <ComboBoxItem Content="全部"/>
+                <ComboBoxItem Content="应收"/>
+                <ComboBoxItem Content="应付"/>
+            </ComboBox>
+            <TextBlock Text="起始日期:" VerticalAlignment="Center" Margin="10,0,0,0"/>
+            <DatePicker x:Name="dtStart" Width="130" Margin="5,0"/>
+            <TextBlock Text="截止日期:" VerticalAlignment="Center" Margin="10,0,0,0"/>
+            <DatePicker x:Name="dtEnd" Width="130" Margin="5,0"/>
+            <Button Content="查询" Width="60" Click="BtnSearch_Click"/>
+        </StackPanel>
+
+        <!-- 欠款记录列表 -->
+        <DataGrid Grid.Row="1" x:Name="dgArrearage" AutoGenerateColumns="False" IsReadOnly="True"
+                  CanUserAddRows="False" AlternatingRowBackground="#F8F8F8" GridLinesVisibility="Horizontal"
+                  LoadingRow="DgArrearage_LoadingRow">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="客户/供应商" Width="120" Binding="{Binding bid}"/>
+                <DataGridTextColumn Header="类型" Width="50" Binding="{Binding type}"/>
+                <DataGridTextColumn Header="金额" Width="90" Binding="{Binding je, StringFormat=N2}"/>
+                <DataGridTextColumn Header="已付" Width="80" Binding="{Binding charge, StringFormat=N2}"/>
+                <DataGridTextColumn Header="未付" Width="90" Binding="{Binding owe, StringFormat=N2}"/>
+                <DataGridTextColumn Header="关联单号" Width="130" Binding="{Binding sn}"/>
+                <DataGridTextColumn Header="日期" Width="90" Binding="{Binding datetime, StringFormat=yyyy-MM-dd}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- 状态栏 -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,5,0,0">
+            <TextBlock x:Name="txtCount" Text="共 0 条记录"/>
+            <TextBlock x:Name="txtTotal" Text="" Foreground="Red" Margin="20,0,0,0"/>
+        </StackPanel>
+    </Grid>
+</Window>

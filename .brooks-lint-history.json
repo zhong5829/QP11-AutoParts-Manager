@@ -1,0 +1,35 @@
+[
+  {
+    "date": "2026-07-22T17:00:00+08:00",
+    "mode": "Health Dashboard",
+    "score": 68,
+    "findings": {
+      "critical": 3,
+      "warning": 2,
+      "suggestion": 0
+    },
+    "scope": "QP11 汽配管理系统 (f:\\qp11\\src, 5 projects, ~114 source files)"
+  },
+  {
+    "date": "2026-07-22T17:15:00+08:00",
+    "mode": "Architecture Audit",
+    "score": 55,
+    "findings": {
+      "critical": 4,
+      "warning": 3,
+      "suggestion": 1
+    },
+    "scope": "QP11 汽配管理系统 (f:\\qp11\\src, 5 projects, ~114 source files)"
+  },
+  {
+    "date": "2026-07-22T17:30:00+08:00",
+    "mode": "Tech Debt Assessment",
+    "score": 52,
+    "findings": {
+      "critical": 4,
+      "warning": 4,
+      "suggestion": 2
+    },
+    "scope": "QP11 汽配管理系统 (f:\\qp11\\src, 5 projects, ~114 source files)"
+  }
+]

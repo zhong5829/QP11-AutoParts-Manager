@@ -1,0 +1,63 @@
+<Window x:Class="QP11.Wpf.Views.InventoryWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:helpers="clr-namespace:QP11.Wpf.Helpers"
+        Title="库存管理" Height="600" Width="1200"
+        WindowStartupLocation="CenterOwner">
+    <Window.Resources>
+        <helpers:SingleLineConverter x:Key="SingleLineConverter"/>
+        <Style x:Key="SingleLineCell" TargetType="TextBlock">
+            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+            <Setter Property="TextWrapping" Value="NoWrap"/>
+        </Style>
+    </Window.Resources>
+    <Grid Margin="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,5">
+            <TextBlock Text="搜索:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+            <TextBox x:Name="txtSearch" Width="250" TextChanged="TxtSearch_TextChanged"/>
+            <Button Content="查询" Width="60" Margin="5,0" Click="BtnSearch_Click"/>
+            <Separator Width="20"/>
+            <Button Content="库存预警" Width="80" Click="BtnAlert_Click"/>
+            <Button Content="新增配件" Width="80" Margin="5,0" Click="BtnAddPart_Click"/>
+            <Button Content="编辑" Width="60" Margin="0,0,5,0" Click="BtnEditPart_Click"/>
+            <Button Content="导出" Width="60" Margin="5,0" Click="BtnExport_Click"/>
+        </StackPanel>
+
+        <DataGrid Grid.Row="1" x:Name="dgParts" AutoGenerateColumns="False" IsReadOnly="True"
+                  VirtualizingPanel.IsVirtualizing="True"
+                  VirtualizingPanel.VirtualizationMode="Recycling"
+                  MouseDoubleClick="DgParts_MouseDoubleClick"
+                  LoadingRow="DgParts_LoadingRow">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="配件编号" Width="110" Binding="{Binding PartNo, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}"/>
+                <DataGridTextColumn Header="配件名称" Width="140" Binding="{Binding Name, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}"/>
+                <DataGridTextColumn Header="出厂类别" Width="70" Binding="{Binding PartCclb, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}"/>
+                <DataGridTextColumn Header="车型" Width="100" Binding="{Binding CarType, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}"/>
+                <DataGridTextColumn Header="车系" Width="90" Binding="{Binding CarName, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}"/>
+                <DataGridTextColumn Header="单位" Width="40" Binding="{Binding Unit, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}"/>
+                <DataGridTextColumn Header="分类" Width="70" Binding="{Binding Class, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}"/>
+                <DataGridTextColumn Header="区域品牌" Width="70" Binding="{Binding Area, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}"/>
+                <DataGridTextColumn Header="库存数量" Width="70" Binding="{Binding Amount}" ElementStyle="{StaticResource SingleLineCell}"/>
+                <DataGridTextColumn Header="批发价" Width="80" Binding="{Binding PfPrice, StringFormat=N2}" ElementStyle="{StaticResource SingleLineCell}"/>
+                <DataGridTextColumn Header="零售价" Width="80" Binding="{Binding LsPrice, StringFormat=N2}" ElementStyle="{StaticResource SingleLineCell}"/>
+                <DataGridTextColumn Header="规格" Width="90" Binding="{Binding PartGg, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}"/>
+                <DataGridTextColumn Header="库位" Width="70" Binding="{Binding Place, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}"/>
+                <DataGridTextColumn Header="图号" Width="100" Binding="{Binding PartTh, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}"/>
+                <DataGridTextColumn Header="销售次数" Width="60" Binding="{Binding SellUse}" ElementStyle="{StaticResource SingleLineCell}"/>
+                <DataGridTextColumn Header="保质期" Width="70" Binding="{Binding PartBzq, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}"/>
+                <DataGridTextColumn Header="保质日期" Width="90" Binding="{Binding PartBzrq, StringFormat=yyyy-MM-dd}" ElementStyle="{StaticResource SingleLineCell}"/>
+                <DataGridTextColumn Header="备注" Width="120" Binding="{Binding Memo, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,5,0,0">
+            <TextBlock x:Name="txtCount" Text="共 0 条记录"/>
+        </StackPanel>
+    </Grid>
+</Window>

@@ -1,0 +1,40 @@
+# Checklist
+
+- [ ] VinDecodeResult实体类包含318car API-1所有字段：Vin, Brand, Manufacturers, Series, Models, ChassisCode4, DisplacementWithT, EngineModel, YearRange, Generation, VehicleAttributes, BrandImg, ProductTime, VehicleIds
+- [ ] VinPartCard实体类包含318car API-2配件所有字段：Id, Name, Model, ImgUrlList, TenantBrandName, TenantCategoryName, Notes, Unit, Producer, Price, PurchasePrice, PurchaseGuidePrice, GuidePrice, CostPrice, Stock, InstallationLocation；以及本地补充字段LocalPartId, LsPrice, PfPrice, StockAmount, IsLocalMatched
+- [ ] IVinQueryService接口定义LoginAsync、SendSmsAsync、DecodeVinAsync、GetPartCardsAsync、RefreshTokenAsync五个方法，均支持CancellationToken
+- [ ] VinQueryService请求318car API时携带正确Headers：Authorization Bearer, refreshToken Bearer, Tenant 226
+- [ ] VinQueryService调用GET /app/sms/sendSms?phone={手机号}发送验证码（无需认证）
+- [ ] VinQueryService调用POST /app/smsLogin?username={手机号}&smsCode={验证码}登录获取Token（无需认证）
+- [ ] VinQueryService调用POST /app/product/getVehicleByVin?vin={VIN码}&tenantId=226解码VIN（VIN在URL query参数中，Body为空）
+- [ ] VinQueryService调用POST /app/product/user/pageProduct获取配件列表，Body包含vin/vehicleIds/车型信息/分页参数
+- [ ] VinQueryService实现Token自动刷新：401响应→调用POST /app/user/saastoken刷新→重试原请求，刷新失败提示重新登录
+- [ ] VinQueryService支持分页：GetPartCardsAsync传入page参数，映射到requestBody的current字段
+- [ ] MockVinQueryService返回模拟数据，结构匹配318car真实响应，无需外部依赖
+- [ ] VinQueryWindow为独立Window，非模态打开（Show而非ShowDialog）
+- [ ] VinQueryWindow包含登录界面：手机号输入框+发送验证码按钮（60秒倒计时）+验证码输入框+登录按钮
+- [ ] 登录成功后隐藏登录界面，显示查询界面（聊天式UI）
+- [ ] 未登录时显示登录界面，已登录时显示查询界面，Token过期自动切回登录界面
+- [ ] VinQueryWindow查询界面采用聊天式UI：底部输入框+中间对话区+顶部标题栏
+- [ ] 底部输入框支持Enter键发送VIN码
+- [ ] 用户消息气泡右对齐（蓝色），系统消息气泡左对齐（灰色）
+- [ ] VIN长度校验（17位），不足或超出时以系统气泡提示
+- [ ] 车型信息以系统气泡展示品牌/车系/车型/年款/发动机/排量/底盘码/制造商
+- [ ] 配件卡片列表紧跟车型信息气泡下方展示，按分类（tenantCategoryName）分组
+- [ ] 配件卡片包含型号/名称/品牌/分类/售价/指导价/备注/匹配状态标识
+- [ ] 配件卡片支持显示318car图片缩略图（imgUrlList首张）
+- [ ] 本地库存匹配逻辑：精确匹配partno=model → 模糊匹配name包含model → 模糊匹配name包含name，匹配成功标记IsLocalMatched并填充价格库存
+- [ ] 点击配件卡片可展开详情区域：图片轮播/型号/品牌/分类/售价/进货价/指导价/备注/产地/单位/安装位置/本地库存信息
+- [ ] [添加]按钮：IsLocalMatched=false时弹窗提示"该配件未匹配到本地库存，无法添加"
+- [ ] [添加]按钮：主程序未在销售开单页面时弹窗提示"请先打开销售开单页面后再添加配件"
+- [ ] [添加]按钮：正常流程弹出SellEditDialog，确认后追加到当前SellControl明细
+- [ ] 库存为0时SellEditDialog以只读模式打开（复用现有逻辑）
+- [ ] 配件分页：total > size*current时显示"加载更多"按钮，点击请求下一页
+- [ ] 对话区支持滚动，新消息自动滚动到底部
+- [ ] 多次VIN查询保留历史对话记录
+- [ ] MainWindow菜单"进销存管理"下新增"VIN查询"项（Tag="vin1"），位于销售退货之后
+- [ ] VIN窗口单例管理：重复点击菜单激活已有窗口
+- [ ] MainWindow.GetActiveSellControl()正确返回当前激活的SellControl（非SellControl时返回null）
+- [ ] SellControl.AddDetailFromVin()构造SellControlItem并添加到Details集合
+- [ ] App.xaml.cs根据VinQuery:UseMock配置选择注册Mock或真实Service
+- [ ] appsettings.json新增VinQuery配置节，包含ApiBaseUrl(https://mp.318car.com)、TenantId(226)、UseMock、Phone、CacheExpirationMinutes、RequestTimeoutSeconds

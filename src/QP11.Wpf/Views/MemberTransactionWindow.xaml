@@ -1,0 +1,117 @@
+<Window x:Class="QP11.Wpf.Views.MemberTransactionWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="往来账管理" Height="600" Width="1000"
+        WindowStartupLocation="CenterOwner">
+    <Window.Resources>
+        <Style x:Key="CenterCell" TargetType="TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+    </Window.Resources>
+    <Grid Margin="6">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="220"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- 左侧：有往来记录的供应商列表 -->
+        <GroupBox Header="供应商列表" Margin="0,0,4,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,4">
+                    <TextBox x:Name="txtSearchClient" Width="130" Margin="0,0,4,0"
+                             TextChanged="TxtSearchClient_TextChanged"/>
+                    <Button Content="搜索" Width="50" Click="BtnSearchClient_Click"/>
+                </StackPanel>
+
+                <DataGrid Grid.Row="1" x:Name="dgClients" AutoGenerateColumns="False" IsReadOnly="True"
+                          CanUserAddRows="False"
+                          SelectionMode="Single" SelectionChanged="DgClients_SelectionChanged"
+                          AlternatingRowBackground="#F8F8F8" GridLinesVisibility="Horizontal">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="编号" Width="55" Binding="{Binding sid}" ElementStyle="{StaticResource CenterCell}"/>
+                        <DataGridTextColumn Header="名称" Width="*" Binding="{Binding name}" ElementStyle="{StaticResource CenterCell}"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </GroupBox>
+
+        <!-- 右侧：按月往来汇总 -->
+        <GroupBox Header="往来明细" Grid.Column="1" Margin="4,0,0,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- 年份选择 -->
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,4">
+                    <TextBlock Text="年份:" VerticalAlignment="Center"/>
+                    <ComboBox x:Name="cboYear" Width="90" Margin="4,0" SelectionChanged="CboYear_SelectionChanged"/>
+                    <TextBlock x:Name="txtClientName" Text="" FontWeight="Bold" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                </StackPanel>
+
+                <!-- 月度汇总表 -->
+                <DataGrid Grid.Row="1" x:Name="dgMonthly" AutoGenerateColumns="False"
+                          CanUserAddRows="False"
+                          CellEditEnding="DgMonthly_CellEditEnding"
+                          CurrentCellChanged="DgMonthly_CurrentCellChanged"
+                          AlternatingRowBackground="#F8F8F8" GridLinesVisibility="Horizontal">
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding is_settled}" Value="True">
+                                    <Setter Property="TextBlock.TextDecorations" Value="Strikethrough"/>
+                                    <Setter Property="Opacity" Value="0.5"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.RowStyle>
+                    <DataGrid.Columns>
+                        <DataGridCheckBoxColumn Header="已结清" Width="55" Binding="{Binding is_settled, UpdateSourceTrigger=PropertyChanged}"/>
+                        <DataGridTextColumn Header="月份" Width="60" Binding="{Binding month_name}" IsReadOnly="True" ElementStyle="{StaticResource CenterCell}"/>
+                        <DataGridTextColumn Header="进货" Width="100" Binding="{Binding buy_total, StringFormat=N2, UpdateSourceTrigger=PropertyChanged}" ElementStyle="{StaticResource CenterCell}"/>
+                        <DataGridTextColumn Header="出货" Width="100" Binding="{Binding sell_total, StringFormat=N2, UpdateSourceTrigger=PropertyChanged}" ElementStyle="{StaticResource CenterCell}"/>
+                        <DataGridTemplateColumn Header="应收/应付" Width="110" IsReadOnly="True">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding recv_pay, StringFormat=N2}" TextAlignment="Center">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Foreground" Value="Green"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding is_negative}" Value="True">
+                                                        <Setter Property="Foreground" Value="Red"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn Header="进货已结" Width="100" Binding="{Binding buy_settled, StringFormat=N2}" IsReadOnly="True" ElementStyle="{StaticResource CenterCell}"/>
+                        <DataGridTextColumn Header="出货已结" Width="100" Binding="{Binding sell_settled, StringFormat=N2}" IsReadOnly="True" ElementStyle="{StaticResource CenterCell}"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <!-- 底部合计 -->
+                <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,6,0,0">
+                    <TextBlock Text="年度合计:" VerticalAlignment="Center" FontWeight="Bold"/>
+                    <TextBlock Text="进货:" Margin="12,0,0,0" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="txtTotalBuy" Text="0.00" FontWeight="Bold" Foreground="Blue" VerticalAlignment="Center"/>
+                    <TextBlock Text="出货:" Margin="12,0,0,0" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="txtTotalSell" Text="0.00" FontWeight="Bold" Foreground="Green" VerticalAlignment="Center"/>
+                    <TextBlock Text="应收/应付:" Margin="12,0,0,0" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="txtTotalRecvPay" Text="0.00" FontWeight="Bold" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+        </GroupBox>
+    </Grid>
+</Window>

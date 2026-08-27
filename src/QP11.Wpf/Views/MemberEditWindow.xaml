@@ -1,0 +1,52 @@
+<Window x:Class="QP11.Wpf.Views.MemberEditWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="会员编辑" Height="400" Width="420"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize" ShowInTaskbar="False">
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="80"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Text="卡号:" VerticalAlignment="Center"/>
+        <TextBox Grid.Column="1" x:Name="txtKh" Margin="2" TabIndex="1"/>
+        <TextBlock Grid.Row="1" Text="姓名:" VerticalAlignment="Center" Margin="0,5,0,0"/>
+        <TextBox Grid.Row="1" Grid.Column="1" x:Name="txtName" Margin="2,5" TabIndex="2"/>
+        <TextBlock Grid.Row="2" Text="电话:" VerticalAlignment="Center" Margin="0,5,0,0"/>
+        <TextBox Grid.Row="2" Grid.Column="1" x:Name="txtPhone" Margin="2,5" TabIndex="3"/>
+        <TextBlock Grid.Row="3" Text="类型:" VerticalAlignment="Center" Margin="0,5,0,0"/>
+        <ComboBox Grid.Row="3" Grid.Column="1" x:Name="cboType" IsEditable="True" Margin="2,5" TabIndex="4">
+            <ComboBoxItem Content="充值卡"/>
+            <ComboBoxItem Content="次卡"/>
+        </ComboBox>
+        <TextBlock Grid.Row="4" Text="折扣率:" VerticalAlignment="Center" Margin="0,5,0,0"/>
+        <TextBox Grid.Row="4" Grid.Column="1" x:Name="txtZkl" Text="1" Margin="2,5" TabIndex="5"/>
+        <TextBlock Grid.Row="5" Text="状态:" VerticalAlignment="Center" Margin="0,5,0,0"/>
+        <ComboBox Grid.Row="5" Grid.Column="1" x:Name="cboZt" Margin="2,5" TabIndex="6">
+            <ComboBoxItem Content="正常"/>
+            <ComboBoxItem Content="挂失"/>
+            <ComboBoxItem Content="注销"/>
+        </ComboBox>
+        <TextBlock Grid.Row="6" Text="密码:" VerticalAlignment="Center" Margin="0,5,0,0"/>
+        <PasswordBox Grid.Row="6" Grid.Column="1" x:Name="txtKmm" Margin="2,5" TabIndex="7"/>
+        <TextBlock Grid.Row="7" Text="备注:" VerticalAlignment="Top" Margin="0,5,0,0"/>
+        <TextBox Grid.Row="7" Grid.Column="1" x:Name="txtMemo" AcceptsReturn="True" Height="50" Margin="2,5" TabIndex="8"/>
+
+        <StackPanel Grid.Row="8" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,15,0,0">
+            <Button Content="保 存" Width="80" Height="28" Margin="10,0" Click="BtnSave_Click" IsDefault="True"/>
+            <Button Content="取 消" Width="80" Height="28" Margin="10,0" IsCancel="True"/>
+        </StackPanel>
+    </Grid>
+</Window>

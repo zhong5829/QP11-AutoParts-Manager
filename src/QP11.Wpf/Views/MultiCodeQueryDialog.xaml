@@ -1,0 +1,23 @@
+<Window x:Class="QP11.Wpf.Views.MultiCodeQueryDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="多条件查询" Height="380" Width="360"
+        WindowStartupLocation="CenterOwner" ResizeMode="CanResize" ShowInTaskbar="False"
+        MinWidth="300" MinHeight="280">
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="请输入配件编号，每行一个：" Margin="0,0,0,6"/>
+        <TextBox Grid.Row="1" x:Name="txtCodes" AcceptsReturn="True" TextWrapping="NoWrap"
+                 VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                 FontFamily="Consolas" FontSize="14" TabIndex="0"/>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+            <Button Content="确 定" Width="80" Height="28" Margin="10,0" Click="BtnOk_Click" IsDefault="True" TabIndex="1"/>
+            <Button Content="取 消" Width="80" Height="28" Margin="10,0" IsCancel="True" TabIndex="2"/>
+        </StackPanel>
+    </Grid>
+</Window>

@@ -1,0 +1,170 @@
+<Window x:Class="QP11.Wpf.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="QP11汽配管理系统" Height="768" Width="1200"
+        WindowStartupLocation="CenterScreen"
+        Loaded="Window_Loaded">
+    <DockPanel>
+        <Menu x:Name="mainMenu" DockPanel.Dock="Top">
+            <MenuItem Header="注册与登录(_R)">
+                <MenuItem Header="桌面导航" Tag="r4" Click="MenuGeneric_Click"/>
+                <MenuItem Header="单据打印设置" Tag="r5" Click="MenuGeneric_Click"/>
+            </MenuItem>
+            <MenuItem Header="进销存管理(_J)">
+                <MenuItem Header="采购进货" Tag="11" Click="MenuGeneric_Click"/>
+                <MenuItem Header="采购明细" Tag="31" Click="MenuGeneric_Click"/>
+                <MenuItem Header="采购退货" Tag="118" Click="MenuGeneric_Click"/>
+                <Separator/>
+                <MenuItem Header="计划订货" Tag="12" Click="MenuGeneric_Click"/>
+                <Separator/>
+                <MenuItem Header="销售开单" Tag="13" Click="MenuGeneric_Click"/>
+                <MenuItem Header="销售查询" Tag="133" Click="MenuGeneric_Click"/>
+                <MenuItem Header="销售退货" Tag="138" Click="MenuGeneric_Click"/>
+                <Separator/>
+                <MenuItem Header="VIN查询" Tag="vin1" Click="MenuGeneric_Click"/>
+                <Separator/>
+                <MenuItem Header="查看库存" Tag="15" Click="MenuGeneric_Click"/>
+                <MenuItem Header="仓库盘点" Tag="151" Click="MenuGeneric_Click"/>
+                <MenuItem Header="库存预警" Tag="156" Click="MenuGeneric_Click"/>
+                <Separator/>
+                <MenuItem Header="报损出库" Tag="17" Click="MenuGeneric_Click"/>
+                <MenuItem Header="借还管理" Tag="18" Click="MenuGeneric_Click"/>
+            </MenuItem>
+            <MenuItem Header="财务管理(_C)">
+                <MenuItem Header="应付款" Tag="21" Click="MenuGeneric_Click"/>
+                <MenuItem Header="应收款" Tag="22" Click="MenuGeneric_Click"/>
+                <MenuItem Header="收款" Tag="23" Click="MenuGeneric_Click"/>
+                <Separator/>
+                <MenuItem Header="现金账" Tag="24" Click="MenuGeneric_Click"/>
+                <MenuItem Header="银行账" Tag="25" Click="MenuGeneric_Click"/>
+                <MenuItem Header="支付宝账" Tag="26" Click="MenuGeneric_Click"/>
+                <MenuItem Header="微信账" Tag="27" Click="MenuGeneric_Click"/>
+                <MenuItem Header="运费账" Tag="28" Click="MenuGeneric_Click"/>
+                <Separator/>
+                <MenuItem Header="日结账" Tag="29" Click="MenuGeneric_Click"/>
+            </MenuItem>
+            <MenuItem Header="业务查询(_Q)">
+                <MenuItem Header="计划明细" Tag="32" Click="MenuGeneric_Click"/>
+                <MenuItem Header="销售明细" Tag="33" Click="MenuGeneric_Click"/>
+                <MenuItem Header="销售汇总" Tag="35" Click="MenuGeneric_Click"/>
+                <MenuItem Header="进销存报表" Tag="36" Click="MenuGeneric_Click"/>
+                <Separator/>
+                <MenuItem Header="营业报表" Tag="37" Click="MenuGeneric_Click"/>
+                <MenuItem Header="销售排行" Tag="38" Click="MenuGeneric_Click"/>
+                <MenuItem Header="客户排行" Tag="39" Click="MenuGeneric_Click"/>
+                <MenuItem Header="职员排行" Tag="3a" Click="MenuGeneric_Click"/>
+            </MenuItem>
+            <MenuItem Header="基础数据(_B)">
+                <MenuItem Header="客户管理" Tag="41" Click="MenuGeneric_Click"/>
+                <MenuItem Header="供应商管理" Tag="42" Click="MenuGeneric_Click"/>
+                <MenuItem Header="员工管理" Tag="43" Click="MenuGeneric_Click"/>
+                <Separator/>
+                <MenuItem Header="配件管理" Tag="44" Click="MenuGeneric_Click"/>
+                <MenuItem Header="品牌管理" Tag="45" Click="MenuGeneric_Click"/>
+                <MenuItem Header="物流公司" Tag="46" Click="MenuGeneric_Click"/>
+                <MenuItem Header="库位管理" Tag="47" Click="MenuGeneric_Click"/>
+                <MenuItem Header="拼音修复" Tag="48" Click="MenuGeneric_Click"/>
+            </MenuItem>
+
+            <MenuItem Header="系统管理(_Y)">
+                <MenuItem Header="数据备份" Tag="71" Click="MenuGeneric_Click"/>
+                <MenuItem Header="数据恢复" Tag="7d" Click="MenuGeneric_Click"/>
+                <Separator/>
+                <MenuItem Header="操作员管理" Tag="72" Click="MenuGeneric_Click"/>
+                <MenuItem Header="修改密码" Tag="77" Click="MenuPassword_Click"/>
+                <MenuItem Header="系统日志" Tag="73" Click="MenuGeneric_Click"/>
+                <MenuItem Header="权限管理" Tag="78" Click="MenuGeneric_Click"/>
+                <Separator/>
+                <MenuItem Header="打印设置" Tag="7e" Click="MenuGeneric_Click"/>
+                <MenuItem Header="系统参数设置" Tag="7f" Click="MenuGeneric_Click"/>
+                <Separator/>
+                <MenuItem Header="数据迁移" Tag="7g" Click="MenuGeneric_Click"/>
+            </MenuItem>
+            <MenuItem Header="会员管理(_M)">
+                <MenuItem Header="会员管理" Tag="m1" Click="MenuGeneric_Click"/>
+                <MenuItem Header="会员卡充值" Tag="m2" Click="MenuGeneric_Click"/>
+                <Separator/>
+                <MenuItem Header="往来账管理" Tag="m3" Click="MenuGeneric_Click"/>
+            </MenuItem>
+            <MenuItem Header="AI 助手(_A)">
+                <MenuItem Header="Agnes 对话" Tag="agnes" Click="MenuGeneric_Click"/>
+            </MenuItem>
+            <MenuItem Header="退出系统(_X)">
+                <MenuItem Header="退出" Click="MenuExit_Click" InputGestureText="Alt+F4"/>
+            </MenuItem>
+        </Menu>
+
+        <ToolBarTray DockPanel.Dock="Top">
+            <ToolBar Band="0" BandIndex="0">
+                <Button Content="新增F1" Click="ToolbarAdd_Click" Padding="8,2" Margin="1"/>
+                <Button Content="编辑F2" Click="ToolbarEdit_Click" Padding="8,2" Margin="1"/>
+                <Button Content="查询F3" Click="ToolbarQuery_Click" Padding="8,2" Margin="1"/>
+                <Button Content="删除F4" Click="ToolbarDelete_Click" Padding="8,2" Margin="1"/>
+                <Separator/>
+                <Button Content="保存F5" Click="ToolbarSave_Click" Padding="8,2" Margin="1"/>
+                <Button Content="结算F6" Click="ToolbarSettle_Click" Padding="8,2" Margin="1"/>
+                <Button Content="打印F7" Click="ToolbarPrint_Click" Padding="8,2" Margin="1"/>
+                <Button Content="退货F8" Click="ToolbarReturn_Click" Padding="8,2" Margin="1"/>
+                <Separator/>
+                <Button Content="取消F9" Click="ToolbarCancel_Click" Padding="8,2" Margin="1"/>
+                <Button Content="历史F11" Click="ToolbarHistory_Click" Padding="8,2" Margin="1"/>
+                <Button Content="关闭F12" Click="ToolbarCloseTab_Click" Padding="8,2" Margin="1"/>
+                <Separator/>
+                <TextBlock Text="VIN:" VerticalAlignment="Center" Margin="4,0,2,0" FontSize="12"/>
+                <TextBox x:Name="txtVinToolbar" Width="180" VerticalAlignment="Center"
+                         Padding="4,2" FontSize="12" MaxLength="17"
+                         PreviewKeyDown="TxtVinToolbar_PreviewKeyDown"/>
+                <Button Content="查询" Click="ToolbarVinQuery_Click" Padding="8,2" Margin="2,1"/>
+            </ToolBar>
+        </ToolBarTray>
+
+        <StatusBar DockPanel.Dock="Bottom">
+            <StatusBarItem>
+                <TextBlock Text="汽配通汽车配件管理系统" FontWeight="Bold"/>
+            </StatusBarItem>
+            <Separator/>
+            <StatusBarItem>
+                <TextBlock x:Name="txtOperator" Text="操作员："/>
+            </StatusBarItem>
+            <Separator/>
+            <StatusBarItem>
+                <TextBlock x:Name="txtPermission" Text="权限："/>
+            </StatusBarItem>
+            <Separator/>
+            <StatusBarItem HorizontalAlignment="Right">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock x:Name="txtConnection" Text="● 已连接" Foreground="Green" Margin="0,0,16,0"/>
+                    <TextBlock x:Name="txtTime" Text=""/>
+                </StackPanel>
+            </StatusBarItem>
+        </StatusBar>
+
+        <TabControl x:Name="mainTab"
+                    SelectionChanged="MainTab_SelectionChanged">
+            <TabControl.Resources>
+                <Style x:Key="ClosableTabItemStyle" TargetType="TabItem">
+                    <Setter Property="HeaderTemplate">
+                        <Setter.Value>
+                            <DataTemplate>
+                                <DockPanel LastChildFill="True">
+                                    <Button DockPanel.Dock="Right"
+                                            Content="✕"
+                                            FontSize="10"
+                                            Padding="4,0"
+                                            Margin="6,0,0,0"
+                                            BorderThickness="0"
+                                            Background="Transparent"
+                                            Cursor="Hand"
+                                            Click="CloseTabButton_Click"
+                                            CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=TabItem}}"/>
+                                    <TextBlock Text="{Binding}" VerticalAlignment="Center"/>
+                                </DockPanel>
+                            </DataTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </TabControl.Resources>
+        </TabControl>
+    </DockPanel>
+
+</Window>

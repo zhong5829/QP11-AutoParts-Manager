@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- 自包含发布：与 Wpf 主项目保持一致 -->
+    <SelfContained>true</SelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <!-- 锁定 AspNetCore 版本，防止 SDK 10 拉取 10.x 包 -->
+    <MicrosoftAspNetCoreAppVersion>8.0.12</MicrosoftAspNetCoreAppVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\QP11.Core\QP11.Core.csproj" />
+    <ProjectReference Include="..\QP11.Data\QP11.Data.csproj" />
+    <ProjectReference Include="..\QP11.Services\QP11.Services.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Serilog.AspNetCore" Version="8.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+  </ItemGroup>
+
+</Project>

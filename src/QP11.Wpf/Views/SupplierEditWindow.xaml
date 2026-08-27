@@ -1,0 +1,42 @@
+<Window x:Class="QP11.Wpf.Views.SupplierEditWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="供应商编辑" Height="400" Width="450"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize" ShowInTaskbar="False">
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="80"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Text="编号:" VerticalAlignment="Center"/>
+        <TextBox Grid.Column="1" x:Name="txtSid" Margin="2" TabIndex="1"/>
+        <TextBlock Grid.Row="1" Text="名称:" VerticalAlignment="Center" Margin="0,5,0,0"/>
+        <TextBox Grid.Row="1" Grid.Column="1" x:Name="txtName" Margin="2,5" TabIndex="2"/>
+        <TextBlock Grid.Row="2" Text="电话:" VerticalAlignment="Center" Margin="0,5,0,0"/>
+        <TextBox Grid.Row="2" Grid.Column="1" x:Name="txtTel" Margin="2,5" TabIndex="3"/>
+        <TextBlock Grid.Row="3" Text="手机:" VerticalAlignment="Center" Margin="0,5,0,0"/>
+        <TextBox Grid.Row="3" Grid.Column="1" x:Name="txtMobile" Margin="2,5" TabIndex="4"/>
+        <TextBlock Grid.Row="4" Text="地址:" VerticalAlignment="Center" Margin="0,5,0,0"/>
+        <TextBox Grid.Row="4" Grid.Column="1" x:Name="txtAddress" Margin="2,5" TabIndex="5"/>
+        <TextBlock Grid.Row="5" Text="联系人:" VerticalAlignment="Center" Margin="0,5,0,0"/>
+        <TextBox Grid.Row="5" Grid.Column="1" x:Name="txtLinkman" Margin="2,5" TabIndex="6"/>
+        <TextBlock Grid.Row="6" Text="备注:" VerticalAlignment="Top" Margin="0,5,0,0"/>
+        <TextBox Grid.Row="6" Grid.Column="1" x:Name="txtNote" AcceptsReturn="True" Height="60" Margin="2,5" TabIndex="7"/>
+
+        <StackPanel Grid.Row="7" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,15,0,0">
+            <Button Content="保 存" Width="80" Height="28" Margin="10,0" Click="BtnSave_Click" IsDefault="True"/>
+            <Button Content="取 消" Width="80" Height="28" Margin="10,0" IsCancel="True"/>
+        </StackPanel>
+    </Grid>
+</Window>

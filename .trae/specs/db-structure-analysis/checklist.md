@@ -1,0 +1,6 @@
+- [x] db_structure.txt 原始数据已完整解析，95 张表信息全部提取
+- [x] 95 张表已按业务域正确分类（配件/进销存/财务/维修/连锁/系统/其他）
+- [x] 核心表间关联关系已分析并记录（至少覆盖 part_data↔part_stock, bill_sell↔detail_sell, bill_buy↔detail_buy, client_infor↔bill_sell.client 等关键关系）
+- [x] 每张表的每个字段都有中文含义注释
+- [x] 关键枚举标志位字段（flag/type/btype）的含义已说明
+- [x] db_analysis_report.md 文件已生成，内容完整可读

@@ -1,0 +1,196 @@
+<UserControl x:Class="QP11.Wpf.Views.SellQueryControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:QP11.Wpf.Controls"
+             Focusable="True">
+    <Grid Margin="6">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="180"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" Margin="0,0,0,4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="120"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="120"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="日期从:" VerticalAlignment="Center" Margin="2"/>
+                <DatePicker Grid.Column="1" x:Name="dtStart" Margin="2"/>
+                <TextBlock Grid.Column="2" Text="到:" VerticalAlignment="Center" Margin="8,2,2,2"/>
+                <DatePicker Grid.Column="3" x:Name="dtEnd" Margin="2"/>
+                <TextBlock Grid.Column="4" Text="客户:" VerticalAlignment="Center" Margin="8,2,2,2"/>
+                <controls:ClientSearchBox Grid.Column="5" x:Name="cmbClient" Margin="2"/>
+                <TextBlock Grid.Column="6" Text="业务员:" VerticalAlignment="Center" Margin="8,2,2,2"/>
+                <ComboBox Grid.Column="7" x:Name="cmbWorker" IsEditable="True" Margin="2" DisplayMemberPath="Name" SelectedValuePath="Workid"/>
+                <Button Grid.Column="8" Content="查询" Width="60" Margin="4,2" Click="BtnSearch_Click"/>
+                <Button Grid.Column="9" Content="导出" Width="60" Margin="4,2" Click="BtnExport_Click"/>
+                <Button Grid.Column="10" Content="导出表格" Width="65" Margin="0,2,2,2" Click="BtnExportTable_Click"/>
+                <Button Grid.Column="11" Content="全选" Width="45" Margin="0,2,2,2" Click="BtnSelectAll_Click"/>
+                <Button Grid.Column="12" Content="反选" Width="45" Margin="0,2,2,2" Click="BtnInvertSelection_Click"/>
+                <Button Grid.Column="13" x:Name="btnSwitchMode" Content="切换销售明细(F3)" Padding="6,2" Margin="2,2,0,2" Click="BtnSwitchMode_Click"/>
+            </Grid>
+
+            <!-- 模式一：销售单据 -->
+            <Grid x:Name="panelBills" Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <DataGrid Grid.Row="0" x:Name="dgBills" AutoGenerateColumns="False"
+                          VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
+                          SelectionMode="Single" LoadingRow="DgBills_LoadingRow"
+                          CellEditEnding="DgBills_CellEditEnding"
+                          PreviewMouseDown="Dg_PreviewMouseDown"
+                          CanUserAddRows="False">
+                    <DataGrid.CellStyle>
+                        <Style TargetType="DataGridCell" BasedOn="{StaticResource {x:Type DataGridCell}}">
+                            <Setter Property="Foreground" Value="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow}, Path=Foreground}"/>
+                        </Style>
+                    </DataGrid.CellStyle>
+                    <DataGrid.Columns>
+                        <DataGridCheckBoxColumn Width="36" Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}"/>
+                        <DataGridTextColumn Header="单号" Width="100" Binding="{Binding Sn}" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="日期" Width="100" Binding="{Binding Datetime, StringFormat=yyyy-MM-dd}" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="客户" Width="120" Binding="{Binding ClientName}" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="业务员" Width="70" Binding="{Binding WorkerName}" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="售价总额" Width="90" Binding="{Binding Total, StringFormat=N2}" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="开票总额" Width="90" Binding="{Binding BillTotal, StringFormat=N2}" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="状态" Width="60" Binding="{Binding FlagText}" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="备注" Width="120" Binding="{Binding Memo}"/>
+                        <DataGridTemplateColumn Header="做账" Width="60" IsReadOnly="True">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding SettleStatusText}" Foreground="{Binding SettleStatusColor}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <Grid Grid.Row="1" Margin="0,2,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock x:Name="txtBillCount" Text="单据数: 0" VerticalAlignment="Center"/>
+                        <TextBlock Text="|" Margin="10,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="售价合计:" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="txtBillSumTotal" Text="0.00" Margin="3,0" FontWeight="Bold" VerticalAlignment="Center"/>
+                        <TextBlock Text="开票合计:" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="txtBillSumBillTotal" Text="0.00" Margin="3,0" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <Button Content="一键做账" Width="70" Margin="5,0" Click="BtnBatchSettle_Click"/>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+
+            <!-- 模式二：销售明细 -->
+            <Grid x:Name="panelDetails" Grid.Row="1" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <DataGrid Grid.Row="0" x:Name="dgDetails" AutoGenerateColumns="False"
+                          VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
+                          SelectionMode="Single" MouseDoubleClick="DgDetails_MouseDoubleClick"
+                          LoadingRow="DgDetails_LoadingRow"
+                          PreviewMouseDown="Dg_PreviewMouseDown"
+                          CanUserAddRows="False">
+                    <DataGrid.CellStyle>
+                        <Style TargetType="DataGridCell" BasedOn="{StaticResource {x:Type DataGridCell}}">
+                            <Setter Property="Foreground" Value="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow}, Path=Foreground}"/>
+                        </Style>
+                    </DataGrid.CellStyle>
+                    <DataGrid.Columns>
+                        <DataGridCheckBoxColumn Width="36" Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}"/>
+                        <DataGridTextColumn Header="单号" Width="100" Binding="{Binding Sn}"/>
+                        <DataGridTextColumn Header="日期" Width="100" Binding="{Binding Datetime, StringFormat=yyyy-MM-dd}"/>
+                        <DataGridTextColumn Header="客户" Width="120" Binding="{Binding Client}"/>
+                        <DataGridTextColumn Header="配件编号" Width="110" Binding="{Binding Partno}"/>
+                        <DataGridTextColumn Header="配件名称" Width="160" Binding="{Binding Name}"/>
+                        <DataGridTextColumn Header="车型" Width="80" Binding="{Binding Cartype}"/>
+                        <DataGridTextColumn Header="数量" Width="60" Binding="{Binding Amount}"/>
+                        <DataGridTextColumn Header="售价" Width="80" Binding="{Binding Price, StringFormat=N2}"/>
+                        <DataGridTextColumn Header="开票单价" Width="80" Binding="{Binding BillPrice, StringFormat=N2}"/>
+                        <DataGridTextColumn Header="小计" Width="90" Binding="{Binding Stotal, StringFormat=N2}"/>
+                        <DataGridTextColumn Header="开票总额" Width="90" Binding="{Binding Btotal, StringFormat=N2}"/>
+                        <DataGridTextColumn Header="业务员" Width="70" Binding="{Binding Worker}"/>
+                        <DataGridTextColumn Header="单位" Width="50" Binding="{Binding Unit}"/>
+                        <DataGridTextColumn Header="备注" Width="100" Binding="{Binding Memo}"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <Grid Grid.Row="1" Margin="0,5,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock x:Name="txtCount" Text="记录数: 0" VerticalAlignment="Center"/>
+                        <TextBlock Text="|" Margin="10,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="数量合计:" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="txtSumAmount" Text="0" Margin="3,0" FontWeight="Bold" VerticalAlignment="Center"/>
+                        <TextBlock Text="售价总额:" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="txtSumStotal" Text="0.00" Margin="3,0" FontWeight="Bold" VerticalAlignment="Center"/>
+                        <TextBlock Text="开票总额:" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="txtSumBtotal" Text="0.00" Margin="3,0" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <Button Content="打印" Width="60" Margin="5,0" Click="BtnPrint_Click"/>
+                        <Button Content="作废" Width="60" Margin="5,0" Click="BtnVoid_Click"/>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </Grid>
+
+        <Border Grid.Column="1" Margin="6,0,0,0" BorderBrush="#CCC" BorderThickness="1" CornerRadius="3">
+            <DockPanel>
+                <Border DockPanel.Dock="Top" Background="#F0F0F0" Padding="8,5" CornerRadius="3,3,0,0">
+                    <TextBlock Text="活跃客户" FontWeight="SemiBold" FontSize="13"/>
+                </Border>
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="4,2">
+                    <Button Content="粘贴排序" FontSize="11" Padding="8,2" Click="BtnPasteOrder_Click"/>
+                    <Button Content="恢复默认" FontSize="11" Padding="8,2" Margin="4,0,0,0" Click="BtnResetOrder_Click"/>
+                </StackPanel>
+                <ListBox x:Name="lstActiveClients" 
+                         SelectionMode="Single"
+                         MouseDoubleClick="LstActiveClient_DoubleClick"
+                         BorderThickness="0"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Margin="2,1">
+                                <TextBlock Text="{Binding Name}" FontWeight="Normal" TextTrimming="CharacterEllipsis"/>
+                                <TextBlock FontSize="10" Foreground="#888">
+                                    <Run Text="单数:"/><Run Text="{Binding SellCount, Mode=OneWay}"/>
+                                    <Run Text="  金额:"/><Run Text="{Binding TotalAmount, Mode=OneWay, StringFormat=N0}"/>
+                                </TextBlock>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+        </Border>
+    </Grid>
+</UserControl>

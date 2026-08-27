@@ -1,0 +1,30 @@
+- [x] 主应用对象 qpxt.sra 中所有 GBK 乱码字符串已还原为正确中文
+- [x] 主应用对象 qpxt.sra 中 EXIT 后 CONTINUE 的逻辑错误已修复
+- [x] 主应用对象 qpxt.sra 中反编译器伪注释已清理
+- [x] base/n_base.sru 中 SHU_ERROR:2.0070_FLAG 标记已移除
+- [x] base/m_main.srm 中菜单项名称乱码已还原
+- [x] base/m_main.srm 中 DEMO_SCRIPT_LIMIT 截断已标记为 TODO_RECOVER_LIMITED_CODE
+- [x] base/gf_dwcolumnwidth.srf 中 DEMO_SCRIPT_LIMIT 截断已标记为 TODO_RECOVER_LIMITED_CODE
+- [x] base/nvo_db_update.sru 中 DEMO_SCRIPT_LIMIT 截断已标记为 TODO_RECOVER_LIMITED_CODE
+- [x] base/nvo_db_update.sru 中 LABEL_KENSHU 标签已重命名为语义化标签（DB_UPGRADE_FAILED）
+- [x] qpxt/w_main.srw 中 DEMO_SCRIPT_PASSWORD_LIMIT 已替换为 TODO_RECOVER_PASSWORD
+- [x] qpxt/w_main.srw 中乱码字符串已还原
+- [x] class/n_qyqms_connectservice.sru 中 DEMO_SCRIPT_LIMIT 截断已标记为 TODO_RECOVER_LIMITED_CODE
+- [x] class/n_qyqms_connectservice.sru 中 autocommit CHOOSE CASE 逻辑错误已修复（FALSE 分支）
+- [x] class/n_qyqms_connectservice.sru 中 LABEL_KENSHU 标签已重命名为 READ_CONNECTION_INFO
+- [x] comclass 目录下所有文件的 DEMO_SCRIPT_LIMIT 截断已标记为 TODO_RECOVER_LIMITED_CODE
+- [x] comclass/n_printer.sru 中 LABEL_KENSHU 标签已重命名为语义化标签
+- [x] comfunction 目录下所有文件的 DEMO_SCRIPT_LIMIT 截断已标记为 TODO_RECOVER_LIMITED_CODE
+- [x] comstruction/st_account.srs 中 SHU_ERROR:2.0070_FLAG 标记已移除
+- [x] comwindow 目录下所有文件的 DEMO_SCRIPT_LIMIT 截断已标记为 TODO_RECOVER_LIMITED_CODE
+- [x] dw2xls 目录下所有文件的 DEMO_SCRIPT_LIMIT 截断已标记为 TODO_RECOVER_LIMITED_CODE
+- [x] toolbar 目录下所有文件的 DEMO_SCRIPT_LIMIT 截断和 LABEL_KENSHU 标签已处理
+- [x] function 目录下所有文件的 DEMO_SCRIPT_LIMIT 截断已标记为 TODO_RECOVER_LIMITED_CODE
+- [x] menu 目录下所有文件的 DEMO_SCRIPT_LIMIT 截断已标记为 TODO_RECOVER_LIMITED_CODE
+- [x] windows/w_reg.srw 中 DEMO_SCRIPT_PASSWORD_LIMIT 已替换为 TODO_RECOVER_PASSWORD
+- [x] windows/w_sj.srw 中 LABEL_KENSHU 标签已重命名为语义化标签
+- [x] windows 目录下所有文件的乱码字符串已还原
+- [x] 全局清理：所有文件中 $PBExportComments$ 行已移除（774个文件）
+- [x] 全局清理：所有函数/事件体中冗余参数注释已移除（11,989处）
+- [x] 全局清理：所有反编译器签名注释已移除（13,580处 returns 注释 + 1,344处 function 注释）
+- [x] 项目分析报告已生成，包含架构、模块、业务域、依赖关系等信息

@@ -1,0 +1,36 @@
+<Window x:Class="QP11.Wpf.Views.SupplierRatingWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="供应商评级" Height="500" Width="800"
+        WindowStartupLocation="CenterOwner">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,5">
+            <Button Content="刷新评级" Width="80" Height="26" Click="BtnRefresh_Click"/>
+            <TextBlock Text="评级筛选:" VerticalAlignment="Center" Margin="15,0,5,0"/>
+            <ComboBox x:Name="cboRating" Width="80" Height="26" SelectionChanged="CboRating_SelectionChanged">
+                <ComboBoxItem Content="全部" IsSelected="True"/>
+                <ComboBoxItem Content="A"/>
+                <ComboBoxItem Content="B"/>
+                <ComboBoxItem Content="C"/>
+                <ComboBoxItem Content="D"/>
+            </ComboBox>
+            <Button Content="导出Excel" Width="80" Height="26" Margin="15,0,0,0" Click="BtnExport_Click"/>
+        </StackPanel>
+
+        <DataGrid Grid.Row="1" x:Name="dgList" AutoGenerateColumns="False" CanUserAddRows="False"
+                  VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="供应商ID" Width="80" Binding="{Binding Sid}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="名称" Width="150" Binding="{Binding Name}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="采购金额" Width="100" Binding="{Binding TotalAmount, StringFormat=c2}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="退货率" Width="80" Binding="{Binding ReturnRate, StringFormat=P1}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="评级" Width="60" Binding="{Binding Rating}" IsReadOnly="True"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>

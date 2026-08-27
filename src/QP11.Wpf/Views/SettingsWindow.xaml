@@ -1,0 +1,72 @@
+<Window x:Class="QP11.Wpf.Views.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="系统设置" Height="450" Width="600"
+        WindowStartupLocation="CenterOwner">
+    <TabControl Margin="10">
+        <TabItem Header="公司信息">
+            <Grid Margin="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="80"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="公司名称:" VerticalAlignment="Center"/>
+                <TextBox Grid.Column="1" x:Name="txtCompanyName" Margin="2"/>
+                <TextBlock Grid.Row="1" Text="电话:" VerticalAlignment="Center" Margin="0,5,0,0"/>
+                <TextBox Grid.Row="1" Grid.Column="1" x:Name="txtCompanyPhone" Margin="2,5"/>
+                <TextBlock Grid.Row="2" Text="地址:" VerticalAlignment="Center" Margin="0,5,0,0"/>
+                <TextBox Grid.Row="2" Grid.Column="1" x:Name="txtCompanyAddr" Margin="2,5"/>
+                <TextBlock Grid.Row="3" Text="税号:" VerticalAlignment="Center" Margin="0,5,0,0"/>
+                <TextBox Grid.Row="3" Grid.Column="1" x:Name="txtTaxNo" Margin="2,5"/>
+                <Button Grid.Row="4" Grid.ColumnSpan="2" Content="保 存" Width="80" Height="28" HorizontalAlignment="Center" Margin="0,15,0,0" Click="BtnSaveCompany_Click"/>
+            </Grid>
+        </TabItem>
+        <TabItem Header="数据库">
+            <StackPanel Margin="10">
+                <GroupBox Header="连接信息">
+                    <StackPanel Margin="5">
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock Text="连接方式:" Width="80" VerticalAlignment="Center"/>
+                            <ComboBox x:Name="cboProvider" Width="150" SelectedIndex="0">
+                                <ComboBoxItem Content="ODBC"/>
+                                <ComboBoxItem Content="SqlClient"/>
+                            </ComboBox>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock Text="服务器:" Width="80" VerticalAlignment="Center"/>
+                            <TextBox x:Name="txtServer" Width="250" Text="localhost"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock Text="数据库:" Width="80" VerticalAlignment="Center"/>
+                            <TextBox x:Name="txtDatabase" Width="250" Text="qipei"/>
+                        </StackPanel>
+                        <Button Content="测试连接" Width="80" Height="28" HorizontalAlignment="Left" Margin="80,10,0,0" Click="BtnTestConnection_Click"/>
+                    </StackPanel>
+                </GroupBox>
+            </StackPanel>
+        </TabItem>
+        <TabItem Header="数据备份">
+            <StackPanel Margin="10">
+                <TextBlock Text="数据库备份与恢复" FontSize="14" FontWeight="Bold" Margin="0,0,0,10"/>
+                <Button Content="执行备份" Width="100" Height="30" Margin="0,5" Click="BtnBackup_Click"/>
+                <Button Content="恢复数据" Width="100" Height="30" Margin="0,5" Click="BtnRestore_Click"/>
+                <TextBlock x:Name="txtBackupStatus" Text="" Foreground="Green" Margin="0,10,0,0"/>
+            </StackPanel>
+        </TabItem>
+        <TabItem Header="系统更新">
+            <StackPanel Margin="10">
+                <TextBlock Text="在线更新" FontSize="14" FontWeight="Bold" Margin="0,0,0,10"/>
+                <TextBlock x:Name="txtCurrentVer" Margin="0,0,0,10"/>
+                <Button x:Name="btnCheckUpdate" Content="检查更新" Width="100" Height="30" Margin="0,5" Click="BtnCheckUpdate_Click"/>
+                <TextBlock x:Name="txtUpdateStatus" Text="" Foreground="Gray" Margin="0,10,0,0"/>
+            </StackPanel>
+        </TabItem>
+    </TabControl>
+</Window>

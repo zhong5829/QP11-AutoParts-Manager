@@ -1,0 +1,36 @@
+<Application x:Class="QP11.Wpf.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:helpers="clr-namespace:QP11.Wpf.Helpers">
+    <Application.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Margin" Value="2"/>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Padding" Value="3"/>
+            <Setter Property="Margin" Value="2"/>
+        </Style>
+        <!-- 全局 ComboBoxItem 样式：显式设置对齐属性，替代主题默认的 RelativeSource FindAncestor 绑定，
+             消除 ItemsSource 变更时 ComboBoxItem 脱离可视化树导致的绑定错误和性能卡顿 -->
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        <!-- 全局 ListBoxItem 样式：同 ComboBoxItem，消除脱离可视化树时的 RelativeSource 绑定错误 -->
+        <Style TargetType="ListBoxItem">
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="Padding" Value="3"/>
+            <Setter Property="Margin" Value="2"/>
+        </Style>
+        <!-- 全局 DatePicker 样式：启用方向键切换年/月/日段、手动输入自动覆盖 -->
+        <Style TargetType="DatePicker">
+            <Setter Property="Padding" Value="3"/>
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="helpers:DatePickerHelper.EnableSmartEdit" Value="True"/>
+        </Style>
+    </Application.Resources>
+</Application>

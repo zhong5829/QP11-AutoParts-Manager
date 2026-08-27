@@ -1,0 +1,18 @@
+## 忽略 .NET 构建相关
+bin/
+obj/
+*.user
+*.suo
+.vs/
+*.cache
+
+## 忽略发布输出
+publish/
+
+## 忽略日志
+logs/
+*.log
+
+## 忽略临时文件
+*.tmp
+*.bak

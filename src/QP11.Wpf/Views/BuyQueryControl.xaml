@@ -1,0 +1,74 @@
+<UserControl x:Class="QP11.Wpf.Views.BuyQueryControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:QP11.Wpf.Controls">
+    <Grid Margin="6">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Margin="0,0,0,4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="120"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="120"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="日期从:" VerticalAlignment="Center" Margin="2"/>
+            <DatePicker Grid.Column="1" x:Name="dtStart" Margin="2"/>
+            <TextBlock Grid.Column="2" Text="到:" VerticalAlignment="Center" Margin="8,2,2,2"/>
+            <DatePicker Grid.Column="3" x:Name="dtEnd" Margin="2"/>
+            <TextBlock Grid.Column="4" Text="供应商:" VerticalAlignment="Center" Margin="8,2,2,2"/>
+            <controls:SupplierSearchBox Grid.Column="5" x:Name="txtSupplier" Margin="2"/>
+            <TextBlock Grid.Column="6" Text="采购员:" VerticalAlignment="Center" Margin="8,2,2,2"/>
+            <TextBox Grid.Column="7" x:Name="txtWorker" Margin="2"/>
+            <Button Grid.Column="8" Content="查询" Width="60" Margin="4,2" Click="BtnSearch_Click"/>
+            <Button Grid.Column="9" Content="导出" Width="60" HorizontalAlignment="Left" Margin="4,2" Click="BtnExport_Click"/>
+        </Grid>
+
+        <DataGrid Grid.Row="1" x:Name="dgBills" AutoGenerateColumns="False" IsReadOnly="True"
+                  VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
+                  SelectionMode="Single" MouseDoubleClick="DgBills_MouseDoubleClick"
+                  CanUserAddRows="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="单号" Width="100" Binding="{Binding sn}"/>
+                <DataGridTextColumn Header="日期" Width="100" Binding="{Binding datetime, StringFormat=yyyy-MM-dd}"/>
+                <DataGridTextColumn Header="供应商" Width="120" Binding="{Binding supplier}"/>
+                <DataGridTextColumn Header="采购员" Width="70" Binding="{Binding worker}"/>
+                <DataGridTextColumn Header="进货总额" Width="90" Binding="{Binding total, StringFormat=N2}"/>
+                <DataGridTextColumn Header="现金" Width="80" Binding="{Binding cash, StringFormat=N2}"/>
+                <DataGridTextColumn Header="支票" Width="80" Binding="{Binding checks, StringFormat=N2}"/>
+                <DataGridTextColumn Header="欠款" Width="80" Binding="{Binding arrear, StringFormat=N2}"/>
+                <DataGridTextColumn Header="支付宝" Width="80" Binding="{Binding zhifubao, StringFormat=N2}"/>
+                <DataGridTextColumn Header="微信" Width="80" Binding="{Binding weixin, StringFormat=N2}"/>
+                <DataGridTextColumn Header="运费" Width="70" Binding="{Binding yunfei, StringFormat=N2}"/>
+                <DataGridTextColumn Header="状态" Width="60" Binding="{Binding flag}"/>
+                <DataGridTextColumn Header="备注" Width="*" Binding="{Binding memo}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <Grid Grid.Row="2" Margin="0,5,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock x:Name="txtCount" Text="单据数: 0" VerticalAlignment="Center"/>
+                <TextBlock Text="|" Margin="10,0" VerticalAlignment="Center"/>
+                <TextBlock Text="进货总额合计:" VerticalAlignment="Center"/>
+                <TextBlock x:Name="txtSumTotal" Text="0.00" Margin="3,0" FontWeight="Bold" VerticalAlignment="Center"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <Button Content="作废" Width="60" Margin="5,0" Click="BtnVoid_Click"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

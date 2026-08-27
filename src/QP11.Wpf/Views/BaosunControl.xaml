@@ -1,0 +1,169 @@
+<UserControl x:Class="QP11.Wpf.Views.BaosunControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:helpers="clr-namespace:QP11.Wpf.Helpers">
+    <UserControl.Resources>
+        <helpers:SingleLineConverter x:Key="SingleLineConverter"/>
+        <Style x:Key="SingleLineCell" TargetType="TextBlock">
+            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+            <Setter Property="TextWrapping" Value="NoWrap"/>
+        </Style>
+    </UserControl.Resources>
+    <Grid Margin="6">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ========== Mode A: 报损开单模式 ========== -->
+        <Grid x:Name="panelOrderMode" Grid.Row="0" Grid.RowSpan="5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="3*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="2*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Row0: 查询条件区（实时搜索+防抖，无查询按钮） -->
+            <Grid Grid.Row="0" Margin="0,0,0,4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="120"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="120"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="120"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="配件编号:" VerticalAlignment="Center" Margin="2"/>
+                <TextBox Grid.Column="1" x:Name="txtPartNo" Margin="2" TextChanged="OnSearchTextChanged" GotFocus="TxtSearch_GotFocus" PreviewKeyDown="TxtSearch_PreviewKeyDown"/>
+                <TextBlock Grid.Column="2" Text="名称:" VerticalAlignment="Center" Margin="8,2,2,2"/>
+                <TextBox Grid.Column="3" x:Name="txtPartName" Margin="2" TextChanged="OnSearchTextChanged" GotFocus="TxtSearch_GotFocus" PreviewKeyDown="TxtSearch_PreviewKeyDown"/>
+                <TextBlock Grid.Column="4" Text="车型:" VerticalAlignment="Center" Margin="8,2,2,2"/>
+                <TextBox Grid.Column="5" x:Name="txtCarType" Margin="2" TextChanged="OnSearchTextChanged" GotFocus="TxtSearch_GotFocus" PreviewKeyDown="TxtSearch_PreviewKeyDown"/>
+                <Button Grid.Column="6" Content="切换查询模式(F3)" HorizontalAlignment="Right" Padding="8,2" Margin="4,2" Click="BtnSwitchMode_Click"/>
+            </Grid>
+
+            <!-- Row1: 配件库存列表 -->
+            <DataGrid Grid.Row="1" x:Name="dgParts" AutoGenerateColumns="False" IsReadOnly="True"
+                      VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
+                      MouseDoubleClick="DgParts_MouseDoubleClick" SelectionMode="Single" Margin="0,0,0,4">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="编号" Width="90" Binding="{Binding PartNo, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}"/>
+                    <DataGridTextColumn Header="名称" Width="160" Binding="{Binding Name, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}"/>
+                    <DataGridTextColumn Header="车型" Width="80" Binding="{Binding CarType, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}"/>
+                    <DataGridTextColumn Header="库存" Width="55" Binding="{Binding Amount}" ElementStyle="{StaticResource SingleLineCell}"/>
+                    <DataGridTextColumn Header="进价" Width="70" Binding="{Binding InPrice, StringFormat=N2}" ElementStyle="{StaticResource SingleLineCell}"/>
+                    <DataGridTextColumn Header="仓位" Width="60" Binding="{Binding Place, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}"/>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <!-- Row2: 单头信息 -->
+            <GroupBox Grid.Row="2" Header="单头信息" Margin="0,0,0,4" Padding="4">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="130"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="120"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="单号:" VerticalAlignment="Center" Margin="2"/>
+                    <TextBox Grid.Column="1" x:Name="txtBillNo" IsReadOnly="True" Background="LightGray" Margin="2"/>
+                    <TextBlock Grid.Column="2" Text="日期:" VerticalAlignment="Center" Margin="8,2,2,2"/>
+                    <DatePicker Grid.Column="3" x:Name="dtBillDate" Margin="2"/>
+                    <TextBlock Grid.Column="4" Text="经手人:" VerticalAlignment="Center" Margin="8,2,2,2"/>
+                    <ComboBox Grid.Column="5" x:Name="cboWorker" IsEditable="True" Margin="2"/>
+                    <TextBlock Grid.Column="6" Text="备注:" VerticalAlignment="Center" Margin="8,2,2,2"/>
+                    <TextBox Grid.Column="7" x:Name="txtMemo" Margin="2"/>
+                </Grid>
+            </GroupBox>
+
+            <!-- Row3: 报损明细 DataGrid -->
+            <DataGrid Grid.Row="3" x:Name="dgDetails" AutoGenerateColumns="False" CanUserAddRows="False"
+                      VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
+                      Margin="0,0,0,4">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="编号" Width="90" Binding="{Binding PartNo, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}"/>
+                    <DataGridTextColumn Header="名称" Width="140" Binding="{Binding PartName, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="数量" Width="55" Binding="{Binding Amount}" ElementStyle="{StaticResource SingleLineCell}"/>
+                    <DataGridTextColumn Header="进价" Width="70" Binding="{Binding Inprice, StringFormat=N2}" ElementStyle="{StaticResource SingleLineCell}"/>
+                    <DataGridTextColumn Header="小计" Width="80" Binding="{Binding SubTotal, StringFormat=N2}" IsReadOnly="True" ElementStyle="{StaticResource SingleLineCell}"/>
+                    <DataGridTextColumn Header="备注" Width="*" Binding="{Binding Memo, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}"/>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <!-- Row4: 合计栏 -->
+            <Grid Grid.Row="4" Margin="0,2,0,0">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="合计:" VerticalAlignment="Center" FontWeight="Bold"/>
+                    <TextBlock x:Name="txtSumTotal" Text="0.00" VerticalAlignment="Center" Margin="4,0" FontWeight="Bold" Foreground="Red"/>
+                    <TextBlock Text="数量合计:" VerticalAlignment="Center" Margin="16,0,0,0" FontWeight="Bold"/>
+                    <TextBlock x:Name="txtSumAmount" Text="0" VerticalAlignment="Center" Margin="4,0" FontWeight="Bold"/>
+                </StackPanel>
+            </Grid>
+        </Grid>
+
+        <!-- ========== Mode B: 报损查询模式 ========== -->
+        <Grid x:Name="panelQueryMode" Grid.Row="0" Grid.RowSpan="5" Visibility="Collapsed">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="3*"/>
+                <RowDefinition Height="2*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Row0: 查询条件 -->
+            <Grid Grid.Row="0" Margin="0,0,0,4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="120"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="120"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="日期从:" VerticalAlignment="Center" Margin="2"/>
+                <DatePicker Grid.Column="1" x:Name="dtQStart" Margin="2" SelectedDateChanged="OnBillDateChanged"/>
+                <TextBlock Grid.Column="2" Text="到:" VerticalAlignment="Center" Margin="8,2,2,2"/>
+                <DatePicker Grid.Column="3" x:Name="dtQEnd" Margin="2" SelectedDateChanged="OnBillDateChanged"/>
+                <Button Grid.Column="4" Content="查询" Padding="12,2" Margin="4,2" Click="BtnQuery_Click"/>
+                <Button Grid.Column="5" Content="切换开单模式(F3)" HorizontalAlignment="Right" Padding="8,2" Margin="4,2" Click="BtnSwitchMode_Click"/>
+            </Grid>
+
+            <!-- Row1: 单据列表 -->
+            <DataGrid Grid.Row="1" x:Name="dgBills" AutoGenerateColumns="False" IsReadOnly="True"
+                      VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
+                      SelectionMode="Single" SelectionChanged="DgBills_SelectionChanged" Margin="0,0,0,4">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="单号" Width="140" Binding="{Binding Sn, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}"/>
+                    <DataGridTextColumn Header="日期" Width="100" Binding="{Binding Datetime, StringFormat=yyyy-MM-dd}" ElementStyle="{StaticResource SingleLineCell}"/>
+                    <DataGridTextColumn Header="经手人" Width="80" Binding="{Binding Worker, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}"/>
+                    <DataGridTextColumn Header="总额" Width="90" Binding="{Binding Total, StringFormat=N2}" ElementStyle="{StaticResource SingleLineCell}"/>
+                    <DataGridTextColumn Header="状态" Width="70" Binding="{Binding FlagText, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}"/>
+                    <DataGridTextColumn Header="备注" Width="*" Binding="{Binding Memo, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}"/>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <!-- Row2: 明细 -->
+            <DataGrid Grid.Row="2" x:Name="dgQueryDetails" AutoGenerateColumns="False" IsReadOnly="True"
+                      VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="编号" Width="90" Binding="{Binding Partno, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}"/>
+                    <DataGridTextColumn Header="名称" Width="140" Binding="{Binding Name, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}"/>
+                    <DataGridTextColumn Header="数量" Width="55" Binding="{Binding Amount}" ElementStyle="{StaticResource SingleLineCell}"/>
+                    <DataGridTextColumn Header="进价" Width="70" Binding="{Binding Inprice, StringFormat=N2}" ElementStyle="{StaticResource SingleLineCell}"/>
+                    <DataGridTextColumn Header="小计" Width="80" Binding="{Binding Intotal, StringFormat=N2}" ElementStyle="{StaticResource SingleLineCell}"/>
+                    <DataGridTextColumn Header="备注" Width="*" Binding="{Binding Memo, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+    </Grid>
+</UserControl>
