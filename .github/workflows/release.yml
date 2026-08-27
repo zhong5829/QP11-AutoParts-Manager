@@ -1,0 +1,96 @@
+name: 发布打包（Tag 触发）
+
+# 推送形如 v2.2.9 的 tag 时自动触发：发布 WPF → Inno Setup 打包安装程序 → 创建 GitHub Release 并挂载安装包
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    concurrency:
+      group: release-${{ github.ref }}
+      cancel-in-progress: true
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 设置 .NET 8 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: 计算版本号
+        id: version
+        shell: pwsh
+        run: |
+          # tag 形如 v2.2.9，去掉前缀 v 即为版本号
+          $ver = "${{ github.ref_name }}".TrimStart('v')
+          echo "version=$ver" >> $env:GITHUB_OUTPUT
+          echo "计算的版本号: $ver"
+
+      - name: 同步版本号到 csproj 与打包脚本
+        shell: pwsh
+        run: |
+          $ver = "${{ steps.version.outputs.version }}"
+
+          # 同步 QP11.Wpf.csproj 的 <Version>
+          $csproj = 'src/QP11.Wpf/QP11.Wpf.csproj'
+          (Get-Content $csproj -Raw) -replace '<Version>.*?</Version>', "<Version>$ver</Version>" |
+            Set-Content $csproj -NoNewline -Encoding UTF8
+
+          # 同步 QP11_Setup.iss 的 MyAppVersion
+          $iss = 'QP11_Setup.iss'
+          (Get-Content $iss -Raw) -replace '#define MyAppVersion\s+"[^"]*"', "#define MyAppVersion `"$ver`"" |
+            Set-Content $iss -NoNewline -Encoding UTF8
+
+          Write-Output "已将版本号同步为: $ver"
+
+      - name: 清理旧发布目录
+        shell: pwsh
+        run: |
+          if (Test-Path 'Publish') { Remove-Item -Recurse -Force 'Publish' }
+          if (Test-Path 'InstallPackage\*.exe') { Remove-Item -Recurse -Force 'InstallPackage\*.exe' }
+
+      - name: 自包含发布 WPF
+        run: |
+          dotnet publish src/QP11.Wpf/QP11.Wpf.csproj -c Release -o Publish
+          # 确认入口程序已产出
+          if (-not (Test-Path 'Publish\QP11.Wpf.exe')) { throw '发布未产出 QP11.Wpf.exe' }
+
+      - name: 安装 Inno Setup
+        shell: pwsh
+        run: |
+          choco upgrade innosetup --yes --no-progress --limit-output
+
+      - name: Inno Setup 打包安装程序
+        shell: pwsh
+        run: |
+          $iscc = 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe'
+          if (-not (Test-Path $iscc)) { throw '未找到 ISCC.exe' }
+          & $iscc 'QP11_Setup.iss'
+          if ($LASTEXITCODE -ne 0) { throw "ISCC 打包失败（退出码 $LASTEXITCODE）" }
+
+      - name: 上传构建产物（安装包）
+        uses: actions/upload-artifact@v4
+        with:
+          name: QP11Setup
+          path: |
+            InstallPackage/QP11Setup_v*.exe
+          if-no-files-found: error
+
+      - name: 创建 GitHub Release 并挂载安装包
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: QP11 v${{ steps.version.outputs.version }}
+          body: |
+            - 版本：v${{ steps.version.outputs.version }}
+            - 安装包：`QP11Setup_v${{ steps.version.outputs.version }}.exe`（自包含发布，免预装 .NET 运行时）
+          files: InstallPackage/QP11Setup_v*.exe
+          generate_release_notes: true
