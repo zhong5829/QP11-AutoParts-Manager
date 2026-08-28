@@ -252,6 +252,8 @@ function setDefaultDates() {
   const today = now.toISOString().slice(0, 10);
   $('qStart').value = today;
   $('qEnd').value = today;
+  // 开单日期默认当天（对齐桌面端 billDate 默认），可修改补录历史日期
+  if ($('billDateInput')) $('billDateInput').value = today;
 }
 
 // ========== 事件绑定 ==========
@@ -929,10 +931,20 @@ async function submitOrder() {
   let total = 0, billTotal = 0;
   state.details.forEach(d => { total += d.Price * d.Amount; billTotal += d.BillPrice * d.Amount; });
 
+  // 开单日期：用户所选日期 + 当前时刻（对齐桌面端 billDate = 所选日期 + 当前时间，支持补录历史日期）
+  let datetime = null;
+  const dateVal = $('billDateInput')?.value;
+  if (dateVal) {
+    const now = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    datetime = `${dateVal}T${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  }
+
   const order = {
     ClientId: state.selectedClient.id,
     WorkerId: workerId,
     DiscountRate: disc,
+    Datetime: datetime,
     Total: total * disc,
     BillTotal: billTotal * disc,
     Cash: parseFloat($('cashPay').value) || 0,
@@ -977,6 +989,7 @@ function clearAll() {
   state.selectedClient = null;
   $('clientInput').value = '';
   $('discountRate').value = '0';
+  if ($('billDateInput')) $('billDateInput').value = new Date().toISOString().slice(0, 10);
   $('cashPay').value = '0'; $('checksPay').value = '0';
   $('zhifubaoPay').value = '0'; $('weixinPay').value = '0';
   $('memoText').value = '';

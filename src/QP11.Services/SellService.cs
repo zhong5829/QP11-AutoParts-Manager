@@ -62,6 +62,9 @@ public class SellService : ISellService
             bill.Sn = billNo;
             bill.Total = totalAmount;
             bill.BillTotal = billTotal;
+            // 对齐桌面端写入：total_payment = 折后金额（bill_payment），调用方未显式设置时兜底，
+            // 避免月度往来对账报表（sell_settled=SUM(total_payment)）漏计
+            bill.TotalPayment ??= bill.BillPayment ?? billTotal;
             bill.Cash = cash;
             bill.Weixin = weixin;
             bill.Zhifubao = zhifubao;

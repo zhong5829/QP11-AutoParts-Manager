@@ -70,18 +70,24 @@ public class SellController : ControllerBase
             var checks = request.Checks ?? 0;
             var totalPaid = cash + weixin + zhifubao + checks;
 
-            // 批量查询配件进价
+            // 批量查询配件信息（进价/单位/库位：与桌面端 SaveBillAsync 一致，用于明细落库）
             var partIds = request.Details.Select(d => d.PartId).Where(p => p.HasValue).Select(p => p!.Value).Distinct().ToList();
-            var partCostMap = await _partRepo.GetByIdsAsync(partIds);
+            var partMap = await _partRepo.GetByIdsAsync(partIds);
 
-            // 构建单据头
+            // 开单日期：前端可传（对齐桌面端可选的 billDate），未传时使用服务器当前时间
+            var billDate = request.Datetime ?? DateTime.Now;
+
+            // 构建单据头（字段写入与桌面端 SaveBillAsync 一致；operator 固定 WebAPI 标识来源）
             var bill = new BillSell
             {
                 Client = request.ClientId,
                 Worker = request.WorkerId,
                 Operator = "WebAPI",
-                Datetime = DateTime.Now,
+                Datetime = billDate,
                 DiscountRate = discountRate,
+                Total = totalAmount,
+                BillTotal = billTotal,
+                TotalPayment = billTotal,
                 BillPayment = billTotal,
                 Collection = 0,
                 Cash = cash,
@@ -95,25 +101,28 @@ public class SellController : ControllerBase
                 Checkno = request.Checkno ?? ""
             };
 
-            // 构建明细
+            // 构建明细（字段写入与桌面端 SaveBillAsync 一致：unit/place 兜底取值，datetime 对齐单头）
             var detailList = request.Details.Select(d =>
             {
-                var cb = d.PartId.HasValue && partCostMap.TryGetValue(d.PartId.Value, out var p) ? (p.Inprice ?? 0m) : 0m;
+                var partInfo = d.PartId.HasValue && partMap.TryGetValue(d.PartId.Value, out var p) ? p : null;
+                var cb = partInfo?.Inprice ?? 0m;
                 return new DetailSell
                 {
                     Partid = d.PartId,
                     Partno = d.PartNo,
                     Name = d.PartName,
+                    Unit = partInfo?.Unit,
                     Amount = (long)d.Amount,
                     Price = d.Price,
                     BillPrice = d.BillPrice,
                     Stotal = Math.Round(d.Price * d.Amount, 2),
                     Btotal = Math.Round(d.BillPrice * d.Amount, 2),
                     Cb = cb,
-                    Place = d.Place,
+                    Place = !string.IsNullOrEmpty(d.Place) ? d.Place : partInfo?.Place,
                     Cartype = d.Cartype,
                     CarMark = d.CarMark,
                     Memo = d.Memo,
+                    Datetime = billDate,
                     Flag = (int)BusinessConstants.BillFlag.Confirmed,
                     Type = BusinessConstants.DetailType.Normal
                 };
@@ -307,6 +316,11 @@ public class CreateSellOrderRequest
     public string? WorkerId { get; set; }
 
     public decimal DiscountRate { get; set; } = 0m;
+
+    /// <summary>
+    /// 开单日期（对齐桌面端可选的 billDate）；为空时服务器使用当前时间
+    /// </summary>
+    public DateTime? Datetime { get; set; }
 
     public decimal? Cash { get; set; } = 0;
     public decimal? Weixin { get; set; } = 0;
