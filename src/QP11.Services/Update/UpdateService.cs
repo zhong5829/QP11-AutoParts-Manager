@@ -7,17 +7,23 @@ namespace QP11.Services.Update;
 /// <summary>应用更新服务</summary>
 public class UpdateService : IDisposable
 {
-    private readonly GiteeReleaseClient _client;
+    private readonly GitHubReleaseClient _client;
     private readonly string _appDir;
     private bool _disposed;
 
     /// <summary>应用退出回调（由 WPF 层设置，用于关闭应用）</summary>
     public Action? ShutdownApp { get; set; }
 
-    /// <summary>Gitee 访问令牌（私有仓库下载时用于认证）</summary>
+    /// <summary>GitHub 访问令牌（私有仓库下载时用于认证）</summary>
     public string AccessToken { get; set; } = string.Empty;
 
-    public UpdateService(GiteeReleaseClient client)
+    /// <summary>
+    /// GitHub 下载加速代理前缀（如 https://ghfast.top/ ），拼接在安装包下载 URL 之前。
+    /// 留空则直连 GitHub 下载。
+    /// </summary>
+    public string DownloadProxy { get; set; } = string.Empty;
+
+    public UpdateService(GitHubReleaseClient client)
     {
         _client = client;
         // 去掉末尾的目录分隔符，避免 bat 脚本中引号提前闭合
@@ -55,10 +61,12 @@ public class UpdateService : IDisposable
         using var http = new HttpClient { Timeout = TimeSpan.FromMinutes(30) };
         if (!string.IsNullOrEmpty(AccessToken))
             http.DefaultRequestHeaders.Authorization =
-                new System.Net.Http.Headers.AuthenticationHeaderValue("token", AccessToken);
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", AccessToken);
 
-        // 记录下载 URL 用于调试
+        // 记录下载 URL 用于调试；配置代理时拼接加速前缀
         var downloadUrl = info.DownloadUrl;
+        if (!string.IsNullOrEmpty(DownloadProxy))
+            downloadUrl = $"{DownloadProxy.TrimEnd('/')}/{downloadUrl.TrimStart('/')}";
         System.Diagnostics.Debug.WriteLine($"[Update] Download URL: {downloadUrl}");
         System.Diagnostics.Debug.WriteLine($"[Update] Expected file size: {info.FileSize}");
 
@@ -111,7 +119,7 @@ public class UpdateService : IDisposable
                 $"URL: {downloadUrl}\n" +
                 $"Content-Type: {contentType}\n" +
                 $"下载大小: {downloaded} 字节\n\n" +
-                $"可能原因：Gitee Release 中未上传正确的 EXE 安装包附件。");
+                $"可能原因：GitHub Release 中未上传正确的 EXE 安装包附件。");
         }
 
         // MD5 校验

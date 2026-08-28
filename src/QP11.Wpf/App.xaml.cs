@@ -343,20 +343,22 @@ public partial class App : Application
         QP11.WebApi.Services.WebServerManager.Stop();
     }
 
-    /// <summary>初始化更新服务（读取 Gitee 配置）</summary>
+    /// <summary>初始化更新服务（读取 GitHub 配置，兼容旧 Gitee 配置键）</summary>
     private void InitializeUpdateService(IConfiguration configuration)
     {
         var updateSection = configuration.GetSection("UpdateSettings");
-        var client = new GiteeReleaseClient
+        var client = new GitHubReleaseClient
         {
-            Owner = updateSection["GiteeOwner"] ?? string.Empty,
-            Repo = updateSection["GiteeRepo"] ?? string.Empty,
-            AccessToken = updateSection["GiteeAccessToken"] ?? string.Empty
+            Owner = updateSection["GitHubOwner"] ?? updateSection["GiteeOwner"] ?? string.Empty,
+            Repo = updateSection["GitHubRepo"] ?? updateSection["GiteeRepo"] ?? string.Empty,
+            AccessToken = updateSection["GitHubAccessToken"] ?? updateSection["GiteeAccessToken"] ?? string.Empty,
+            DownloadProxy = updateSection["GitHubDownloadProxy"] ?? string.Empty
         };
         UpdateService = new UpdateService(client)
         {
             ShutdownApp = () => Dispatcher.Invoke(() => Shutdown()),
-            AccessToken = client.AccessToken
+            AccessToken = client.AccessToken,
+            DownloadProxy = client.DownloadProxy
         };
     }
 
