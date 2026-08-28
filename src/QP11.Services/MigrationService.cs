@@ -9,6 +9,9 @@ using System.Data.SqlClient;
 using System.Data.Odbc;
 using System.Text.RegularExpressions;
 
+// 本迁移工具刻意使用 System.Data.SqlClient（v4.9）以兼容 SQL Server 2000 源库，抑制其过时警告
+#pragma warning disable CS0618
+
 namespace QP11.Services;
 
 /// <summary>
@@ -1384,3 +1387,5 @@ public class MigrationService
 
     #endregion
 }
+
+#pragma warning restore CS0618

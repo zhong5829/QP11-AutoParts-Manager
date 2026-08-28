@@ -89,9 +89,18 @@ public class ExportService
         return await ExportToExcelAsync(table, fileName);
     }
 
-    public async Task<(string? Path, string? Error)> ExportMultiSheetAsync(string fileName, params (DataTable Data, string SheetName, HashSet<int> RedRows)[] sheets)
+    public Task<(string? Path, string? Error)> ExportMultiSheetAsync(string fileName, params (DataTable Data, string SheetName, HashSet<int> RedRows)[] sheets)
     {
-        return await Task.Run<(string?, string?)>(() =>
+        var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), fileName);
+        return ExportMultiSheetToPathAsync(path, sheets);
+    }
+
+    /// <summary>
+    /// 按指定完整路径导出多 sheet Excel（含红色行标记与文件占用检测）
+    /// </summary>
+    public Task<(string? Path, string? Error)> ExportMultiSheetToPathAsync(string filePath, params (DataTable Data, string SheetName, HashSet<int> RedRows)[] sheets)
+    {
+        return Task.Run<(string?, string?)>(() =>
         {
             var workbook = new XSSFWorkbook();
 
@@ -138,7 +147,7 @@ public class ExportService
                     AutoFitColumn(sheet, i);
             }
 
-            var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), fileName);
+            var path = filePath;
             try
             {
                 using var fs = new FileStream(path, FileMode.Create);

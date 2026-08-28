@@ -50,9 +50,7 @@
                 <MenuItem Header="进销存报表" Tag="36" Click="MenuGeneric_Click"/>
                 <Separator/>
                 <MenuItem Header="营业报表" Tag="37" Click="MenuGeneric_Click"/>
-                <MenuItem Header="销售排行" Tag="38" Click="MenuGeneric_Click"/>
-                <MenuItem Header="客户排行" Tag="39" Click="MenuGeneric_Click"/>
-                <MenuItem Header="职员排行" Tag="3a" Click="MenuGeneric_Click"/>
+                <MenuItem Header="排行榜" Tag="38" Click="MenuGeneric_Click"/>
             </MenuItem>
             <MenuItem Header="基础数据(_B)">
                 <MenuItem Header="客户管理" Tag="41" Click="MenuGeneric_Click"/>

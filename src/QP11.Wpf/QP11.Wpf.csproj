@@ -65,7 +65,7 @@
       <WebDest>$(TargetDir)wwwroot</WebDest>
     </PropertyGroup>
     <MakeDir Directories="$(WebDest)" Condition="!Exists('$(WebDest)')" />
-    <Exec Command="robocopy &quot;$(WebSource)&quot; &quot;$(WebDest)&quot; /E /IS /IT /NFL /NDL /NJH /NJS /NC /NS" IgnoreStandardErrorWarningFormat="true" ContinueOnError="true" />
+    <Exec Command="robocopy &quot;$(WebSource)&quot; &quot;$(WebDest)&quot; /E /IS /IT /NFL /NDL /NJH /NJS /NC /NS &amp; if %25ERRORLEVEL% LSS 8 exit /b 0 else exit /b %25ERRORLEVEL%" IgnoreStandardErrorWarningFormat="true" ContinueOnError="true" />
   </Target>
   <!-- Publish 后也将 wwwroot 复制到发布目录 -->
   <Target Name="CopyWebRootToPublish" AfterTargets="Publish">
@@ -74,7 +74,7 @@
       <WebPublishDest>$(PublishDir)wwwroot</WebPublishDest>
     </PropertyGroup>
     <MakeDir Directories="$(WebPublishDest)" Condition="!Exists('$(WebPublishDest)')" />
-    <Exec Command="robocopy &quot;$(WebSource)&quot; &quot;$(WebPublishDest)&quot; /E /IS /IT /NFL /NDL /NJH /NJS /NC /NS" IgnoreStandardErrorWarningFormat="true" ContinueOnError="true" />
+    <Exec Command="robocopy &quot;$(WebSource)&quot; &quot;$(WebPublishDest)&quot; /E /IS /IT /NFL /NDL /NJH /NJS /NC /NS &amp; if %25ERRORLEVEL% LSS 8 exit /b 0 else exit /b %25ERRORLEVEL%" IgnoreStandardErrorWarningFormat="true" ContinueOnError="true" />
   </Target>
 
 </Project>

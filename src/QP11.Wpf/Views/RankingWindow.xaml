@@ -15,9 +15,10 @@
             <TextBlock Text="截止日期:" VerticalAlignment="Center" Margin="10,5,5,5"/>
             <DatePicker x:Name="dtEnd" Margin="2"/>
             <Button Content="查询" Width="60" Height="26" Margin="10,0" Click="BtnQuery_Click"/>
+            <Button Content="导出" Width="60" Height="26" Margin="4,0" Click="BtnExport_Click"/>
         </StackPanel>
 
-        <TabControl Grid.Row="1">
+        <TabControl Grid.Row="1" x:Name="tcMain">
             <TabItem Header="销售排行">
                 <DataGrid x:Name="dgPartRank" AutoGenerateColumns="False" CanUserAddRows="False">
                     <DataGrid.Columns>
@@ -31,6 +32,16 @@
             </TabItem>
             <TabItem Header="TOP客户">
                 <DataGrid x:Name="dgClientRank" AutoGenerateColumns="False" CanUserAddRows="False">
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <Style.Triggers>
+                                <!-- 净订单数为负（退货单多于销售单）整行红色字体 -->
+                                <DataTrigger Binding="{Binding IsNegativeOrder}" Value="True">
+                                    <Setter Property="Foreground" Value="#C62828"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.RowStyle>
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="排名" Width="50" Binding="{Binding Rank}"/>
                         <DataGridTextColumn Header="客户名称" Width="200" Binding="{Binding ClientName}"/>
