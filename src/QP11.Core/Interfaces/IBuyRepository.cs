@@ -21,6 +21,8 @@ public interface IBuyRepository : IRepository<BillBuy>
     Task<IEnumerable<dynamic>> GetBuyDetailsByPartIdAsync(long partid);
     Task<IEnumerable<dynamic>> GetDetailListAsync(DateTime? startDate = null, DateTime? endDate = null, string? supplier = null, string? worker = null);
     Task<IEnumerable<dynamic>> GetBillListAsync(DateTime? startDate = null, DateTime? endDate = null, string? supplier = null, string? worker = null);
+    /// <summary>物理删除采购单头（作废单据时与明细、欠款在同一事务内删除）</summary>
+    Task<int> DeleteBillAsync(string sn, IDbTransaction? transaction = null);
     Task<int> DeleteDetailsBySnAsync(string sn, IDbTransaction? transaction = null);
     Task<string?> GetWorkerNameAsync(string workid);
     Task<string> ResolveWorkerIdAsync(string workerName);

@@ -20,6 +20,8 @@ public interface ISellRepository : IRepository<BillSell>
     Task<int> UpdateBillStatusAsync(string sn, int flag, IDbTransaction? transaction = null);
     Task<int> UpdateMemoAsync(string sn, string memo);
     Task<int> LogicDeleteBillAsync(string sn);
+    /// <summary>物理删除销售单头（作废单据时与明细、欠款在同一事务内删除）</summary>
+    Task<int> DeleteBillAsync(string sn, IDbTransaction? transaction = null);
     Task<int> DeleteDetailsAsync(string sn);
     Task<int> DeleteDetailsAsync(string sn, IDbTransaction? transaction);
     Task<IEnumerable<dynamic>> GetDetailListAsync(DateTime? startDate = null, DateTime? endDate = null, string? client = null, string? worker = null);

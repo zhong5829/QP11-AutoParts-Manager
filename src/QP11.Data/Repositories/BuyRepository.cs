@@ -143,6 +143,17 @@ public class BuyRepository : IBuyRepository
         return result;
     }
 
+    /// <summary>
+    /// 物理删除采购单头（作废单据时与明细、欠款在同一事务内删除）
+    /// </summary>
+    public async Task<int> DeleteBillAsync(string sn, IDbTransaction? transaction = null)
+    {
+        var db = transaction?.Connection ?? await CreateConnectionAsync();
+        var result = await db.ExecuteAsync("DELETE FROM bill_buy WHERE sn = @Sn", new { Sn = sn }, transaction);
+        if (transaction == null) db.Dispose();
+        return result;
+    }
+
     public async Task<int> DeleteDetailsBySnAsync(string sn, IDbTransaction? transaction = null)
     {
         var db = transaction?.Connection ?? await CreateConnectionAsync();

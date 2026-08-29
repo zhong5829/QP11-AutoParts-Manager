@@ -129,7 +129,6 @@ public class SellService : ISellService
             var txn = uow.Transaction;
             var dbConn = uow.Connection;
 
-            await _sellRepo.UpdateBillStatusAsync(sn, (int)BusinessConstants.BillFlag.Voided, txn);
             foreach (var d in details)
             {
                 if (!d.Partid.HasValue) continue;
@@ -143,7 +142,10 @@ public class SellService : ISellService
                     await _partRepo.IncreaseStockAsync(d.Partid.Value, Math.Abs(amount), txn, dbConn);
             }
 
-            // 删除对应欠款记录（与WPF端 SellViewModel 一致，在同一事务内执行）
+            // 物理删除单据（明细+头）并清除欠款 — 与旧系统"作废=直接删除数据"一致，
+            // 不再写 flag=3（避免与报损单共用 flag 导致销售历史显示"配件报损"）
+            await _sellRepo.DeleteDetailsAsync(sn, txn);
+            await _sellRepo.DeleteBillAsync(sn, txn);
             await _arrearRepo.DeleteBySnAsync(sn, txn);
 
             await uow.CommitAsync();

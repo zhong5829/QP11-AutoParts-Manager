@@ -351,7 +351,8 @@ public class SellViewModel : BaseViewModel
     }
 
     /// <summary>
-    /// 作废单据 - 回补库存并更新状态（事务保护）
+    /// 作废单据 - 物理删除该单（明细+单据头+欠款），并回补库存（事务保护）
+    /// 与旧系统"作废=直接删除数据"一致：作废后单据从销售历史/报表/列表中彻底消失
     /// </summary>
     public async Task VoidBillAsync(string sn)
     {
@@ -363,8 +364,6 @@ public class SellViewModel : BaseViewModel
             await uow.BeginTransactionAsync();
             var txn = uow.Transaction;
             var dbConn = uow.Connection;
-
-            await _sellRepo.UpdateBillStatusAsync(sn, (int)BusinessConstants.BillFlag.Voided, txn);
 
             foreach (var d in details)
             {
@@ -378,6 +377,11 @@ public class SellViewModel : BaseViewModel
                 else
                     await _partRepo.IncreaseStockAsync(d.Partid.Value, Math.Abs(amount), txn, dbConn);
             }
+
+            // 物理删除单据（明细+头）并清除欠款
+            await _sellRepo.DeleteDetailsAsync(sn, txn);
+            await _sellRepo.DeleteBillAsync(sn, txn);
+            await _arrearRepo.DeleteBySnAsync(sn, txn);
 
             await uow.CommitAsync();
         }
