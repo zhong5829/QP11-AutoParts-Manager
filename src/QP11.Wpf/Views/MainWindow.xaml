@@ -10,6 +10,7 @@
                 <MenuItem Header="桌面导航" Tag="r4" Click="MenuGeneric_Click"/>
                 <MenuItem Header="单据打印设置" Tag="r5" Click="MenuGeneric_Click"/>
                 <MenuItem Header="打印设置" Tag="7e" Click="MenuGeneric_Click"/>
+                <MenuItem Header="标签打印" Tag="r6" Click="MenuGeneric_Click"/>
             </MenuItem>
             <MenuItem Header="进销存管理(_J)">
                 <MenuItem Header="采购进货" Tag="11" Click="MenuGeneric_Click"/>

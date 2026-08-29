@@ -330,6 +330,40 @@ public class PartRepository : IPartRepository
     }
 
     /// <summary>
+    /// 标签打印数据查询：三条件（编码/名称/车型，均为模糊匹配）。
+    /// 名称/车型同时匹配拼音列（name_py / cartype_py），支持拼音查询。
+    /// SQL 结构与 GetStockListAsync 完全同构（已验证模式），排序在内存做：
+    /// 仓位 → 零件编码，避免 SQL Server 2000 下派生表多列 ORDER BY 的兼容问题。
+    /// </summary>
+    public async Task<IEnumerable<PartStockDisplay>> GetLabelItemsAsync(string? partNo = null, string? partName = null, string? cartype = null, int top = 0)
+    {
+        using var db = await CreateConnectionAsync();
+        var topClause = top > 0 ? $"TOP {top}" : "TOP 999999999";
+        var innerWhere = "WHERE ISNULL(part_data.DEL, '0') = '0'";
+        var p = new DynamicParameters();
+        if (!string.IsNullOrWhiteSpace(partNo)) { innerWhere += " AND part_data.partno LIKE @PartNo"; p.Add("PartNo", $"%{partNo.Trim()}%"); }
+        if (!string.IsNullOrWhiteSpace(partName)) { innerWhere += " AND (part_data.name LIKE @PartName OR part_data.name_py LIKE @PartName)"; p.Add("PartName", $"%{partName.Trim()}%"); }
+        if (!string.IsNullOrWhiteSpace(cartype)) { innerWhere += " AND (part_data.cartype LIKE @CarType OR part_data.cartype_py LIKE @CarType)"; p.Add("CarType", $"%{cartype.Trim()}%"); }
+
+        var sql = $@"SELECT part_data.partid AS PartId, part_data.partno AS PartNo, part_data.name AS Name, part_data.cartype AS CarType,
+                    part_data.carname AS CarName, part_stock.place AS Place, part_data.unit AS Unit, part_data.[class] AS Class,
+                    part_data.area AS Area, part_data.inprice AS InPrice, part_stock.amount AS Amount,
+                    part_stock.lsprice AS LsPrice, part_stock.pfprice AS PfPrice, part_stock.sell_use AS SellUse,
+                    part_data.memo AS Memo, part_data.isck AS Isck, part_stock.warning AS Warning,
+                    part_data.part_th AS PartTh, part_data.part_gg AS PartGg,
+                    part_data.part_cclb AS PartCclb, part_data.name_py AS NamePy, part_data.cartype_py AS CartypePy,
+                    part_data.part_bzq AS PartBzq, part_data.part_bzrq AS PartBzrq
+                    FROM (SELECT {topClause} part_stock.partid, part_data.partno FROM part_stock
+                          LEFT JOIN part_data ON part_data.partid = part_stock.partid
+                          {innerWhere}) AS t
+                    INNER JOIN part_data ON part_data.partid = t.partid
+                    INNER JOIN part_stock ON part_stock.partid = t.partid";
+        var result = (await db.QueryAsync<PartStockDisplay>(sql, p)).ToList();
+        // 内存排序：仓位 → 零件编码（稳定排序，规避兼容层对多列 ORDER BY 的处理差异）
+        return result.OrderBy(r => r.Place).ThenBy(r => r.PartNo, StringComparer.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
     /// 按多个配件编号包含匹配查询（多条件查询弹窗用）。
     /// 每个输入编码按 LIKE '%code%' 匹配 part_data.partno，多个编码间为 OR 关系。
     /// 复用 GetStockListAdvancedAsync 的子查询+外层JOIN优化骨架（规避 SQL Server 2000 多列+ORDER BY 慢执行计划）。

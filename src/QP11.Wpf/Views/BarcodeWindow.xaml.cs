@@ -1,13 +1,12 @@
 using System;
 using System.Collections.ObjectModel;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using QP11.Core.Entities;
 using QP11.Core.Interfaces;
+using QP11.Wpf.Services.LabelPrint;
 
 namespace QP11.Wpf.Views;
 
@@ -103,7 +102,7 @@ public partial class BarcodeWindow : Window
         for (int i = 0; i < Labels.Count; i++)
         {
             var label = Labels[i];
-            var barcodeImage = RenderCode128Barcode(label.Partno ?? "");
+            var barcodeImage = Code128Renderer.Render(label.Partno ?? "");
 
             var stackPanel = new StackPanel { Margin = new Thickness(2) };
             stackPanel.Children.Add(new TextBlock { Text = $"编号: {label.Partno}", FontSize = 10 });
@@ -131,66 +130,5 @@ public partial class BarcodeWindow : Window
         doc.Blocks.Add(table);
 
         printDialog.PrintDocument(((IDocumentPaginatorSource)doc).DocumentPaginator, "条码标签打印");
-    }
-
-    private static RenderTargetBitmap RenderCode128Barcode(string value, double width = 200, double height = 60)
-    {
-        if (string.IsNullOrEmpty(value)) return new RenderTargetBitmap(1, 1, 96, 96, PixelFormats.Pbgra32);
-
-        var patterns = new[] {
-            "212222", "222122", "222221", "121223", "121322", "131222", "122213", "122312", "132212", "221213",
-            "221312", "231212", "112232", "122132", "122231", "113222", "123122", "123221", "223211", "221132",
-            "221231", "213212", "223112", "312131", "311222", "321122", "321221", "312212", "322112", "322211",
-            "212123", "212321", "232121", "111323", "131123", "131321", "112313", "132113", "132311", "211313",
-            "231113", "231311", "112133", "112331", "132131", "113123", "113321", "133121", "313121", "211331",
-            "231131", "213113", "213311", "213131", "311123", "311321", "331121", "312113", "312311", "332111",
-            "314111", "221411", "431111", "111224", "111422", "121124", "121421", "141122", "141221", "112214",
-            "112412", "122114", "122411", "142112", "142211", "241211", "221114", "413111", "241112", "134111",
-            "111242", "121142", "121241", "114212", "124112", "124211", "411212", "421112", "421211", "212141",
-            "214121", "412121", "111143", "111341", "131141", "114113", "114311", "411113", "411311", "113141",
-            "114131", "311141", "411131", "211412", "211214", "211232",
-            "2331112"
-        };
-
-        var bars = new StringBuilder();
-        bars.Append(patterns[104]); // Start Code B
-
-        int sum = 104;
-        for (int i = 0; i < value.Length; i++)
-        {
-            int code = value[i] >= 32 && value[i] <= 127 ? value[i] - 32 : value[i];
-            bars.Append(patterns[code]);
-            sum += code * (i + 1);
-        }
-
-        int checksum = sum % 103;
-        bars.Append(patterns[checksum]);
-        bars.Append(patterns[106]); // Stop
-
-        var barStr = bars.ToString();
-        var totalUnits = 0;
-        foreach (char c in barStr) totalUnits += c - '0';
-
-        var bmp = new RenderTargetBitmap((int)width, (int)height, 96, 96, PixelFormats.Pbgra32);
-        var dv = new DrawingVisual();
-        using (var dc = dv.RenderOpen())
-        {
-            double barWidth = width / totalUnits;
-            double x = 0;
-            bool isBar = true;
-            foreach (char c in barStr)
-            {
-                int w = c - '0';
-                if (isBar)
-                {
-                    dc.DrawRectangle(Brushes.Black, null, new Rect(x, 0, w * barWidth, height * 0.7));
-                }
-                x += w * barWidth;
-                isBar = !isBar;
-            }
-        }
-        bmp.Render(dv);
-        bmp.Freeze();
-        return bmp;
     }
 }

@@ -254,6 +254,8 @@ public partial class MainWindow : Window
             "7f" => new WindowHostControl("系统参数设置", () => new SettingsWindow(App.ServiceProvider.GetRequiredService<IDatabaseInfoService>())),
             "r5" => new WindowHostControl("单据打印设置", () => new BillPrintSettingsWindow()),
             "7e" => new WindowHostControl("打印设置", () => new PrintSetupWindow()),
+            "r6" => new WindowHostControl("标签打印", () => new LabelPrintWindow(
+                App.ServiceProvider.GetRequiredService<IPartRepository>())),
             "7g" => new WindowHostControl("数据迁移", () => new MigrationWindow(
                 App.ServiceProvider.GetRequiredService<MigrationService>())),
             "agnes" => new AgnesAssistantTab(App.ServiceProvider.GetRequiredService<AgnesChatViewModel>()),
