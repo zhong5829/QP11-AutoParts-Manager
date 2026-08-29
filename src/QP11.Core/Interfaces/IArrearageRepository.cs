@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 using QP11.Core.Entities;
+using QP11.Core.Models;
 
 namespace QP11.Core.Interfaces;
 
@@ -12,7 +13,7 @@ public interface IArrearageRepository : IRepository<Arrearage>
     Task<IEnumerable<Arrearage>> GetListAsync(int? type = null, DateTime? startDate = null, DateTime? endDate = null);
     Task<decimal> GetClientArrearTotalAsync(string cid);
     new Task<int> InsertAsync(Arrearage entity, IDbTransaction? transaction = null);
-    Task<IEnumerable<dynamic>> GetClientArrearageListAsync(int type, string? keyword = null);
+    Task<IEnumerable<ArrearageSummaryItem>> GetClientArrearageListAsync(int type, string? keyword = null);
     Task<IEnumerable<dynamic>> GetArrearageDetailByBidAsync(string bid, int? type = null);
     Task<int> UpdateChargeAsync(long id, decimal delta, IDbTransaction? transaction = null);
     Task<int> UpdatePaymentAsync(long id, decimal amount, string payMethod, IDbTransaction? transaction = null);

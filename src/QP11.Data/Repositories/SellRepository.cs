@@ -170,6 +170,17 @@ public class SellRepository : ISellRepository
     }
 
     /// <summary>
+    /// 物理删除销售单头（作废单据时与明细、欠款在同一事务内删除，与旧系统"作废=删除"一致）
+    /// </summary>
+    public async Task<int> DeleteBillAsync(string sn, IDbTransaction? transaction = null)
+    {
+        var db = transaction?.Connection ?? await CreateConnectionAsync();
+        var result = await db.ExecuteAsync("DELETE FROM bill_sell WHERE sn = @Sn", new { Sn = sn }, transaction);
+        if (transaction == null) db.Dispose();
+        return result;
+    }
+
+    /// <summary>
     /// 删除销售单的所有明细（编辑时先删后插）
     /// </summary>
     public async Task<int> DeleteDetailsAsync(string sn)

@@ -34,7 +34,6 @@
             <MenuItem Header="财务管理(_C)">
                 <MenuItem Header="应付款" Tag="21" Click="MenuGeneric_Click"/>
                 <MenuItem Header="应收款" Tag="22" Click="MenuGeneric_Click"/>
-                <MenuItem Header="收款" Tag="23" Click="MenuGeneric_Click"/>
                 <Separator/>
                 <MenuItem Header="现金账" Tag="24" Click="MenuGeneric_Click"/>
                 <MenuItem Header="银行账" Tag="25" Click="MenuGeneric_Click"/>

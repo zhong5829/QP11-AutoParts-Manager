@@ -15,25 +15,49 @@ public class SellQueryViewModel : BaseViewModel
 {
     private readonly ISellRepository _sellRepo;
     private readonly IPartRepository _partRepo;
+    private readonly IUnitOfWorkFactory _uowFactory;
+    private readonly IArrearageRepository _arrearRepo;
 
-    public SellQueryViewModel(ISellRepository sellRepo, IPartRepository partRepo)
+    public SellQueryViewModel(ISellRepository sellRepo, IPartRepository partRepo, IUnitOfWorkFactory uowFactory, IArrearageRepository arrearRepo)
     {
         _sellRepo = sellRepo;
         _partRepo = partRepo;
+        _uowFactory = uowFactory;
+        _arrearRepo = arrearRepo;
     }
 
     /// <summary>
-    /// 作废销售单据（回补库存+更新状态）
+    /// 作废销售单据 - 物理删除该单（明细+单据头+欠款）并回补库存
+    /// 与旧系统"作废=直接删除数据"一致：作废后销售历史/报表中不再出现该记录
     /// </summary>
     public async Task VoidBillAsync(string sn)
     {
-        var details = await _sellRepo.GetDetailsAsync(sn);
-        foreach (var d in details)
+        var details = (await _sellRepo.GetDetailsAsync(sn)).ToList();
+
+        using var uow = _uowFactory.Create();
+        try
         {
-            if (d.Partid.HasValue && (d.Amount ?? 0m) > 0)
-                await _partRepo.IncreaseStockAsync(d.Partid.Value, d.Amount ?? 0m);
+            await uow.BeginTransactionAsync();
+            var txn = uow.Transaction;
+            var dbConn = uow.Connection;
+
+            foreach (var d in details)
+            {
+                if (d.Partid.HasValue && (d.Amount ?? 0m) > 0)
+                    await _partRepo.IncreaseStockAsync(d.Partid.Value, d.Amount ?? 0m, txn, dbConn);
+            }
+
+            await _sellRepo.DeleteDetailsAsync(sn, txn);
+            await _sellRepo.DeleteBillAsync(sn, txn);
+            await _arrearRepo.DeleteBySnAsync(sn, txn);
+
+            await uow.CommitAsync();
         }
-        await _sellRepo.UpdateBillStatusAsync(sn, (int)BusinessConstants.BillFlag.Voided);
+        catch
+        {
+            await uow.RollbackAsync();
+            throw;
+        }
     }
 
     /// <summary>

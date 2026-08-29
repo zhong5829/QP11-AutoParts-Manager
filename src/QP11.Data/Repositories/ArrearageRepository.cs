@@ -7,6 +7,7 @@ using Dapper;
 using QP11.Core.Constants;
 using QP11.Core.Entities;
 using QP11.Core.Interfaces;
+using QP11.Core.Models;
 using QP11.Data.Infrastructure;
 
 namespace QP11.Data.Repositories;
@@ -97,35 +98,64 @@ public class ArrearageRepository : IArrearageRepository
     /// 获取客户/供应商列表（含欠款合计）
     /// 正常单：total - charge；退货单：-(total - charge)
     /// 负数单（total<0）：直接按 total - charge（已带负号，不再取反）
+    /// 返回强类型 ArrearageSummaryItem（避免 DapperRow 与匿名类型混用导致 RuntimeBinderException）
+    /// 性能优化（2026-08-29 实测）：应付(type=1)对 bill_sell 的 LEFT JOIN 恒不匹配（2.0s→约65ms）；
+    /// 应收(type=2)将 join 30 万行 bill_sell 的两步拆分：base 汇总（约140ms）+ 取反修正 adj（仅少数行）
     /// </summary>
-    public async Task<IEnumerable<dynamic>> GetClientArrearageListAsync(int type, string? keyword = null)
+    public async Task<IEnumerable<ArrearageSummaryItem>> GetClientArrearageListAsync(int type, string? keyword = null)
     {
         using var db = await CreateConnectionAsync();
         var tableName = type == 1 ? "supplier_infor" : "client_infor";
         var idCol = type == 1 ? "sid" : "cid";
         var joinCol = type == 1 ? "supplier_infor.sid" : "client_infor.cid";
-        var sql = $@"SELECT {joinCol} as bid, {tableName}.name as name,
-                    ISNULL(SUM(CASE WHEN arrearage.total < 0
-                            THEN arrearage.total - ISNULL(arrearage.charge,0)
-                        WHEN bs.flag=2 OR bs.total<0 -- BillFlag.Returned
-                            THEN -(arrearage.total - ISNULL(arrearage.charge,0))
-                        ELSE arrearage.total - ISNULL(arrearage.charge,0)
-                    END), 0) as total_je
-                    FROM {tableName}
-                    INNER JOIN arrearage ON arrearage.bid = {joinCol} AND arrearage.type = @Type
-                    LEFT JOIN bill_sell bs ON arrearage.sn = bs.sn AND arrearage.type = 2
-                    WHERE 1=1";
-        if (!string.IsNullOrEmpty(keyword))
-            sql += $" AND ({tableName}.name LIKE @Kw OR {tableName}.{idCol} LIKE @Kw OR {tableName}.name_py LIKE @Kw)";
-        sql += $@" GROUP BY {joinCol}, {tableName}.name
-                  HAVING SUM(CASE WHEN arrearage.total < 0
-                            THEN arrearage.total - ISNULL(arrearage.charge,0)
-                        WHEN bs.flag=2 OR bs.total<0 -- BillFlag.Returned
-                            THEN -(arrearage.total - ISNULL(arrearage.charge,0))
-                        ELSE arrearage.total - ISNULL(arrearage.charge,0)
-                    END) <> 0
-                  ORDER BY {tableName}.name";
-        return await db.QueryAsync<dynamic>(sql, new { Type = type, Kw = $"%{keyword}%" });
+        var keyWhere = !string.IsNullOrEmpty(keyword)
+            ? $" AND ({tableName}.name LIKE @Kw OR {tableName}.{idCol} LIKE @Kw OR {tableName}.name_py LIKE @Kw)"
+            : "";
+
+        if (type == 1)
+        {
+            // 应付：bill_sell 关联条件 `arrearage.sn=bs.sn AND arrearage.type=2` 在 type=1 下恒不匹配，
+            // 去掉 LEFT JOIN 后与原 SQL 结果完全等价（取反分支恒不命中）
+            var sql = $@"SELECT {joinCol} AS bid, {tableName}.name AS name,
+                        ISNULL(SUM(ISNULL(arrearage.total,0) - ISNULL(arrearage.charge,0)), 0) AS TotalJe
+                        FROM {tableName}
+                        INNER JOIN arrearage ON arrearage.bid = {joinCol} AND arrearage.type = 1
+                        WHERE 1=1{keyWhere}
+                        GROUP BY {joinCol}, {tableName}.name
+                        HAVING SUM(ISNULL(arrearage.total,0) - ISNULL(arrearage.charge,0)) <> 0
+                        ORDER BY {tableName}.name";
+            return await db.QueryAsync<ArrearageSummaryItem>(sql, new { Kw = $"%{keyword}%" });
+        }
+
+        // 应收：主查询不 join bill_sell（30万行），分两步 —— base 汇总 + 取反修正
+        // base：直接对未结清额求和，~140ms
+        var baseSql = $@"SELECT client_infor.cid AS bid, client_infor.name AS name,
+                        SUM(ISNULL(arrearage.total,0) - ISNULL(arrearage.charge,0)) AS TotalJe
+                        FROM client_infor
+                        INNER JOIN arrearage ON arrearage.bid = client_infor.cid AND arrearage.type = 2
+                        WHERE 1=1{keyWhere}
+                        GROUP BY client_infor.cid, client_infor.name";
+        var baseRows = (await db.QueryAsync<ArrearageSummaryItem>(baseSql, new { Kw = $"%{keyword}%" })).ToList();
+
+        // adj：取反修正 = 2*(total-charge)，仅限未结清退货单行（原 CASE 中 total<0 恒不取反，故限 total>=0）
+        // INNER LOOP JOIN 让退货单 sn 集合(约3.2万) 驱动，避免 SQL2000 对 30万×18.7万 做 hash join
+        var adjSql = @"SELECT a.bid, SUM(2*(ISNULL(a.total,0) - ISNULL(a.charge,0))) AS adj
+                       FROM arrearage a
+                       INNER LOOP JOIN (SELECT sn FROM bill_sell WHERE flag = 2 OR total < 0) rs ON rs.sn = a.sn
+                       WHERE a.type = 2 AND a.total >= 0
+                       GROUP BY a.bid";
+        var adjRows = (await db.QueryAsync(adjSql)).ToList();
+        var adjMap = adjRows.ToDictionary(r => (string)r.bid, r => (decimal)r.adj);
+
+        // 合并：total_je = base - adj，剔除合计为 0 的行，按名称排序
+        var result = new List<ArrearageSummaryItem>();
+        foreach (var row in baseRows)
+        {
+            var totalJe = row.TotalJe - (adjMap.TryGetValue(row.Bid!, out var adj) ? adj : 0m);
+            if (totalJe != 0m)
+                result.Add(new ArrearageSummaryItem { Bid = row.Bid, Name = row.Name, TotalJe = totalJe });
+        }
+        return result.OrderBy(r => r.Name).ToList();
     }
 
     /// <summary>
@@ -133,32 +163,52 @@ public class ArrearageRepository : IArrearageRepository
     /// 正常单：je=total, charge=charge, owe=total-charge
     /// 退货单：je=-total(红), charge=-charge(红), owe=-(total-charge)
     /// 负数单（total<0）：je=total(红), charge=charge, owe=total-charge（已带负号，不再取反）
+    /// 性能优化（2026-08-29 实测）：应付(type=1)取反判定基于 bill_sell 恒不命中 → 无 join；
+    /// 应收(type=2) 只需 bill_sell join（bill_buy 的 3.7 万行 join 恒不匹配，已去除）
     /// </summary>
     public async Task<IEnumerable<dynamic>> GetArrearageDetailByBidAsync(string bid, int? type = null)
     {
         using var db = await CreateConnectionAsync();
-        var sql = @"SELECT a.id, a.bid, a.sn,
+        string sql;
+        if (type == 1)
+        {
+            // 应付：原 SQL 中 bs（bill_sell）对 type=1 恒 NULL，CASE 收敛为 total/charge/owe 原值
+            sql = @"SELECT a.id, a.bid, a.sn,
+                    a.total AS je,
+                    ISNULL(a.charge,0) AS charge,
+                    a.[operator], a.type, a.btype, a.datetime,
+                    0 AS is_return,
+                    (ISNULL(a.total,0) - ISNULL(a.charge,0)) AS owe
+                    FROM arrearage a
+                    WHERE a.bid = @Bid AND a.type = 1
+                    AND (ISNULL(a.total,0) - ISNULL(a.charge,0)) <> 0
+                    ORDER BY a.datetime DESC";
+        }
+        else
+        {
+            // 应收（type=2）或未指定类型：只需 bill_sell 判定退货取反（bill_buy join 恒不匹配，已去除）
+            sql = @"SELECT a.id, a.bid, a.sn,
                     CASE WHEN a.total < 0 THEN a.total
-                         WHEN bs.flag=2 OR bs.total<0 THEN -a.total ELSE a.total END as je, -- BillFlag.Returned
+                         WHEN bs.flag=2 OR bs.total<0 THEN -a.total ELSE a.total END as je,
                     CASE WHEN a.total < 0 THEN ISNULL(a.charge,0)
                          WHEN bs.flag=2 OR bs.total<0 THEN -ISNULL(a.charge,0)
-                         ELSE ISNULL(a.charge,0) END as charge, -- BillFlag.Returned
+                         ELSE ISNULL(a.charge,0) END as charge,
                     a.[operator], a.type, a.btype, a.datetime,
-                    CASE WHEN bs.flag=2 OR bs.total<0 THEN 1 ELSE 0 END as is_return, -- BillFlag.Returned
+                    CASE WHEN bs.flag=2 OR bs.total<0 THEN 1 ELSE 0 END as is_return,
                     CASE WHEN a.total < 0 THEN (ISNULL(a.total,0) - ISNULL(a.charge,0))
                          WHEN bs.flag=2 OR bs.total<0 THEN -(ISNULL(a.total,0) - ISNULL(a.charge,0))
                          ELSE (ISNULL(a.total,0) - ISNULL(a.charge,0))
                     END as owe
                     FROM arrearage a
                     LEFT JOIN bill_sell bs ON a.sn = bs.sn AND a.type = 2
-                    LEFT JOIN bill_buy bb ON a.sn = bb.sn AND a.type = 1
-                    WHERE a.bid = @Bid
-                    AND CASE WHEN a.total < 0 THEN (ISNULL(a.total,0) - ISNULL(a.charge,0))
-                             WHEN bs.flag=2 OR bs.total<0 THEN -(ISNULL(a.total,0) - ISNULL(a.charge,0))
-                             ELSE (ISNULL(a.total,0) - ISNULL(a.charge,0))
-                        END <> 0";
-        if (type.HasValue) sql += " AND a.type = @Type";
-        sql += " ORDER BY a.datetime DESC";
+                    WHERE a.bid = @Bid";
+            if (type.HasValue) sql += " AND a.type = @Type";
+            sql += @" AND CASE WHEN a.total < 0 THEN (ISNULL(a.total,0) - ISNULL(a.charge,0))
+                               WHEN bs.flag=2 OR bs.total<0 THEN -(ISNULL(a.total,0) - ISNULL(a.charge,0))
+                               ELSE (ISNULL(a.total,0) - ISNULL(a.charge,0))
+                          END <> 0
+                    ORDER BY a.datetime DESC";
+        }
         return await db.QueryAsync<dynamic>(sql, new { Bid = bid, Type = type });
     }
 
@@ -319,11 +369,29 @@ public class ArrearageRepository : IArrearageRepository
     /// 正常单：je=total, charge=charge, owe=total-charge
     /// 退货单：je=-total, charge=-charge, owe=-(total-charge)
     /// 负数单（total<0）：je=total, charge=charge, owe=total-charge（已带负号，不再取反）
+    /// 性能优化（2026-08-29 实测）：应付(type=1)去掉恒不匹配的 bill_sell join；
+    /// 其它类型仅保留 bill_sell join（bill_buy 的 3.7 万行 join 恒不匹配且从未参与判定，已去除）
     /// </summary>
     public async Task<IEnumerable<dynamic>> GetListWithCalcAsync(int? type = null, DateTime? startDate = null, DateTime? endDate = null)
     {
         using var db = await CreateConnectionAsync();
-        var sql = @"SELECT a.id, a.bid, a.sn,
+        string sql;
+        if (type == 1)
+        {
+            // 应付：bs（bill_sell）对 type=1 恒 NULL，CASE 收敛为原值（无 join）
+            sql = @"SELECT a.id, a.bid, a.sn,
+                    a.total AS je,
+                    ISNULL(a.charge,0) AS charge,
+                    (ISNULL(a.total,0) - ISNULL(a.charge,0)) AS owe,
+                    a.[operator], a.type, a.btype, a.datetime,
+                    0 AS is_return
+                    FROM arrearage a
+                    WHERE 1=1";
+        }
+        else
+        {
+            // 应收（type=2）或全部（type=null）：只用 bill_sell 判定退货取反（去除 bill_buy join）
+            sql = @"SELECT a.id, a.bid, a.sn,
                     CASE WHEN a.total < 0 THEN a.total
                          WHEN bs.flag=2 OR bs.total<0 THEN -a.total ELSE a.total END as je,
                     CASE WHEN a.total < 0 THEN ISNULL(a.charge,0)
@@ -337,8 +405,8 @@ public class ArrearageRepository : IArrearageRepository
                     CASE WHEN bs.flag=2 OR bs.total<0 THEN 1 ELSE 0 END as is_return
                     FROM arrearage a
                     LEFT JOIN bill_sell bs ON a.sn = bs.sn AND a.type = 2
-                    LEFT JOIN bill_buy bb ON a.sn = bb.sn AND a.type = 1
                     WHERE 1=1";
+        }
         if (type.HasValue) sql += " AND a.type = @Type";
         if (startDate.HasValue) sql += " AND a.datetime >= @Start";
         if (endDate.HasValue) sql += " AND a.datetime < DATEADD(day, 1, @End)";

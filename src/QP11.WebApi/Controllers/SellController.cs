@@ -232,7 +232,8 @@ public class SellController : ControllerBase
     }
 
     /// <summary>
-    /// 作废销售单 — 委托 SellService.VoidSellOrderAsync（回补库存+删除欠款，事务内原子操作）
+    /// 删除销售单 — 委托 SellService.VoidSellOrderAsync（回补库存+删除单据+删除欠款，事务内原子操作）
+    /// 与旧系统"作废=直接删除数据"一致：作废后销售历史/报表中不再出现该记录
     /// </summary>
     [HttpDelete("orders/{sn}")]
     public async Task<IActionResult> VoidOrder(string sn)
@@ -241,10 +242,10 @@ public class SellController : ControllerBase
         {
             var details = (await _sellRepo.GetDetailsAsync(sn)).ToList();
 
-            // 委托 SellService 执行作废事务（库存回补+删除欠款，在同一事务内原子执行）
+            // 委托 SellService 执行删除事务（库存回补+删除明细/单据头/欠款，在同一事务内原子执行）
             await _sellService.VoidSellOrderAsync(sn, details);
 
-            return Ok(new { success = true, message = $"单据 {sn} 已作废，库存已调整，欠款已清除" });
+            return Ok(new { success = true, message = $"单据 {sn} 已删除，库存已调整，欠款已清除" });
         }
         catch (Exception ex)
         {

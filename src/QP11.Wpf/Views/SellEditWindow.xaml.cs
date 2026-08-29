@@ -18,6 +18,7 @@ public partial class SellEditWindow : Window
     private readonly IUserRepository _userRepo;
     private readonly IDbConnectionFactory _dbFactory;
     private readonly IUnitOfWorkFactory _uowFactory;
+    private readonly IArrearageRepository _arrearRepo;
     public ObservableCollection<DetailSell> Details { get; } = new();
     private BillSell? _currentBill;
     private List<ClientInfor> _allClients = new();
@@ -30,7 +31,8 @@ public partial class SellEditWindow : Window
         IClientRepository clientRepo,
         IUserRepository userRepo,
         IDbConnectionFactory dbFactory,
-        IUnitOfWorkFactory uowFactory)
+        IUnitOfWorkFactory uowFactory,
+        IArrearageRepository arrearRepo)
     {
         InitializeComponent();
         _sellRepo = sellRepo;
@@ -39,6 +41,7 @@ public partial class SellEditWindow : Window
         _userRepo = userRepo;
         _dbFactory = dbFactory;
         _uowFactory = uowFactory;
+        _arrearRepo = arrearRepo;
         dgDetails.ItemsSource = Details;
         Loaded += async (_, _) => await LoadDropdownsAsync();
     }
@@ -50,7 +53,8 @@ public partial class SellEditWindow : Window
         IClientRepository clientRepo,
         IUserRepository userRepo,
         IDbConnectionFactory dbFactory,
-        IUnitOfWorkFactory uowFactory) : this(sellRepo, partRepo, clientRepo, userRepo, dbFactory, uowFactory)
+        IUnitOfWorkFactory uowFactory,
+        IArrearageRepository arrearRepo) : this(sellRepo, partRepo, clientRepo, userRepo, dbFactory, uowFactory, arrearRepo)
     {
         _pendingSn = sn;
     }
@@ -191,7 +195,7 @@ public partial class SellEditWindow : Window
     private async void BtnVoid_Click(object sender, RoutedEventArgs e)
     {
         if (_currentBill == null) return;
-        if (MessageBox.Show("确定作废该销售单? 作废后将回补库存", "确认", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
+        if (MessageBox.Show($"确定删除该销售单 [{_currentBill.Sn}]? 删除后不可恢复，库存将回补", "确认", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
 
         try
         {
@@ -199,8 +203,6 @@ public partial class SellEditWindow : Window
             await uow.BeginTransactionAsync();
             var txn = uow.Transaction;
             var dbConn = uow.Connection;
-
-            await _sellRepo.UpdateBillStatusAsync(_currentBill.Sn!, (int)BusinessConstants.BillFlag.Voided, txn);
 
             foreach (var detail in Details)
             {
@@ -215,12 +217,16 @@ public partial class SellEditWindow : Window
                     await _partRepo.IncreaseStockAsync(detail.Partid.Value, Math.Abs(amount), txn, dbConn);
             }
 
+            // 物理删除单据（明细+头）并清除欠款
+            await _sellRepo.DeleteDetailsAsync(_currentBill.Sn!, txn);
+            await _sellRepo.DeleteBillAsync(_currentBill.Sn!, txn);
+            await _arrearRepo.DeleteBySnAsync(_currentBill.Sn!, txn);
+
             await uow.CommitAsync();
-            _currentBill.Flag = (int)BusinessConstants.BillFlag.Voided;
-            txtStatus.Text = $"状态: 已作废 | 金额: {_currentBill.BillTotal:C2}";
-            MessageBox.Show("已作废，库存已回补", "提示");
+            MessageBox.Show("单据已删除，库存已回补", "提示");
+            Close();
         }
-        catch (Exception ex) { Serilog.Log.Warning(ex, "作废销售单失败"); MessageBox.Show($"作废失败: {ex.Message}", "错误"); }
+        catch (Exception ex) { Serilog.Log.Warning(ex, "删除销售单失败"); MessageBox.Show($"删除失败: {ex.Message}", "错误"); }
     }
 
     private void BtnClose_Click(object sender, RoutedEventArgs e) => Close();

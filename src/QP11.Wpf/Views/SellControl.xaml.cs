@@ -1211,7 +1211,7 @@ public partial class SellControl : UserControl, ITabContent
             return;
         }
 
-        if (MessageBox.Show($"确定作废单据 [{_selectedBill.Sn}]? 作废后将回补库存", "确认",
+        if (MessageBox.Show($"确定删除单据 [{_selectedBill.Sn}]? 删除后不可恢复，库存将回补", "确认",
             MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
 
         try
@@ -1225,11 +1225,11 @@ public partial class SellControl : UserControl, ITabContent
             txtQStatus.Text = "";
             dgQueryDetails.ItemsSource = null;
             BtnSearchBills_Click(this, new RoutedEventArgs());
-            MessageBox.Show("已作废，库存已回补", "提示");
+            MessageBox.Show("单据已删除，库存已回补", "提示");
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"作废失败: {ex.Message}", "错误");
+            MessageBox.Show($"删除失败: {ex.Message}", "错误");
         }
     }
 

@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using QP11.Core.Entities;
 using QP11.Core.Interfaces;
+using QP11.Core.Models;
 
 namespace QP11.Wpf.Views;
 
@@ -64,9 +65,8 @@ public partial class ArrearageControl : UserControl, ITabContent
     private async void DgClients_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         var sel = GetSelectedClient();
-        if (sel == null) return;
-        dynamic row = sel;
-        var bid = (string?)row.bid;
+        if (sel is not ArrearageSummaryItem item) return;
+        var bid = item.Bid;
         if (string.IsNullOrEmpty(bid)) return;
 
         await LoadDetailAsync(bid);
@@ -130,12 +130,9 @@ public partial class ArrearageControl : UserControl, ITabContent
         try
         {
             var clientName = "";
-            var clientItem = dgClients.SelectedItem;
+            var clientItem = dgClients.SelectedItem as ArrearageSummaryItem;
             if (clientItem != null)
-            {
-                var nameProp = clientItem.GetType().GetProperty("name");
-                if (nameProp != null) clientName = nameProp.GetValue(clientItem)?.ToString() ?? "";
-            }
+                clientName = clientItem.Name ?? "";
 
             var modeText = cboMode.SelectedIndex switch
             {
@@ -211,10 +208,9 @@ public partial class ArrearageControl : UserControl, ITabContent
 
             // 刷新数据
             var sel = GetSelectedClient();
-            if (sel != null)
+            if (sel is ArrearageSummaryItem client)
             {
-                dynamic client = sel;
-                var bid = (string?)client.bid;
+                var bid = client.Bid;
                 if (!string.IsNullOrEmpty(bid)) await LoadDetailAsync(bid);
             }
             await LoadClientsAsync();

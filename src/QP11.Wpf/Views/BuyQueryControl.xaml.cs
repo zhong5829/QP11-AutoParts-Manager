@@ -82,7 +82,7 @@ public partial class BuyQueryControl : UserControl, ITabContent
         string? sn;
         try { sn = (string?)row.sn; } catch { return; }
         if (string.IsNullOrEmpty(sn)) return;
-        if (MessageBox.Show($"确定作废单据 [{sn}]?", "确认", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
+        if (MessageBox.Show($"确定删除单据 [{sn}]? 删除后不可恢复，库存将扣减", "确认", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
         try
         {
             await _viewModel.VoidBillAsync(sn);
@@ -90,7 +90,7 @@ public partial class BuyQueryControl : UserControl, ITabContent
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"作废失败: {ex.Message}", "错误");
+            MessageBox.Show($"删除失败: {ex.Message}", "错误");
         }
     }
 
