@@ -222,6 +222,7 @@ public partial class MainWindow : Window
             "35" => new WindowHostControl("销售汇总", () => new ReportCenterWindow()),
             "36" => new WindowHostControl("进销存报表", () => new ReportCenterWindow()),
             "37" => new WindowHostControl("营业报表", () => new ReportCenterWindow()),
+            "39" => new WindowHostControl("报表中心", () => new ReportCenterWindow()),
             "38" => new WindowHostControl("排行榜", () => new RankingWindow()),
             "41" => new WindowHostControl("客户管理", () => new ClientManagerWindow(
                 App.ServiceProvider.GetRequiredService<IClientRepository>())),
@@ -287,6 +288,7 @@ public partial class MainWindow : Window
             "35" => "销售汇总",
             "36" => "进销存报表",
             "37" => "营业报表",
+            "39" => "报表中心",
             "38" => "排行榜",
             "41" => "客户管理",
             "42" => "供应商管理",

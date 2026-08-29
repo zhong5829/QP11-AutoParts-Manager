@@ -24,8 +24,8 @@ public partial class DesktopControl : UserControl, ITabContent
     {
         ["11"] = "采购进货", ["12"] = "计划订货", ["118"] = "采购退货",
         ["13"] = "销售开单", ["136"] = "快捷开单", ["133"] = "销售查询", ["138"] = "销售退货",
-        ["15"] = "查看库存", ["151"] = "仓库盘点", ["156"] = "库存预警", ["16"] = "单据打印",
-        ["31"] = "采购明细", ["33"] = "销售明细", ["36"] = "进销存报表", ["37"] = "营业报表",
+        ["15"] = "查看库存", ["151"] = "仓库盘点", ["156"] = "库存预警",
+        ["31"] = "采购明细", ["33"] = "销售明细", ["36"] = "进销存报表", ["37"] = "营业报表", ["39"] = "报表中心",
         ["21"] = "应付款", ["22"] = "应收款", ["24"] = "现金账", ["25"] = "银行账",
     };
 
@@ -105,7 +105,7 @@ public partial class DesktopControl : UserControl, ITabContent
             {
                 var sellTask = _sellRepo.GetListAsync(today, tomorrow);
                 var buyTask = _buyRepo.GetListAsync(today, tomorrow);
-                var rankingTask = _sellRepo.GetTodayPartsRankingAsync(today, 10);
+                var rankingTask = _sellRepo.GetTodayPartsRankingAsync(today);
 
                 await Task.WhenAll(sellTask, buyTask, rankingTask);
 

@@ -211,14 +211,16 @@ public class SellRepository : ISellRepository
     }
 
     /// <summary>
-    /// 获取今日配件销售排行（按销量降序，前 N 条，含实时库存）
+    /// 获取今日配件销售排行（按销量降序，含实时库存）
     /// SQL Server 2000 不支持 ROW_NUMBER() 和参数化 TOP，用字符串拼接 TOP 值
     /// </summary>
-    public async Task<IEnumerable<dynamic>> GetTodayPartsRankingAsync(DateTime today, int top = 10)
+    public async Task<IEnumerable<dynamic>> GetTodayPartsRankingAsync(DateTime today, int top = 0)
     {
         using var db = await CreateConnectionAsync();
         var tomorrow = today.AddDays(1);
-        var sql = $@"SELECT TOP {top}
+        // top <= 0 表示显示全部（不加 TOP 限制）
+        var topClause = top > 0 ? $"TOP {top}" : "";
+        var sql = $@"SELECT {topClause}
                     d.partid AS PartId, d.partno AS PartNo, d.name AS PartName,
                     MAX(d.cartype) AS Cartype,
                     SUM(d.amount) AS SaleAmount, SUM(d.stotal) AS SaleTotal,

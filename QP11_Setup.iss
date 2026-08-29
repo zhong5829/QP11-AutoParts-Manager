@@ -4,7 +4,7 @@
 ; 自包含发布：已内置 .NET 8.0 运行时，无需预装环境
 
 #define MyAppName "QP11汽配管理系统"
-#define MyAppVersion "2.2.9"
+#define MyAppVersion "2.2.11"
 #define MyAppPublisher "QP11"
 #define MyAppURL "http://www.qp11.com/"
 #define MyAppExeName "QP11.Wpf.exe"

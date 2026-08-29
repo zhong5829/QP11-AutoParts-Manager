@@ -22,11 +22,6 @@
         </ControlTemplate>
     </UserControl.Resources>
     <DockPanel>
-        <Border DockPanel.Dock="Bottom" Background="#F0F0F0" Padding="10,6"
-                BorderThickness="0,1,0,0" BorderBrush="#CCCCCC">
-            <TextBlock Text="在线客服 | 欢迎登录qp110：www.qp110.com" Foreground="#666666"/>
-        </Border>
-
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="35*"/>
@@ -57,15 +52,13 @@
                             <Button Content="查看库存" Tag="15" Click="DesktopButton_Click" Margin="2" Padding="4"/>
                             <Button Content="仓库盘点" Tag="151" Click="DesktopButton_Click" Margin="2" Padding="4"/>
                             <Button Content="库存预警" Tag="156" Click="DesktopButton_Click" Margin="2" Padding="4"/>
-                            <Button Content="单据打印" Tag="16" Click="DesktopButton_Click" Margin="2" Padding="4"/>
                         </UniformGrid>
                     </GroupBox>
 
                     <GroupBox Header="业务查询" Margin="2,2,2,4">
                         <UniformGrid Columns="2">
                             <Button Content="销售明细" Tag="33" Click="DesktopButton_Click" Margin="2" Padding="4"/>
-                            <Button Content="进销存报表" Tag="36" Click="DesktopButton_Click" Margin="2" Padding="4"/>
-                            <Button Content="营业报表" Tag="37" Click="DesktopButton_Click" Margin="2" Padding="4"/>
+                            <Button Content="报表中心" Tag="39" Click="DesktopButton_Click" Margin="2" Padding="4"/>
                         </UniformGrid>
                     </GroupBox>
 
@@ -184,7 +177,7 @@
                             </DataGrid.Columns>
                         </DataGrid>
                     </GroupBox>
-                    <GroupBox Grid.Column="1" Header="今日配件销售排行" Margin="3">
+                    <GroupBox Grid.Column="1" Header="今日配件销售排行（全部）" Margin="3">
                         <DataGrid x:Name="dgPartsRanking" AutoGenerateColumns="False"
                                   IsReadOnly="True" SelectionMode="Single"
                                   HeadersVisibility="Column"

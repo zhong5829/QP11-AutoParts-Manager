@@ -6,9 +6,10 @@
         Loaded="Window_Loaded">
     <DockPanel>
         <Menu x:Name="mainMenu" DockPanel.Dock="Top">
-            <MenuItem Header="注册与登录(_R)">
+            <MenuItem Header="打印机设置(_R)">
                 <MenuItem Header="桌面导航" Tag="r4" Click="MenuGeneric_Click"/>
                 <MenuItem Header="单据打印设置" Tag="r5" Click="MenuGeneric_Click"/>
+                <MenuItem Header="打印设置" Tag="7e" Click="MenuGeneric_Click"/>
             </MenuItem>
             <MenuItem Header="进销存管理(_J)">
                 <MenuItem Header="采购进货" Tag="11" Click="MenuGeneric_Click"/>
@@ -46,10 +47,8 @@
             <MenuItem Header="业务查询(_Q)">
                 <MenuItem Header="计划明细" Tag="32" Click="MenuGeneric_Click"/>
                 <MenuItem Header="销售明细" Tag="33" Click="MenuGeneric_Click"/>
-                <MenuItem Header="销售汇总" Tag="35" Click="MenuGeneric_Click"/>
-                <MenuItem Header="进销存报表" Tag="36" Click="MenuGeneric_Click"/>
+                <MenuItem Header="报表中心" Tag="39" Click="MenuGeneric_Click"/>
                 <Separator/>
-                <MenuItem Header="营业报表" Tag="37" Click="MenuGeneric_Click"/>
                 <MenuItem Header="排行榜" Tag="38" Click="MenuGeneric_Click"/>
             </MenuItem>
             <MenuItem Header="基础数据(_B)">
@@ -73,7 +72,6 @@
                 <MenuItem Header="系统日志" Tag="73" Click="MenuGeneric_Click"/>
                 <MenuItem Header="权限管理" Tag="78" Click="MenuGeneric_Click"/>
                 <Separator/>
-                <MenuItem Header="打印设置" Tag="7e" Click="MenuGeneric_Click"/>
                 <MenuItem Header="系统参数设置" Tag="7f" Click="MenuGeneric_Click"/>
                 <Separator/>
                 <MenuItem Header="数据迁移" Tag="7g" Click="MenuGeneric_Click"/>
