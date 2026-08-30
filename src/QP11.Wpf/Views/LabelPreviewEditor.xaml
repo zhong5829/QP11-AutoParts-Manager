@@ -7,14 +7,20 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,4">
+        <WrapPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,4">
             <TextBlock Text="选区:" VerticalAlignment="Center" Margin="4,0,4,0"/>
             <TextBlock x:Name="txtSel" Text="未选中" VerticalAlignment="Center" MinWidth="70" Foreground="#4B3FE3"/>
-            <Button Content="字号+" Width="56" Height="24" Margin="4,0" ToolTip="选中元素字号+2px（条码为高度+2mm）" Click="BtnFontUp_Click"/>
-            <Button Content="字号-" Width="56" Height="24" Margin="4,0" ToolTip="选中元素字号-2px（条码为高度-2mm）" Click="BtnFontDown_Click"/>
-            <Button Content="显隐" Width="56" Height="24" Margin="4,0" ToolTip="显示/隐藏选中元素" Click="BtnToggle_Click"/>
-            <TextBlock Text="拖动调整位置 · 双击修改文字（仅本次打印）" VerticalAlignment="Center" Margin="10,0,0,0" Foreground="Gray" FontSize="11"/>
-        </StackPanel>
+            <Button Content="字号+" MinWidth="52" Height="24" Margin="4,0" Padding="4,0" ToolTip="选中元素字号+2px（条码为高度+2mm）" Click="BtnFontUp_Click"/>
+            <Button Content="字号-" MinWidth="52" Height="24" Margin="4,0" Padding="4,0" ToolTip="选中元素字号-2px（条码为高度-2mm）" Click="BtnFontDown_Click"/>
+            <Button Content="旋转" MinWidth="52" Height="24" Margin="4,0" Padding="4,0" ToolTip="选中元素顺时针旋转90°" Click="BtnRotate_Click"/>
+            <Button Content="加粗" MinWidth="52" Height="24" Margin="4,0" Padding="4,0" ToolTip="切换选中文字加粗" Click="BtnBold_Click"/>
+            <Button Content="颜色" MinWidth="52" Height="24" Margin="4,0" Padding="4,0" ToolTip="切换文字颜色（黑→红→蓝）" Click="BtnColor_Click"/>
+            <Button Content="删除" MinWidth="52" Height="24" Margin="4,0" Padding="4,0" ToolTip="删除自定义文字；标准字段将隐藏" Click="BtnDelete_Click"/>
+            <Button Content="+文字" MinWidth="56" Height="24" Margin="8,0,4,0" Padding="4,0" ToolTip="添加自定义文字" Click="BtnAddText_Click"/>
+            <CheckBox x:Name="chk180" Content="180°" VerticalAlignment="Center" Margin="8,0,4,0"
+                      ToolTip="模板整体旋转180°（应对纸卷反向装入）" Checked="Chk180_Changed" Unchecked="Chk180_Changed"/>
+            <TextBlock Text="拖动调整位置 · 双击修改文字（仅本次打印）" VerticalAlignment="Center" Margin="8,0,0,0" Foreground="Gray" FontSize="11"/>
+        </WrapPanel>
 
         <Border Grid.Row="1" BorderBrush="#999999" BorderThickness="1" Background="White">
             <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"

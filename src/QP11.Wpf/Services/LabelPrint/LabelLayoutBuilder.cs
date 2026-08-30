@@ -43,6 +43,9 @@ public static class LabelLayoutBuilder
         for (int r = 0; r < rowCount; r++)
         {
             var page = new FixedPage { Width = pageW, Height = pageH };
+            // 模板级整体旋转 180°（应对热敏机纸卷反向装入）
+            if (tpl.Rotate180)
+                page.RenderTransform = new RotateTransform(180, pageW / 2, pageH / 2);
             for (int c = 0; c < tpl.ColsPerRow; c++)
             {
                 int idx = r * tpl.ColsPerRow + c;
@@ -68,6 +71,7 @@ public static class LabelLayoutBuilder
             if (f == null || !f.Visible) continue;
             var el = BuildFieldElement(item, tpl, f);
             if (el == null) continue;
+            LabelStyleHelper.ApplyRotation(el, f.Rotation);
             Canvas.SetLeft(el, f.XMm * MmToPx);
             Canvas.SetTop(el, f.YMm * MmToPx);
             canvas.Children.Add(el);
@@ -77,8 +81,8 @@ public static class LabelLayoutBuilder
         {
             Width = w,
             Height = h,
-            BorderBrush = Brushes.Black,
-            BorderThickness = new Thickness(1),
+            // 标签外框仅为预览参考，打印时去掉边框（标签纸本身自带边界）
+            BorderThickness = new Thickness(0),
             Background = Brushes.White,
             Child = canvas
         };
@@ -91,7 +95,11 @@ public static class LabelLayoutBuilder
     private static UIElement? BuildFieldElement(LabelPrintItem item, LabelTemplate tpl, LabelField f)
     {
         var mm = MmToPx;
+        // 显式宽高（0=自动）；文本固定宽度时自动折行
+        var width = f.WidthMm > 0 ? f.WidthMm * mm : double.NaN;
+        var height = f.HeightMm > 0 ? f.HeightMm * mm : double.NaN;
         double maxW = Math.Max(20, (tpl.LabelWidthMm - f.XMm) * mm - 2);   // 距右缘 2px
+        var brush = LabelStyleHelper.ParseBrush(f.Color);
         switch (f.Key)
         {
             case LabelTemplate.FieldCode:
@@ -100,16 +108,20 @@ public static class LabelLayoutBuilder
                     Text = item.PartNo ?? "",
                     FontSize = f.FontSize,
                     FontWeight = FontWeights.Bold,
-                    MaxWidth = maxW,
-                    TextTrimming = TextTrimming.CharacterEllipsis,
-                    TextWrapping = TextWrapping.NoWrap
+                    Foreground = brush,
+                    Width = width,
+                    Height = height,
+                    MaxWidth = double.IsNaN(width) ? maxW : double.PositiveInfinity,
+                    TextWrapping = double.IsNaN(width) ? TextWrapping.NoWrap : TextWrapping.Wrap,
+                    TextTrimming = double.IsNaN(width) ? TextTrimming.CharacterEllipsis : TextTrimming.None
                 };
             case LabelTemplate.FieldBarcode:
-                var barcodeH = Math.Max(4 * mm, f.FontSize * mm);
+                var barcodeW = f.WidthMm > 0 ? f.WidthMm * mm : maxW;
+                var barcodeH = f.HeightMm > 0 ? f.HeightMm * mm : Math.Max(4 * mm, f.FontSize * mm);
                 return new Image
                 {
-                    Source = Code128Renderer.Render(item.PartNo ?? "", maxW, barcodeH, 0.8),
-                    Width = maxW,
+                    Source = Code128Renderer.Render(item.PartNo ?? "", barcodeW, barcodeH, 0.8),
+                    Width = barcodeW,
                     Height = barcodeH,
                     Stretch = Stretch.Fill
                 };
@@ -118,21 +130,44 @@ public static class LabelLayoutBuilder
                 {
                     Text = item.Name ?? "",
                     FontSize = f.FontSize,
-                    MaxWidth = maxW,
-                    TextTrimming = TextTrimming.CharacterEllipsis,
-                    TextWrapping = TextWrapping.NoWrap
+                    FontWeight = f.Bold ? FontWeights.Bold : FontWeights.Normal,
+                    Foreground = brush,
+                    Width = width,
+                    Height = height,
+                    MaxWidth = double.IsNaN(width) ? maxW : double.PositiveInfinity,
+                    TextWrapping = double.IsNaN(width) ? TextWrapping.NoWrap : TextWrapping.Wrap,
+                    TextTrimming = double.IsNaN(width) ? TextTrimming.CharacterEllipsis : TextTrimming.None
                 };
             case LabelTemplate.FieldCarType:
                 return new TextBlock
                 {
-                    Text = "车型：" + (item.CarType ?? ""),
+                    Text = item.CarType ?? "",
                     FontSize = f.FontSize,
-                    Foreground = Brushes.DimGray,
-                    MaxWidth = maxW,
-                    TextTrimming = TextTrimming.CharacterEllipsis,
-                    TextWrapping = TextWrapping.NoWrap
+                    FontWeight = f.Bold ? FontWeights.Bold : FontWeights.Normal,
+                    Foreground = brush,
+                    Width = width,
+                    Height = height,
+                    MaxWidth = double.IsNaN(width) ? maxW : double.PositiveInfinity,
+                    TextWrapping = double.IsNaN(width) ? TextWrapping.NoWrap : TextWrapping.Wrap,
+                    TextTrimming = double.IsNaN(width) ? TextTrimming.CharacterEllipsis : TextTrimming.None
                 };
             default:
+                // 自定义文本字段（FieldTextPrefix 开头）：支持换行/加粗/颜色
+                if (f.Key.StartsWith(LabelTemplate.FieldTextPrefix, StringComparison.Ordinal))
+                {
+                    return new TextBlock
+                    {
+                        Text = f.CustomText ?? "",
+                        FontSize = f.FontSize,
+                        FontWeight = f.Bold ? FontWeights.Bold : FontWeights.Normal,
+                        Foreground = brush,
+                        Width = width,
+                        Height = height,
+                        MaxWidth = double.IsNaN(width) ? maxW : double.PositiveInfinity,
+                        TextWrapping = double.IsNaN(width) ? TextWrapping.Wrap : TextWrapping.Wrap,
+                        TextTrimming = TextTrimming.None
+                    };
+                }
                 return null;
         }
     }

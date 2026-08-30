@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace QP11.Wpf.Services.LabelPrint;
 
-/// <summary>标签上的一个布局元素（编码/条码/名称/车型），位置单位 mm，字号单位 px（条码字段 FontSize 表示条码高度 mm）</summary>
+/// <summary>标签上的一个布局元素（编码/条码/名称/车型/自定义文本），位置单位 mm，字号单位 px（条码字段 FontSize 表示条码高度 mm）</summary>
 public class LabelField
 {
     public string Key { get; set; } = "";
@@ -12,6 +12,24 @@ public class LabelField
     public double YMm { get; set; } = 2;
     public double FontSize { get; set; } = 12;
     public bool Visible { get; set; } = true;
+
+    /// <summary>自定义文本内容（标准字段为空）</summary>
+    public string? CustomText { get; set; }
+
+    /// <summary>旋转角度（0/90/180/270，顺时针，绕左上角）</summary>
+    public double Rotation { get; set; }
+
+    /// <summary>加粗</summary>
+    public bool Bold { get; set; }
+
+    /// <summary>文字颜色（ARGB 十六进制，如 #000000）</summary>
+    public string Color { get; set; } = "#000000";
+
+    /// <summary>显式宽度（mm；0=自动按内容）</summary>
+    public double WidthMm { get; set; }
+
+    /// <summary>显式高度（mm；0=自动。条码高度优先取此值，其次 FontSize）</summary>
+    public double HeightMm { get; set; }
 }
 
 /// <summary>标签模板定义（尺寸单位均为毫米，字号单位 px）</summary>
@@ -22,6 +40,8 @@ public class LabelTemplate
     public const string FieldBarcode = "Barcode";
     public const string FieldName = "Name";
     public const string FieldCarType = "CarType";
+    /// <summary>自定义文本字段 Key 前缀（Text0, Text1...）</summary>
+    public const string FieldTextPrefix = "Text";
 
     public string Name { get; set; } = "50×30";
 
@@ -55,6 +75,9 @@ public class LabelTemplate
     /// <summary>布局元素（可拖动调整位置/字号/显隐）</summary>
     public List<LabelField> Fields { get; set; } = new();
 
+    /// <summary>整体旋转180°（应对热敏机纸卷反向装入）</summary>
+    public bool Rotate180 { get; set; }
+
     /// <summary>是否为内置模板（内置不可删除，仅运行时标记，不持久化）</summary>
     [JsonIgnore]
     public bool IsBuiltIn { get; set; }
@@ -86,7 +109,9 @@ public class LabelTemplate
         var copy = (LabelTemplate)MemberwiseClone();
         copy.Fields = Fields?.Select(f => new LabelField
         {
-            Key = f.Key, XMm = f.XMm, YMm = f.YMm, FontSize = f.FontSize, Visible = f.Visible
+            Key = f.Key, XMm = f.XMm, YMm = f.YMm, FontSize = f.FontSize, Visible = f.Visible,
+            CustomText = f.CustomText, Rotation = f.Rotation, Bold = f.Bold, Color = f.Color,
+            WidthMm = f.WidthMm, HeightMm = f.HeightMm
         }).ToList() ?? new List<LabelField>();
         return copy;
     }
