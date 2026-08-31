@@ -296,28 +296,25 @@ public partial class PrintPreviewWindow : Window
             settings.PagePrint.Copies = copies;
             PrintSettingsService.Save(settings);
 
-            // 静默打印：直接发送到选中的打印机
-            var doc = docReader.Document;
-            // 打印前分离标签打印操作列（按钮不打印到单据上），打印后恢复
-            var detached = DetachLabelActionColumns(doc);
-            try
-            {
-                var paginator = ((IDocumentPaginatorSource)doc).DocumentPaginator;
-                var printServer = new System.Printing.LocalPrintServer();
-                var queue = printServer.GetPrintQueue(printerName)
-                            ?? throw new InvalidOperationException($"未找到打印机: {printerName}");
+            // 单据打印：用不含“标签打印”操作列的干净文档发送打印，与“保存时立即打印”布局完全一致，
+            // 避免预览交互列抬高行高导致打印分页时表头与第一行之间出现空白
+            // 对账单等 DataTable 打印无操作列，直接使用预览文档
+            var doc = _billData != null
+                ? BillDocumentBuilder.Build(_billData,
+                    settings.BillPrint.GetColumns(_billData.BillType ?? "销售"), settings)
+                : docReader.Document;
 
-                // 使用独立的PrintTicket设置份数，避免Commit需要管理员权限
-                var ticket = queue.DefaultPrintTicket.Clone();
-                ticket.CopyCount = copies;
+            var paginator = ((IDocumentPaginatorSource)doc).DocumentPaginator;
+            var printServer = new System.Printing.LocalPrintServer();
+            var queue = printServer.GetPrintQueue(printerName)
+                        ?? throw new InvalidOperationException($"未找到打印机: {printerName}");
 
-                var writer = System.Printing.PrintQueue.CreateXpsDocumentWriter(queue);
-                writer.Write(paginator, ticket);
-            }
-            finally
-            {
-                RestoreLabelActionColumns(detached);
-            }
+            // 使用独立的PrintTicket设置份数，避免Commit需要管理员权限
+            var ticket = queue.DefaultPrintTicket.Clone();
+            ticket.CopyCount = copies;
+
+            var writer = System.Printing.PrintQueue.CreateXpsDocumentWriter(queue);
+            writer.Write(paginator, ticket);
 
             // 打印后重新赋值文档，防止预览变空白
             docReader.Document = null;
@@ -400,52 +397,5 @@ public partial class PrintPreviewWindow : Window
         })
         { Owner = this };
         dlg.ShowDialog();
-    }
-
-    /// <summary>
-    /// 打印前分离标签打印操作列：列宽置零 + 移除按钮（否则按钮会打印到单据上）。
-    /// 返回 (列, 原列宽, 容器, 原按钮) 元组列表供恢复。
-    /// </summary>
-    private List<(TableColumn? Column, GridLength Width, BlockUIContainer? Container, UIElement? Child)> DetachLabelActionColumns(FlowDocument doc)
-    {
-        var list = new List<(TableColumn?, GridLength, BlockUIContainer?, UIElement?)>();
-        foreach (var block in doc.Blocks)
-        {
-            if (block is not Table table) continue;
-            foreach (var col in table.Columns)
-            {
-                if (col.Tag as string == "label-action-col")
-                    list.Add((col, col.Width, null, null));
-            }
-            foreach (var rg in table.RowGroups)
-            {
-                foreach (var row in rg.Rows)
-                {
-                    foreach (var cell in row.Cells)
-                    {
-                        if (cell.Tag as string == "label-action-cell" && cell.Blocks.FirstBlock is BlockUIContainer bc)
-                            list.Add((null, default, bc, bc.Child));
-                    }
-                }
-            }
-        }
-        foreach (var (col, _, _, _) in list)
-        {
-            if (col != null) col.Width = new GridLength(0);
-        }
-        foreach (var (_, _, bc, _) in list)
-        {
-            if (bc != null) bc.Child = null;
-        }
-        return list;
-    }
-
-    private void RestoreLabelActionColumns(List<(TableColumn? Column, GridLength Width, BlockUIContainer? Container, UIElement? Child)> detached)
-    {
-        foreach (var (col, w, bc, child) in detached)
-        {
-            if (col != null) col.Width = w;
-            if (bc != null) bc.Child = child;
-        }
     }
 }
