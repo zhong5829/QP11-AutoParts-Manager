@@ -64,6 +64,28 @@ public partial class DesktopControl : UserControl, ITabContent
         _dashboardTimer = null;
     }
 
+    /// <summary>权限变更后刷新工作台按钮权限（先恢复数字 Tag 按钮启用，再按最新权限重新禁用）</summary>
+    public void RefreshButtonPermissions()
+    {
+        RestoreDigitTagButtons(this);
+        ApplyButtonPermissions();
+    }
+
+    private static void RestoreDigitTagButtons(DependencyObject parent)
+    {
+        for (int i = 0; i < System.Windows.Media.VisualTreeHelper.GetChildrenCount(parent); i++)
+        {
+            var child = System.Windows.Media.VisualTreeHelper.GetChild(parent, i);
+            if (child is Button btn)
+            {
+                var tag = btn.Tag?.ToString();
+                if (!string.IsNullOrEmpty(tag) && tag.Length > 0 && char.IsDigit(tag[0]))
+                    btn.IsEnabled = true;
+            }
+            RestoreDigitTagButtons(child);
+        }
+    }
+
     private void ApplyButtonPermissions()
     {
         var perm = App.PermissionService;

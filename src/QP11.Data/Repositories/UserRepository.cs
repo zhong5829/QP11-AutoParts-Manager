@@ -48,8 +48,8 @@ public class UserRepository : IUserRepository
     public async Task<int> InsertAsync(UserInfor entity)
     {
         using var db = await CreateConnectionAsync();
-        var sql = @"INSERT INTO user_infor (username, password, name, [groups], state)
-                    VALUES (@Username, @Password, @Name, @Groups, @State)";
+        var sql = @"INSERT INTO user_infor (username, password, name, [groups], state, auth)
+                    VALUES (@Username, @Password, @Name, @Groups, @State, @Auth)";
         return await db.ExecuteAsync(sql, entity);
     }
 

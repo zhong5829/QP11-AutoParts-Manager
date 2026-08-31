@@ -87,6 +87,51 @@ public partial class MainWindow : Window
         }, DispatcherPriority.Loaded);
     }
 
+    /// <summary>
+    /// 返回新系统菜单权限树（按主窗口菜单结构映射），供权限管理窗口使用：
+    /// 顶层组按 Header 映射旧系统父码（进销存=1、财务=2、业务查询=3、基础数据=4、系统维护=7），
+    /// 叶子节点权限码取数字开头的菜单 Tag。
+    /// </summary>
+    public List<MenuNode> GetMenuPermissionTree()
+    {
+        var roots = new List<MenuNode>();
+        foreach (var item in mainMenu.Items)
+        {
+            if (item is MenuItem mi && BuildMenuPermNode(mi) is { } node)
+                roots.Add(node);
+        }
+        return roots;
+    }
+
+    private static MenuNode? BuildMenuPermNode(MenuItem mi)
+    {
+        var tag = mi.Tag?.ToString();
+        var code = !string.IsNullOrEmpty(tag) && char.IsDigit(tag[0]) ? tag : null;
+
+        var children = mi.Items.OfType<MenuItem>()
+            .Select(BuildMenuPermNode)
+            .Where(n => n != null)
+            .Cast<MenuNode>()
+            .ToList();
+
+        // 顶层组无 Tag，按标题映射旧系统父码，便于授权整组
+        var header = (string)mi.Header;
+        code ??= header switch
+        {
+            _ when header.StartsWith("进销存管理") => "1",
+            _ when header.StartsWith("财务管理") => "2",
+            _ when header.StartsWith("业务查询") => "3",
+            _ when header.StartsWith("基础数据") => "4",
+            _ when header.StartsWith("系统管理") => "7",
+            _ => null
+        };
+
+        if (code == null && children.Count == 0) return null; // 无码项（退出/会员/AI 等不参与权限）
+        var node = new MenuNode { Code = code, Name = header };
+        node.Children.AddRange(children);
+        return node;
+    }
+
     private static string GetPermissionText(int? groups)
     {
         return groups switch
@@ -97,6 +142,37 @@ public partial class MainWindow : Window
             4 => "只读",
             _ => groups?.ToString() ?? "未知"
         };
+    }
+
+    /// <summary>
+    /// 权限变更后刷新菜单与工作台按钮权限状态（无需重新登录）。
+    /// 先恢复全部权限菜单为启用，再按最新权限重新禁用。
+    /// </summary>
+    public void RefreshAllPermissionUi()
+    {
+        EnableAllMenuItems(mainMenu.Items);
+        ApplyMenuPermissions();
+
+        foreach (var item in mainTab.Items)
+        {
+            if (item is TabItem ti && ti.Content is DesktopControl dc)
+                dc.RefreshButtonPermissions();
+        }
+    }
+
+    private static void EnableAllMenuItems(ItemCollection items)
+    {
+        foreach (var item in items)
+        {
+            if (item is MenuItem mi)
+            {
+                var tag = mi.Tag?.ToString();
+                if (!string.IsNullOrEmpty(tag) && tag.Length > 0 && char.IsDigit(tag[0]))
+                    mi.IsEnabled = true;
+                if (mi.Items.Count > 0)
+                    EnableAllMenuItems(mi.Items);
+            }
+        }
     }
 
     private void ApplyMenuPermissions()

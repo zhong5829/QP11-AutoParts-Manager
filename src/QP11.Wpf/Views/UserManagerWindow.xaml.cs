@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows;
 using QP11.Core.Entities;
 using QP11.Core.Interfaces;
@@ -42,9 +43,29 @@ public partial class UserManagerWindow : Window
         var name = InputBoxDialog.Show("请输入姓名:", "新增用户");
         var pwd = InputBoxDialog.Show("请输入初始密码:", "新增用户", "123456");
 
+        var newUser = new UserInfor { Username = uid.Trim(), Password = AuthService.Md5Hash(pwd!), Name = name!.Trim(), State = 1 };
+
+        // 复制/继承权限：输入来源用户名（留空则新用户暂无权限，后续在权限管理中分配）
+        if (Users.Count > 0)
+        {
+            var options = string.Join("、", Users.Select(u => $"{u.Username}({u.Name})"));
+            var copyFrom = InputBoxDialog.Show($"从哪个用户复制权限？\n现有用户：{options}\n留空则新用户暂无权限。", "复制权限");
+            if (!string.IsNullOrWhiteSpace(copyFrom))
+            {
+                var src = Users.FirstOrDefault(u => string.Equals(u.Username, copyFrom.Trim(), StringComparison.OrdinalIgnoreCase));
+                if (src == null)
+                    MessageBox.Show($"未找到用户“{copyFrom.Trim()}”，新用户按无权限创建", "提示");
+                else
+                {
+                    newUser.Groups = src.Groups;
+                    newUser.Auth = src.Auth;
+                }
+            }
+        }
+
         try
         {
-            await _userRepo.InsertAsync(new UserInfor { Username = uid.Trim(), Password = AuthService.Md5Hash(pwd!), Name = name!.Trim(), State = 1 });
+            await _userRepo.InsertAsync(newUser);
             LoadUsers();
         }
         catch (Exception ex)
