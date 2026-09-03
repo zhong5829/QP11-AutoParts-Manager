@@ -221,7 +221,10 @@ public partial class LabelPreviewEditor : UserControl
         _selectedField = f; _dragField = f; _dragEl = brd;
         _startMouse = canvasPos;
         _startX = f.XMm; _startY = f.YMm;
-        _startW = f.WidthMm; _startH = f.HeightMm;
+        // 缓存有效本地宽/高基准（Auto 字段用当前渲染尺寸），缩放全程使用，
+        // 避免逐帧读取 ActualWidth（随写回变化）导致振荡
+        _startW = f.WidthMm > 0 ? f.WidthMm : (brd.ActualWidth / LabelLayoutBuilder.MmToPx);
+        _startH = f.HeightMm > 0 ? f.HeightMm : (brd.ActualHeight / LabelLayoutBuilder.MmToPx);
 
         foreach (var child in editCanvas.Children)
             if (child is Border b && b.Tag is LabelField && b != brd)
@@ -258,66 +261,50 @@ public partial class LabelPreviewEditor : UserControl
 
         if (_resizeKind != null)
         {
-            // ── 缩放：全部用画布坐标差值，按视觉方向改视觉宽/高 ──
+            // ── 缩放：以视觉包围盒为基准（旋转 90°/270° 后视觉宽/高与本地互换），
+            //    拖 e/w 边改视觉宽、拖 s/n 边改视觉高，视觉框四边跟随鼠标，
+            //    按视觉尺寸限制不超出标签，最后用新尺寸反推本地锚点与本地宽/高 ──
             double dx = (pos.X - _startMouse.X) / mm;   // 视觉水平 delta (mm)
             double dy = (pos.Y - _startMouse.Y) / mm;   // 视觉垂直 delta (mm)
 
-            // 旋转 90°/270° 时视觉宽=本地高、视觉高=本地宽
             bool swapped = _dragField.Rotation % 180 != 0;
-            // 视觉宽/高对应的本地字段
-            double localW = _startW > 0 ? _startW : (_dragEl.ActualWidth / mm);
-            double localH = _startH > 0 ? _startH : (_dragEl.ActualHeight / mm);
+            double localW = _startW, localH = _startH;   // 按下时缓存的本地宽/高（稳定基准）
+            double visBaseW = swapped ? localH : localW; // 按下时视觉宽
+            double visBaseH = swapped ? localW : localH; // 按下时视觉高
+            // 旋转引入的锚点偏移（视觉框左上角 − 本地锚点），按下时恒定
+            double rOffX = swapped ? (localW - localH) / 2 : 0;
+            double rOffY = swapped ? (localH - localW) / 2 : 0;
+            double visLeft0 = _startX + rOffX;           // 按下时视觉框左上角
+            double visTop0 = _startY + rOffY;
 
-            double newVisW, newVisH;   // 新视觉宽/高 (mm)
             bool leftEdge = _resizeKind.Contains('w'), topEdge = _resizeKind.Contains('n');
-
-            // 按视觉方向计算新视觉宽高
-            if (_resizeKind.Contains('e')) newVisW = localW + dx;       // 拖右边 → 视觉宽增大
-            else if (_resizeKind.Contains('w')) newVisW = localW - dx;   // 拖左边 → 视觉宽减小
-            else newVisW = swapped ? localH : localW;                    // 不改宽
-
-            if (_resizeKind.Contains('s')) newVisH = localH + dy;       // 拖下边
-            else if (_resizeKind.Contains('n')) newVisH = localH - dy; // 拖上边
-            else newVisH = swapped ? localW : localH;
+            // 新视觉宽/高
+            double newVisW = leftEdge ? visBaseW - dx : (_resizeKind.Contains('e') ? visBaseW + dx : visBaseW);
+            double newVisH = topEdge ? visBaseH - dy : (_resizeKind.Contains('s') ? visBaseH + dy : visBaseH);
 
             const double minMm = 2;
             newVisW = Math.Max(minMm, newVisW);
             newVisH = Math.Max(minMm, newVisH);
+            // 视觉框不能超过标签
+            newVisW = Math.Min(newVisW, _tpl.LabelWidthMm);
+            newVisH = Math.Min(newVisH, _tpl.LabelHeightMm);
 
-            // 写回本地字段：视觉宽→本地宽(0°)或本地高(90°)
-            double newLocalW, newLocalH;
-            if (swapped)
-            {
-                newLocalW = newVisH;   // 视觉高 → 本地宽
-                newLocalH = newVisW;   // 视觉宽 → 本地高
-            }
-            else
-            {
-                newLocalW = newVisW;
-                newLocalH = newVisH;
-            }
-            _dragField.WidthMm = newLocalW;
-            _dragField.HeightMm = newLocalH;
+            // 新视觉框左上角：拖左/上边时该边跟随鼠标
+            double rVisLeft = leftEdge ? visLeft0 + dx : visLeft0;
+            double rVisTop = topEdge ? visTop0 + dy : visTop0;
+            // 限制视觉框不超出标签
+            rVisLeft = Math.Clamp(rVisLeft, 0, Math.Max(0, _tpl.LabelWidthMm - newVisW));
+            rVisTop = Math.Clamp(rVisTop, 0, Math.Max(0, _tpl.LabelHeightMm - newVisH));
 
-            // 位置补偿：拖左/上边时，视觉框左/上移动，需调整锚点
-            double newX = _startX, newY = _startY;
-            if (leftEdge || topEdge)
-            {
-                double visShiftX = leftEdge ? (localW - newVisW) : 0;
-                double visShiftY = topEdge ? (localH - newVisH) : 0;
-                if (swapped) (visShiftX, visShiftY) = (visShiftY, visShiftX);
-                newX = _startX + visShiftX;
-                newY = _startY + visShiftY;
-            }
+            // 新本地宽/高（视觉 ↔ 本地互换）
+            double newLocalW = swapped ? newVisH : newVisW;
+            double newLocalH = swapped ? newVisW : newVisH;
+            // 新锚点偏移（随新尺寸变化），反推本地锚点
+            double rNewOffX = swapped ? (newLocalW - newLocalH) / 2 : 0;
+            double rNewOffY = swapped ? (newLocalH - newLocalW) / 2 : 0;
 
-            // 限制元素+位置不超出标签方框：X+Width ≤ 标签宽，Y+Height ≤ 标签高
-            newX = Math.Clamp(newX, 0, Math.Max(0, _tpl.LabelWidthMm - newLocalW));
-            newY = Math.Clamp(newY, 0, Math.Max(0, _tpl.LabelHeightMm - newLocalH));
-            // 如果缩放后超出，再缩小尺寸使其装得下
-            if (newX + newLocalW > _tpl.LabelWidthMm) newLocalW = Math.Max(minMm, _tpl.LabelWidthMm - newX);
-            if (newY + newLocalH > _tpl.LabelHeightMm) newLocalH = Math.Max(minMm, _tpl.LabelHeightMm - newY);
-            _dragField.XMm = newX;
-            _dragField.YMm = newY;
+            _dragField.XMm = rVisLeft - rNewOffX;
+            _dragField.YMm = rVisTop - rNewOffY;
             _dragField.WidthMm = newLocalW;
             _dragField.HeightMm = newLocalH;
 
@@ -325,16 +312,29 @@ public partial class LabelPreviewEditor : UserControl
             return;
         }
 
-        // ── 移动：限制元素整体（X+宽 / Y+高）不超出标签方框 ──
+        // ── 移动：限制元素视觉包围盒（含旋转）不超出标签方框 ──
         if (!_origins.TryGetValue(_dragEl, out var origin)) return;
-        double elW = _dragField.WidthMm > 0 ? _dragField.WidthMm : (_dragEl.ActualWidth / mm);
-        double elH = _dragField.HeightMm > 0 ? _dragField.HeightMm : (_dragEl.ActualHeight / mm);
         double mvX = (pos.X - _startMouse.X) / mm;
         double mvY = (pos.Y - _startMouse.Y) / mm;
-        double moveX = Math.Clamp(_startX + mvX, 0, Math.Max(0, _tpl.LabelWidthMm - elW));
-        double moveY = Math.Clamp(_startY + mvY, 0, Math.Max(0, _tpl.LabelHeightMm - elH));
-        _dragField.XMm = moveX;
-        _dragField.YMm = moveY;
+
+        // 旋转 90°/270° 后视觉宽高与本地宽高互换，视觉框左上角相对本地锚点偏移 (W−H)/2。
+        // offX/offY 由本地尺寸推导、拖动中恒定；若按视觉测量值回推，选中边框会导致
+        // ActualWidth/Height 变化，offX/offY 漂移造成拖动抖动（见 2026-09-03 修复）。
+        double elW = _dragField.WidthMm > 0 ? _dragField.WidthMm : (_dragEl.ActualWidth / mm);
+        double elH = _dragField.HeightMm > 0 ? _dragField.HeightMm : (_dragEl.ActualHeight / mm);
+        bool rotated = _dragField.Rotation % 180 != 0;
+        double visW = rotated ? elH : elW;   // 视觉宽
+        double visH = rotated ? elW : elH;   // 视觉高
+        double offX = rotated ? (elW - elH) / 2 : 0;   // 视觉框左上角 X − 本地锚点 X
+        double offY = rotated ? (elH - elW) / 2 : 0;   // 视觉框左上角 Y − 本地锚点 Y
+
+        // 限制视觉框左上角不超出标签，再反推本地锚点
+        double maxVisLeft = Math.Max(0, _tpl.LabelWidthMm - visW);
+        double maxVisTop = Math.Max(0, _tpl.LabelHeightMm - visH);
+        double newVisLeft = Math.Clamp(_startX + mvX + offX, 0, maxVisLeft);
+        double newVisTop = Math.Clamp(_startY + mvY + offY, 0, maxVisTop);
+        _dragField.XMm = newVisLeft - offX;
+        _dragField.YMm = newVisTop - offY;
         foreach (var child in editCanvas.Children)
         {
             if (child is not Border b || b.Tag is not LabelField tf) continue;
