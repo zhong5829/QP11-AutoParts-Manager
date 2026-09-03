@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Dapper;
 using QP11.Core.Constants;
 using QP11.Core.Entities;
+using QP11.Core.Exceptions;
 using QP11.Core.Interfaces;
 using QP11.Core.Models;
 using QP11.Wpf.Helpers;
@@ -152,6 +153,9 @@ public class BuyViewModel : BaseViewModel
         BillBuy bill,
         List<BuyDetailItem> details)
     {
+        if (details.Any(d => d.Amount <= 0))
+            throw new BusinessRuleException("采购明细数量必须大于 0，不能保存数量为 0 或负数的明细");
+
         using var uow = _uowFactory.Create();
         try
         {
@@ -241,6 +245,9 @@ public class BuyViewModel : BaseViewModel
         List<BuyDetailItem> newParts,
         List<NameDiffUpdate> pendingNameUpdates)
     {
+        if (details.Any(d => d.Amount <= 0))
+            throw new BusinessRuleException("采购明细数量必须大于 0，不能结算数量为 0 或负数的明细");
+
         using var uow = _uowFactory.Create();
         await uow.BeginTransactionAsync();
         var txn = uow.Transaction;

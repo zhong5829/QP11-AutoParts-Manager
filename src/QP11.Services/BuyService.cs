@@ -33,6 +33,7 @@ public class BuyService : IBuyService
     {
         _validator.ValidateRequired(bill.Supplier!, "供应商");
         if (details.Count == 0) throw new BusinessRuleException("采购明细不能为空");
+        if (details.Any(d => (d.Amount ?? 0) <= 0)) throw new BusinessRuleException("采购明细数量必须大于 0");
 
         var totalAmount = details.Sum(d => (d.Inprice ?? 0m) * (d.Amount ?? 0));
 
@@ -82,6 +83,8 @@ public class BuyService : IBuyService
 
     public async Task ConfirmStockInAsync(string sn, List<DetailBuy> details)
     {
+        if (details.Any(d => (d.Amount ?? 0) <= 0)) throw new BusinessRuleException("采购明细数量必须大于 0");
+
         using var uow = new UnitOfWork(_dbFactory);
         try
         {

@@ -4,7 +4,9 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Threading;
 using Dapper;
 using Microsoft.Extensions.DependencyInjection;
 using QP11.Core.Constants;
@@ -507,6 +509,33 @@ public partial class BuyControl : UserControl, ITabContent
 
     #endregion
 
+    /// <summary>
+    /// 明细网格编辑结束时校验：数量必须大于 0，否则取消提交并提示
+    /// </summary>
+    private void DgDetails_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+    {
+        if (e.EditAction != DataGridEditAction.Commit) return;
+
+        if (e.Column is DataGridTextColumn { Binding: Binding { Path.Path: nameof(BuyDetailItem.Amount) } }
+            && e.EditingElement is TextBox textBox
+            && (!decimal.TryParse(textBox.Text, out var amount) || amount <= 0))
+        {
+            e.Cancel = true;
+            MessageBox.Show("采购数量必须大于 0", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+            // 取消提交后回到可编辑状态，让用户直接重新输入
+            Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() => dgDetails.BeginEdit()));
+        }
+    }
+
+    /// <summary>
+    /// 检查明细中是否存在数量 ≤ 0 的行（采购入库数量必须为正数）
+    /// </summary>
+    private bool TryGetInvalidAmountDetail(out BuyDetailItem invalidDetail)
+    {
+        invalidDetail = Details.FirstOrDefault(d => d.Amount <= 0)!;
+        return invalidDetail != null;
+    }
+
     private async void SaveBill()
     {
         if (_currentBill?.Flag == (int)BusinessConstants.BillFlag.Confirmed)
@@ -524,6 +553,12 @@ public partial class BuyControl : UserControl, ITabContent
         if (Details.Count == 0)
         {
             MessageBox.Show("请添加采购明细", "提示");
+            return;
+        }
+
+        if (TryGetInvalidAmountDetail(out var invalidDetail))
+        {
+            MessageBox.Show($"明细数量必须大于 0，当前行数量无效：{invalidDetail.PartNo} {invalidDetail.PartName}", "提示");
             return;
         }
 
@@ -607,6 +642,12 @@ public partial class BuyControl : UserControl, ITabContent
     private async void SettleBill()
     {
         if (Details.Count == 0) return;
+
+        if (TryGetInvalidAmountDetail(out var invalidDetail))
+        {
+            MessageBox.Show($"明细数量必须大于 0，当前行数量无效：{invalidDetail.PartNo} {invalidDetail.PartName}", "提示");
+            return;
+        }
 
         if (string.IsNullOrEmpty(txtBillNo.Text))
         {

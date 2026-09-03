@@ -129,7 +129,7 @@
                 <DataGrid Grid.Row="1" x:Name="dgDetails" AutoGenerateColumns="False" CanUserAddRows="False"
                           VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
                           GridLinesVisibility="All" HorizontalGridLinesBrush="#E0E0E0" VerticalGridLinesBrush="#E0E0E0"
-                          RowHeight="28">
+                          RowHeight="28" CellEditEnding="DgDetails_CellEditEnding">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="编号" Width="80" Binding="{Binding PartNo, Converter={StaticResource SingleLineConverter}}" IsReadOnly="True" ElementStyle="{StaticResource SingleLineCell}"/>
                         <DataGridTextColumn Header="名称" Width="100" Binding="{Binding PartName, Converter={StaticResource SingleLineConverter}}" IsReadOnly="True" ElementStyle="{StaticResource SingleLineCell}"/>

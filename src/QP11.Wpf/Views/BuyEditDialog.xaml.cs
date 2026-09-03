@@ -577,6 +577,15 @@ public partial class BuyEditDialog : Window
             return;
         }
 
+        if (!decimal.TryParse(txtAmount.Text, out var amount) || amount <= 0)
+        {
+            _log.Information("BtnConfirm_Click: 数量无效，拒绝确认: {Amount}", txtAmount.Text);
+            MessageBox.Show("请输入有效的采购数量（必须大于 0）", "提示");
+            txtAmount.Focus();
+            txtAmount.SelectAll();
+            return;
+        }
+
         if (_partId == 0 && _currentPart == null)
         {
             _log.Warning("BtnConfirm_Click: 未找到匹配配件，partno={PartNo}，询问用户是否继续", cboPartNo.Text);
