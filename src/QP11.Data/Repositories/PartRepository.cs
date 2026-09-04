@@ -229,9 +229,11 @@ public class PartRepository : IPartRepository
 
         var parameters = new DynamicParameters();
 
-        // 判断是否为拼音模式（纯ASCII输入，有拼音首字母可走索引）
-        var nameIsPinyin = !string.IsNullOrEmpty(partNamePy);
-        var cartypeIsPinyin = !string.IsNullOrEmpty(cartypePy);
+        // 判断是否为拼音模式（纯ASCII输入，有拼音首字母可走索引）。
+        // 额外要求输入全为字母数字：含 *、- 等符号的输入（如尺寸 "25*50*"）是字面匹配意图而非拼音缩写，
+        // 否则拼音转换会丢弃符号（"25*50*"→"2550"），只搜 name_py 导致查不到。
+        var nameIsPinyin = !string.IsNullOrEmpty(partNamePy) && IsPlainAlphanumeric(partName ?? "");
+        var cartypeIsPinyin = !string.IsNullOrEmpty(cartypePy) && IsPlainAlphanumeric(cartype ?? "");
 
         if (!string.IsNullOrEmpty(partNo))
         {
@@ -424,6 +426,17 @@ public class PartRepository : IPartRepository
     {
         foreach (char c in text)
             if (c > 127) return false;
+        return true;
+    }
+
+    /// <summary>判断字符串是否全由字母数字组成（可作为纯拼音缩写搜索意图）</summary>
+    private static bool IsPlainAlphanumeric(string text)
+    {
+        foreach (char c in text)
+        {
+            if (!(c >= 'a' && c <= 'z') && !(c >= 'A' && c <= 'Z') && !(c >= '0' && c <= '9'))
+                return false;
+        }
         return true;
     }
 
