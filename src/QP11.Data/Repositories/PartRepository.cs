@@ -135,6 +135,11 @@ public class PartRepository : IPartRepository
         var sql = @"UPDATE part_data SET partno=@Partno, name=@Name, carname=@Carname, cartype=@Cartype,
                     unit=@Unit, [class]=@ClassName, area=@Area, inprice=@Inprice, lsprice=@Lsprice,
                     pfprice=@Pfprice, name_py=@NamePy, cartype_py=@CartypePy, memo=@Memo
+                    WHERE partid=@Partid;
+                    -- 配件属性保存价格后同步库存售价（part_stock 为售价主表，销售开单直读；0 保留现有值）
+                    UPDATE part_stock SET
+                    lsprice = CASE WHEN @Lsprice > 0 THEN @Lsprice ELSE lsprice END,
+                    pfprice = CASE WHEN @Pfprice > 0 THEN @Pfprice ELSE pfprice END
                     WHERE partid=@Partid";
         return await db.ExecuteAsync(sql, entity);
     }
@@ -165,6 +170,20 @@ public class PartRepository : IPartRepository
                 INSERT INTO part_stock (partid, amount) VALUES (@Pid, @Qty)",
                 new { Pid = partid, Qty = quantity }, transaction);
         }
+        if (transaction == null && conn == null) db.Dispose();
+        return result;
+    }
+
+    public async Task<int> UpdatePricesAsync(long partid, decimal? lsprice, decimal? pfprice, IDbTransaction? transaction = null, IDbConnection? conn = null)
+    {
+        var db = conn ?? transaction?.Connection ?? await CreateConnectionAsync();
+        // 售价以 part_stock 为主表（老系统入库/改价均写此表，销售开单直读此表）。
+        // 0 表示该价格未填写，保留现有值避免覆盖；零售价/批发价独立更新。
+        var sql = @"UPDATE part_stock SET
+                    lsprice = CASE WHEN @Ls > 0 THEN @Ls ELSE lsprice END,
+                    pfprice = CASE WHEN @Pf > 0 THEN @Pf ELSE pfprice END
+                    WHERE partid = @PartId";
+        var result = await db.ExecuteAsync(sql, new { Ls = lsprice ?? 0m, Pf = pfprice ?? 0m, PartId = partid }, transaction);
         if (transaction == null && conn == null) db.Dispose();
         return result;
     }

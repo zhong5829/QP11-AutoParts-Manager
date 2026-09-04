@@ -16,6 +16,8 @@ public interface IPartRepository : IRepository<PartData>
     Task<int> LogicDeleteAsync(long partid);
     Task<int> IncreaseStockAsync(long partid, decimal quantity, IDbTransaction? transaction = null, IDbConnection? conn = null);
     Task<int> DecreaseStockAsync(long partid, decimal quantity, IDbTransaction? transaction = null, IDbConnection? conn = null);
+    /// <summary>更新库存售价（part_stock.lsprice/pfprice，0 表示不修改对应价格）</summary>
+    Task<int> UpdatePricesAsync(long partid, decimal? lsprice, decimal? pfprice, IDbTransaction? transaction = null, IDbConnection? conn = null);
     Task<PartStock?> GetStockByIdAsync(long partId, IDbTransaction? transaction = null, IDbConnection? conn = null);
     Task<IEnumerable<PartStockDisplay>> GetStockListAsync(string? keyword = null, int top = 0);
     Task<IEnumerable<PartStockDisplay>> GetStockListAdvancedAsync(string? partNo = null, string? partName = null, string? partNamePy = null, string? cartype = null, string? cartypePy = null, string? className = null, string? classPy = null, int queryMode = 3);

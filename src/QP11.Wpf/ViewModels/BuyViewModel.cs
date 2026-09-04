@@ -300,11 +300,15 @@ public class BuyViewModel : BaseViewModel
                 }
             }
 
-            // 已有配件：更新库存数量
+            // 已有配件：更新库存数量，并同步本单零售价/批发价到配件档案
             foreach (var item in details)
             {
                 if (item.PartId > 0 && !newParts.Contains(item))
+                {
                     await _partRepo.IncreaseStockAsync(item.PartId, item.Amount, txn, dbConn);
+                    if (item.LsPrice > 0 || item.PfPrice > 0)
+                        await _partRepo.UpdatePricesAsync(item.PartId, item.LsPrice, item.PfPrice, txn, dbConn);
+                }
             }
 
             // 更新单据状态为已入库
