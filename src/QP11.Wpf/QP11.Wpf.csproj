@@ -25,7 +25,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
-    <Version>2.2.14</Version>
+    <Version>2.2.15</Version>
     <!-- 自包含发布：打包 .NET 运行时，目标机器无需预装 .NET -->
     <SelfContained>true</SelfContained>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
