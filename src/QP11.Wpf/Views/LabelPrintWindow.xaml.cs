@@ -100,6 +100,7 @@ public partial class LabelPrintWindow : Window
         editor.ItemsChanged += (_, _) => SyncFromEditor();
         LoadTemplates();       // 下拉选中会触发 SelectionChanged → RefreshPreview，此时 _uiReady=false 被跳过
         LoadPrinters();
+        ApplyPrinterBinding();
         _uiReady = true;
         LoadAsync();           // 直接加载首屏数据（WindowHostControl 托管下 Window 不触发 Loaded 事件）
     }
@@ -209,7 +210,70 @@ public partial class LabelPrintWindow : Window
             cboTemplate.SelectedIndex = 0;
     }
 
-    private void Template_Changed(object sender, System.Windows.Controls.SelectionChangedEventArgs e) => RefreshPreview();
+    private void Template_Changed(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+    {
+        RefreshPreview();
+        ApplyPrinterBinding();
+    }
+
+    /// <summary>切换/加载模板时联动打印机：当前模板有绑定则自动选中该打印机（用户此后可手动改选，本次打印以最终下拉为准）</summary>
+    private void ApplyPrinterBinding()
+    {
+        if (cboTemplate.SelectedItem is not LabelTemplate tpl) { UpdateBindButton(); return; }
+        var bound = LabelTemplateService.GetBoundPrinter(tpl.Name);
+        if (!string.IsNullOrEmpty(bound))
+        {
+            for (int i = 0; i < cboPrinter.Items.Count; i++)
+            {
+                if (cboPrinter.Items[i]?.ToString() == bound)
+                {
+                    cboPrinter.SelectedIndex = i;
+                    break;
+                }
+            }
+        }
+        UpdateBindButton();
+    }
+
+    /// <summary>绑定按钮文案随状态切换：未绑定→「绑定到模板」，已绑定→「解除绑定」</summary>
+    private void UpdateBindButton()
+    {
+        if (cboTemplate.SelectedItem is not LabelTemplate tpl)
+        {
+            btnBindPrinter.Content = "绑定到模板";
+            return;
+        }
+        btnBindPrinter.Content = string.IsNullOrEmpty(LabelTemplateService.GetBoundPrinter(tpl.Name)) ? "绑定到模板" : "解除绑定";
+    }
+
+    private void BtnBindPrinter_Click(object sender, RoutedEventArgs e)
+    {
+        if (cboTemplate.SelectedItem is not LabelTemplate tpl)
+        {
+            MessageBox.Show("请先选择模板", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        // 已绑定 → 解除
+        if (!string.IsNullOrEmpty(LabelTemplateService.GetBoundPrinter(tpl.Name)))
+        {
+            LabelTemplateService.ClearPrinterBinding(tpl.Name);
+            UpdateBindButton();
+            MessageBox.Show("已解除该模板的打印机绑定", "提示");
+            return;
+        }
+
+        // 未绑定 → 将当前下拉打印机绑定到当前模板
+        var printerName = cboPrinter.SelectedItem?.ToString();
+        if (string.IsNullOrEmpty(printerName))
+        {
+            MessageBox.Show("请先选择打印机", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+        LabelTemplateService.SavePrinterBinding(tpl.Name, printerName);
+        UpdateBindButton();
+        MessageBox.Show($"已绑定：模板「{tpl.Name}」 → {printerName}", "提示");
+    }
 
     private void BtnNewTemplate_Click(object sender, RoutedEventArgs e)
     {
@@ -276,11 +340,16 @@ public partial class LabelPrintWindow : Window
 
     private void BtnDeleteTemplate_Click(object sender, RoutedEventArgs e)
     {
-        var name = InputBoxDialog.Show("请输入要删除的自定义模板名称：", "删除模板");
-        if (string.IsNullOrWhiteSpace(name)) return;
-        if (!LabelTemplateService.DeleteCustom(name.Trim()))
+        if (cboTemplate.SelectedItem is not LabelTemplate cur)
         {
-            MessageBox.Show("未找到该自定义模板（内置模板不可删除）", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show("请先选择模板", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+        if (MessageBox.Show($"确定删除模板「{cur.Name}」吗？", "删除模板", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+            return;
+        if (!LabelTemplateService.DeleteTemplate(cur.Name))
+        {
+            MessageBox.Show("删除失败", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
         LoadTemplates();

@@ -26,6 +26,7 @@ public partial class LabelPrintDialog : Window
         txtCarType.Text = _baseItem.CarType;
         LoadTemplates();
         LoadPrinters();
+        ApplyPrinterBinding();
         editor.ItemsChanged += (_, _) => SyncInputsFromEditor();
         BuildPreview();
     }
@@ -89,7 +90,27 @@ public partial class LabelPrintDialog : Window
         return 1;
     }
 
-    private void Template_Changed(object sender, RoutedEventArgs e) => BuildPreview();
+    private void Template_Changed(object sender, RoutedEventArgs e)
+    {
+        BuildPreview();
+        ApplyPrinterBinding();
+    }
+
+    /// <summary>切换/加载模板时联动打印机：模板有绑定则自动选中绑定打印机（用户可手动改选覆盖）</summary>
+    private void ApplyPrinterBinding()
+    {
+        if (cboTemplate.SelectedItem is not LabelTemplate tpl) return;
+        var bound = LabelTemplateService.GetBoundPrinter(tpl.Name);
+        if (string.IsNullOrEmpty(bound)) return;
+        for (int i = 0; i < cboPrinter.Items.Count; i++)
+        {
+            if (cboPrinter.Items[i]?.ToString() == bound)
+            {
+                cboPrinter.SelectedIndex = i;
+                break;
+            }
+        }
+    }
 
     private void Copies_Changed(object sender, System.Windows.Controls.TextChangedEventArgs e) => BuildPreview();
 

@@ -78,7 +78,7 @@ public class LabelTemplate
     /// <summary>整体旋转180°（应对热敏机纸卷反向装入）</summary>
     public bool Rotate180 { get; set; }
 
-    /// <summary>是否为内置模板（内置不可删除，仅运行时标记，不持久化）</summary>
+    /// <summary>是否为内置模板（内置不落盘；删除后记入名单从列表中剔除，仅运行时标记）</summary>
     [JsonIgnore]
     public bool IsBuiltIn { get; set; }
 

@@ -11,7 +11,6 @@ using Microsoft.Extensions.DependencyInjection;
 using QP11.Core.Interfaces;
 using QP11.Services;
 using QP11.Wpf.Services;
-using QP11.Wpf.Services.LabelPrint;
 
 namespace QP11.Wpf.Views;
 
@@ -199,7 +198,7 @@ public partial class PrintPreviewWindow : Window
         var billType = _billData.BillType ?? "销售";
         var columns = settings.BillPrint.GetColumns(billType);
 
-        var doc = BillDocumentBuilder.Build(_billData, columns, settings, true, OpenLabelPrintDialog);
+        var doc = BillDocumentBuilder.Build(_billData, columns, settings);
         docReader.Document = doc;
     }
 
@@ -384,18 +383,5 @@ public partial class PrintPreviewWindow : Window
             dt.Rows.Add(values.ToArray());
         }
         return dt;
-    }
-
-    /// <summary>单据预览“标签打印”按钮回调：读取该行编码/名称/车型，弹出标签打印对话框</summary>
-    private void OpenLabelPrintDialog(BillPrintItem item)
-    {
-        var dlg = new LabelPrintDialog(new LabelPrintItem
-        {
-            PartNo = item.PartNo,
-            Name = item.PartName,
-            CarType = item.Cartype
-        })
-        { Owner = this };
-        dlg.ShowDialog();
     }
 }

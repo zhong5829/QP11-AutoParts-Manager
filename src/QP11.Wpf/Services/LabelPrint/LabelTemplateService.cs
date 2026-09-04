@@ -12,6 +12,14 @@ public static class LabelTemplateService
     private static readonly string SettingsPath =
         Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "labeltemplates.json");
 
+    /// <summary>已删除内置模板的名称记录（内置模板代码内定义，删除需持久化排除名单）</summary>
+    private static readonly string RemovedBuiltInPath =
+        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "removed_builtin_templates.json");
+
+    /// <summary>模板→打印机 绑定映射（内置/自定义模板统一存此，打印时绑定优先）</summary>
+    private static readonly string PrinterMapPath =
+        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "labeltemplate_printers.json");
+
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
 
     /// <summary>内置模板（热敏标签常见规格）</summary>
@@ -25,16 +33,42 @@ public static class LabelTemplateService
         new LabelTemplate { Name = "100×60", LabelWidthMm = 100, LabelHeightMm = 60, ColsPerRow = 1, FontSizeCode = 18, FontSizeName = 14, FontSizeCarType = 11 },
     };
 
-    /// <summary>全部模板 = 内置 + 自定义</summary>
+    /// <summary>全部模板 = 内置(已删除的内置剔除) + 自定义</summary>
     public static List<LabelTemplate> GetAll()
     {
-        var list = BuiltInTemplates();
+        var removed = LoadRemovedBuiltIns();
+        var list = BuiltInTemplates().Where(t => !removed.Contains(t.Name)).ToList();
         foreach (var c in LoadCustoms())
         {
             c.IsBuiltIn = false;
             list.Add(c);
         }
         return list;
+    }
+
+    /// <summary>读取已删除的内置模板名称</summary>
+    public static HashSet<string> LoadRemovedBuiltIns()
+    {
+        try
+        {
+            if (File.Exists(RemovedBuiltInPath))
+                return JsonSerializer.Deserialize<HashSet<string>>(File.ReadAllText(RemovedBuiltInPath), JsonOptions) ?? new HashSet<string>();
+        }
+        catch { }
+        return new HashSet<string>();
+    }
+
+    /// <summary>持久化已删除的内置模板名称</summary>
+    private static void SaveRemovedBuiltIns(HashSet<string> removed)
+    {
+        try
+        {
+            File.WriteAllText(RemovedBuiltInPath, JsonSerializer.Serialize(removed, JsonOptions));
+        }
+        catch (Exception ex)
+        {
+            Serilog.Log.Warning(ex, "保存内置模板删除记录失败");
+        }
     }
 
     /// <summary>读取用户自定义模板</summary>
@@ -66,23 +100,92 @@ public static class LabelTemplateService
     /// <summary>新增自定义模板</summary>
     public static bool AddCustom(LabelTemplate tpl)
     {
+        // 按当前可见模板校验同名（已删除的内置模板允许重建同名自定义模板）
+        if (GetAll().Any(t => t.Name == tpl.Name)) return false;
         var customs = LoadCustoms();
-        // 同名校验（内置名也不允许重复，避免混淆）
-        var exists = BuiltInTemplates().Any(t => t.Name == tpl.Name) || customs.Any(t => t.Name == tpl.Name);
-        if (exists) return false;
         customs.Add(tpl);
         SaveCustoms(customs);
         return true;
     }
 
-    /// <summary>删除自定义模板</summary>
-    public static bool DeleteCustom(string name)
+    /// <summary>读取模板→打印机绑定映射（模板名→打印机名）</summary>
+    public static Dictionary<string, string> LoadPrinterBindings()
     {
+        try
+        {
+            if (File.Exists(PrinterMapPath))
+                return JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(PrinterMapPath), JsonOptions) ?? new Dictionary<string, string>();
+        }
+        catch { }
+        return new Dictionary<string, string>();
+    }
+
+    /// <summary>查询模板绑定的打印机名（未绑定返回 null）</summary>
+    public static string? GetBoundPrinter(string templateName)
+    {
+        if (string.IsNullOrWhiteSpace(templateName)) return null;
+        var map = LoadPrinterBindings();
+        return map.TryGetValue(templateName.Trim(), out var printer) ? printer : null;
+    }
+
+    /// <summary>保存模板→打印机绑定（覆盖旧绑定）</summary>
+    public static void SavePrinterBinding(string templateName, string printerName)
+    {
+        var map = LoadPrinterBindings();
+        map[templateName.Trim()] = printerName;
+        try
+        {
+            File.WriteAllText(PrinterMapPath, JsonSerializer.Serialize(map, JsonOptions));
+        }
+        catch (Exception ex)
+        {
+            Serilog.Log.Warning(ex, "保存模板打印机绑定失败");
+        }
+    }
+
+    /// <summary>解除模板的打印机绑定</summary>
+    public static void ClearPrinterBinding(string templateName)
+    {
+        var map = LoadPrinterBindings();
+        if (map.Remove(templateName.Trim()))
+        {
+            try
+            {
+                File.WriteAllText(PrinterMapPath, JsonSerializer.Serialize(map, JsonOptions));
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Warning(ex, "保存模板打印机绑定失败");
+            }
+        }
+    }
+
+    /// <summary>删除模板：自定义模板直接移除；内置模板记录到删除名单（代码内有定义，需排除显示）</summary>
+    public static bool DeleteTemplate(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return false;
+        name = name.Trim();
+
         var customs = LoadCustoms();
-        var target = customs.FirstOrDefault(t => t.Name == name);
-        if (target == null) return false;
-        customs.Remove(target);
-        SaveCustoms(customs);
+        var custom = customs.FirstOrDefault(t => t.Name == name);
+        if (custom != null)
+        {
+            customs.Remove(custom);
+            SaveCustoms(customs);
+        }
+        else if (BuiltInTemplates().Any(t => t.Name == name))
+        {
+            var removed = LoadRemovedBuiltIns();
+            removed.Add(name);
+            SaveRemovedBuiltIns(removed);
+        }
+        else
+        {
+            return false;
+        }
+
+        // 删除模板时一并清除其打印机绑定
+        ClearPrinterBinding(name);
         return true;
     }
 

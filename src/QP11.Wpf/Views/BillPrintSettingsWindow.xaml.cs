@@ -330,22 +330,19 @@ public partial class BillPrintSettingsWindow : Window
 /// </summary>
 public static class BillDocumentBuilder
 {
-    public static FlowDocument Build(BillPrintData data, List<PrintColumnViewModel> columns, PrintSettings settings,
-        bool addLabelActionColumn = false, Action<BillPrintItem>? onLabelAction = null)
+    public static FlowDocument Build(BillPrintData data, List<PrintColumnViewModel> columns, PrintSettings settings)
     {
         var colConfigs = columns.Where(c => c.Visible).OrderBy(c => c.Order).Cast<IPrintColumn>().ToList();
-        return BuildCore(data, colConfigs, settings, addLabelActionColumn, onLabelAction);
+        return BuildCore(data, colConfigs, settings);
     }
 
-    public static FlowDocument Build(BillPrintData data, List<PrintColumnConfig> columns, PrintSettings settings,
-        bool addLabelActionColumn = false, Action<BillPrintItem>? onLabelAction = null)
+    public static FlowDocument Build(BillPrintData data, List<PrintColumnConfig> columns, PrintSettings settings)
     {
         var colConfigs = columns.Where(c => c.Visible).OrderBy(c => c.Order).Select(c => new PrintColumnConfigAdapter(c)).Cast<IPrintColumn>().ToList();
-        return BuildCore(data, colConfigs, settings, addLabelActionColumn, onLabelAction);
+        return BuildCore(data, colConfigs, settings);
     }
 
-    private static FlowDocument BuildCore(BillPrintData data, List<IPrintColumn> columns, PrintSettings settings,
-        bool addLabelActionColumn = false, Action<BillPrintItem>? onLabelAction = null)
+    private static FlowDocument BuildCore(BillPrintData data, List<IPrintColumn> columns, PrintSettings settings)
     {
         var bill = settings.BillPrint;
         var page = settings.PagePrint;
@@ -479,10 +476,6 @@ public static class BillDocumentBuilder
         foreach (var col in columns)
             table.Columns.Add(new TableColumn { Width = new GridLength(col.Width) });
 
-        // 标签打印操作列（仅预览模式添加，打印前由 PrintPreviewWindow 隐藏；列打 Tag 便于定位）
-        if (addLabelActionColumn)
-            table.Columns.Add(new TableColumn { Width = new GridLength(58), Tag = "label-action-col" });
-
         var rowGroup = new TableRowGroup();
 
         // 表头
@@ -498,20 +491,6 @@ public static class BillDocumentBuilder
                 Padding = new Thickness(2, 0, 2, 0),
                 TextAlignment = col.Alignment == "Right" ? TextAlignment.Right :
                                 col.Alignment == "Center" ? TextAlignment.Center : TextAlignment.Left,
-                Margin = new Thickness(0),
-                LineHeight = 1
-            }));
-        }
-        if (addLabelActionColumn)
-        {
-            headerRow.Cells.Add(new TableCell(new Paragraph(new Run("标签打印"))
-            {
-                FontWeight = FontWeights.Bold,
-                FontSize = fontSize,
-                BorderBrush = Brushes.Black,
-                BorderThickness = new Thickness(0.5),
-                Padding = new Thickness(2, 0, 2, 0),
-                TextAlignment = TextAlignment.Center,
                 Margin = new Thickness(0),
                 LineHeight = 1
             }));
@@ -547,28 +526,6 @@ public static class BillDocumentBuilder
                     BorderBrush = Brushes.Black,
                     BorderThickness = new Thickness(0.5),
                     Padding = new Thickness(0)
-                });
-            }
-
-            // 标签打印按钮（预览交互；单元格打 Tag 供打印前隐藏）
-            if (addLabelActionColumn)
-            {
-                var btn = new System.Windows.Controls.Button
-                {
-                    Content = "标签打印",
-                    FontSize = fontSize - 1,
-                    Padding = new Thickness(2, 0, 2, 0),
-                    Margin = new Thickness(2, 0, 2, 0),
-                    Tag = item
-                };
-                if (onLabelAction != null)
-                    btn.Click += (_, __) => onLabelAction(item);
-                row.Cells.Add(new TableCell(new BlockUIContainer(btn))
-                {
-                    BorderBrush = Brushes.Black,
-                    BorderThickness = new Thickness(0.5),
-                    Padding = new Thickness(0),
-                    Tag = "label-action-cell"
                 });
             }
             rowGroup.Rows.Add(row);

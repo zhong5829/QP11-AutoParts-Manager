@@ -32,9 +32,10 @@
             <ComboBox x:Name="cboTemplate" Width="130" Margin="0,0,4,0" DisplayMemberPath="Name" SelectionChanged="Template_Changed"/>
             <Button Content="新建" Width="56" Margin="0,0,4,0" Height="24" ToolTip="新建模板：设置名称与纸张大小" Click="BtnNewTemplate_Click"/>
             <Button Content="保存" Width="56" Margin="0,0,4,0" Height="24" ToolTip="保存当前自定义模板（内置模板不可保存）" Click="BtnSaveTemplate_Click"/>
-            <Button Content="删除模板" Width="74" Margin="0,0,12,0" Height="24" ToolTip="删除用户自定义模板（内置模板不可删）" Click="BtnDeleteTemplate_Click"/>
+            <Button Content="删除模板" Width="74" Margin="0,0,12,0" Height="24" ToolTip="删除模板（内置模板也可删除）" Click="BtnDeleteTemplate_Click"/>
             <TextBlock Text="打印机:" VerticalAlignment="Center" Margin="0,0,4,0"/>
-            <ComboBox x:Name="cboPrinter" Width="170" Margin="0,0,12,0"/>
+            <ComboBox x:Name="cboPrinter" Width="170" Margin="0,0,4,0"/>
+            <Button x:Name="btnBindPrinter" Width="96" Margin="0,0,12,0" Height="24" Content="绑定到模板" Click="BtnBindPrinter_Click"/>
             <TextBlock Text="每件份数:" VerticalAlignment="Center" Margin="0,0,4,0"/>
             <TextBox x:Name="txtCopies" Text="1" Width="42" Margin="0,0,12,0" Padding="3,2" TextChanged="Copies_Changed" VerticalContentAlignment="Center"/>
             <CheckBox x:Name="chkAll" Content="全选" VerticalAlignment="Center" Margin="0,0,12,0" Checked="ChkAll_Changed" Unchecked="ChkAll_Changed"/>

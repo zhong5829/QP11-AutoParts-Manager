@@ -302,6 +302,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
                 <Grid Grid.Row="0" Margin="0,0,0,4" Background="#FFF0F0F0">
@@ -343,6 +344,10 @@
                         <DataGridTextColumn Header="备注" Width="*" Binding="{Binding Memo, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}"/>
                     </DataGrid.Columns>
                 </DataGrid>
+
+                <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,4,0,0">
+                    <Button Content="标签打印" Width="74" Height="24" Click="BtnQueryLabelPrint_Click" ToolTip="打印选中明细行的商品标签"/>
+                </StackPanel>
             </Grid>
         </Grid>
     </Grid>

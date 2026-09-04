@@ -18,6 +18,7 @@ using QP11.Core.Models;
 using QP11.Core.Interfaces;
 using QP11.Wpf.ViewModels;
 using QP11.Wpf.Helpers;
+using QP11.Wpf.Services.LabelPrint;
 
 namespace QP11.Wpf.Views;
 
@@ -720,6 +721,25 @@ public partial class SellControl : UserControl, ITabContent
     }
 
     #region 查询模式
+
+    /// <summary>查询模式明细区：打印选中明细行的商品标签（替代原打印预览文档中的标签打印按钮）</summary>
+    private void BtnQueryLabelPrint_Click(object sender, RoutedEventArgs e)
+    {
+        if (dgQueryDetails.SelectedItem is not DetailSell d || string.IsNullOrWhiteSpace(d.Partno))
+        {
+            MessageBox.Show("请先在下方明细中选择一行配件", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+        var dlg = new LabelPrintDialog(new LabelPrintItem
+        {
+            PartNo = d.Partno,
+            Name = d.Name ?? "",
+            CarType = d.Cartype ?? ""
+        });
+        if (Application.Current.MainWindow is { IsVisible: true } mainWin)
+            dlg.Owner = mainWin;
+        dlg.ShowDialog();
+    }
 
     private async void BtnSearchBills_Click(object sender, RoutedEventArgs e)
     {
