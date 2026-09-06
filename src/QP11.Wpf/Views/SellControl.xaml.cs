@@ -97,6 +97,10 @@ public partial class SellControl : UserControl, ITabContent
     private int _lastQueryBoxIndex; // 记录上次聚焦的查询输入框索引
     private BillSell? _selectedBill;
 
+    // 双击 Shift 定位到客户输入框：记录上次 Shift 按下时刻，两次间隔 ≤ 500ms 视为双击
+    private DateTime _lastShiftPressTime = DateTime.MinValue;
+    private const double ShiftDoubleClickIntervalMs = 500;
+
     public bool HideScrapPlace
     {
         get => _hideScrapPlace;
@@ -125,6 +129,7 @@ public partial class SellControl : UserControl, ITabContent
         Loaded += SellControl_Loaded;
         IsVisibleChanged += SellControl_IsVisibleChanged;
         _searchTimer.Tick += (s, e) => { _searchTimer.Stop(); _ = LoadPartList(); };
+        PreviewKeyDown += SellControl_PreviewKeyDown;
         LoadDropdowns();
     }
 
@@ -244,6 +249,24 @@ public partial class SellControl : UserControl, ITabContent
             if (descendant != null) return descendant;
         }
         return null;
+    }
+
+    /// <summary>双击 Shift 定位到客户输入框（开单模式 cboClient，查询模式 txtQClient）</summary>
+    private void SellControl_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key != Key.LeftShift && e.Key != Key.RightShift) return;
+        if (e.IsRepeat) return; // 长按自动重复不算双击
+
+        var now = DateTime.Now;
+        bool isDoubleClick = (now - _lastShiftPressTime).TotalMilliseconds <= ShiftDoubleClickIntervalMs;
+        _lastShiftPressTime = now;
+        if (!isDoubleClick) return;
+
+        e.Handled = true;
+        if (_isQueryMode)
+            txtQClient.FocusInput();
+        else
+            cboClient.FocusInput();
     }
 
     private void TxtPartQuery_TextChanged(object sender, TextChangedEventArgs e)

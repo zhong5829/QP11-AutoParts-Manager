@@ -37,6 +37,13 @@ public partial class ClientSearchBox : UserControl
         set { _isSelecting = true; txtInput.Text = value; _isSelecting = false; }
     }
 
+    /// <summary>聚焦内部输入框并全选文本（供快捷键定位客户输入框使用）</summary>
+    public void FocusInput()
+    {
+        txtInput.Focus();
+        txtInput.SelectAll();
+    }
+
     public ClientSearchBox()
     {
         InitializeComponent();
