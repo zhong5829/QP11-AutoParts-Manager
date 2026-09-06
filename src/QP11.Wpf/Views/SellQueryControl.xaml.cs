@@ -631,6 +631,10 @@ public partial class SellQueryControl : UserControl, ITabContent
         var min = Math.Min(startIdx, currentIdx);
         var max = Math.Max(startIdx, currentIdx);
 
+        // 记录本次实际变更的行，联动时只同步这些行对应的单据/明细，
+        // 避免漏掉范围外被取消勾选的行（其明细/单据残留勾选）
+        var changedBills = new List<SellBillItem>();
+        var changedDetailSns = new HashSet<string>();
         UnbindSelectionEvents();
         try
         {
@@ -639,9 +643,23 @@ public partial class SellQueryControl : UserControl, ITabContent
                 var item = sourceItems[i]!;
                 bool shouldSelect = i >= min && i <= max;
                 if (dg.Name == "dgBills")
-                    ((SellBillItem)item).IsSelected = shouldSelect;
+                {
+                    var bill = (SellBillItem)item;
+                    if (bill.IsSelected != shouldSelect)
+                    {
+                        bill.IsSelected = shouldSelect;
+                        changedBills.Add(bill);
+                    }
+                }
                 else
-                    ((SellQueryDetailItem)item).IsSelected = shouldSelect;
+                {
+                    var detail = (SellQueryDetailItem)item;
+                    if (detail.IsSelected != shouldSelect)
+                    {
+                        detail.IsSelected = shouldSelect;
+                        changedDetailSns.Add(detail.Sn ?? "");
+                    }
+                }
             }
         }
         finally { BindSelectionEvents(); }
@@ -649,13 +667,12 @@ public partial class SellQueryControl : UserControl, ITabContent
         // 批量勾选后手动同步联动
         if (dg.Name == "dgBills")
         {
-            // 单据勾选变化 → 同步明细
+            // 单据勾选变化 → 同步明细（遍历实际变更单据，含被取消勾选的范围外单据，防止其明细残留勾选）
             _syncingSelection = true;
             try
             {
-                for (int i = min; i <= max && i < _currentBills.Count; i++)
+                foreach (var bill in changedBills)
                 {
-                    var bill = _currentBills[i];
                     foreach (var detail in _currentDetails)
                     {
                         if (detail.Sn == bill.Sn)
@@ -667,16 +684,13 @@ public partial class SellQueryControl : UserControl, ITabContent
         }
         else
         {
-            // 明细勾选变化 → 同步单据
+            // 明细勾选变化 → 同步单据（含范围外被取消勾选的明细所在单据）
             _syncingSelection = true;
             try
             {
-                var changedSns = new HashSet<string>();
-                for (int i = min; i <= max && i < _currentDetails.Count; i++)
-                    changedSns.Add(_currentDetails[i].Sn ?? "");
                 foreach (var bill in _currentBills)
                 {
-                    if (changedSns.Contains(bill.Sn ?? ""))
+                    if (changedDetailSns.Contains(bill.Sn ?? ""))
                         bill.IsSelected = _currentDetails.Any(d => d.Sn == bill.Sn && d.IsSelected);
                 }
             }
