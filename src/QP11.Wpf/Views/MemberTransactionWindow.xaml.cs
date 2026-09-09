@@ -35,6 +35,8 @@ public partial class MemberTransactionWindow : Window
         dgClients.ItemsSource = TransactionClients;
         dgMonthly.ItemsSource = MonthlyData;
         InitYearCombo();
+        // 预热建表（数据访问前自动确保存储表存在）
+        _ = _overrideService.EnsureTableAsync();
         LoadTransactionClients();
     }
 
@@ -99,23 +101,30 @@ public partial class MemberTransactionWindow : Window
             _lastEditedRow = row;
     }
 
-    private void DgMonthly_CurrentCellChanged(object? sender, EventArgs e)
+    private async void DgMonthly_CurrentCellChanged(object? sender, EventArgs e)
     {
-        // 焦点离开编辑单元格后，绑定值已提交，此时重算并持久化
-        if (_lastEditedRow != null)
+        // 焦点离开编辑单元格后，绑定值已提交，此时重算；仅当值真正变化时才持久化
+        var row = _lastEditedRow;
+        if (row == null) return;
+        _lastEditedRow = null;
+
+        row.RecalcExternal();
+        RefreshTotalSummary();
+        if (_currentSid != null && cboYear.SelectedItem != null && row.ChangedFromSaved)
         {
-            _lastEditedRow.RecalcExternal();
-            RefreshTotalSummary();
-            // 保存修改到本地JSON
-            if (_currentSid != null && cboYear.SelectedItem != null)
+            var year = (int)cboYear.SelectedItem;
+            try
             {
-                var year = (int)cboYear.SelectedItem;
-                _overrideService.SaveOverride(_currentSid, year, _lastEditedRow.month_num,
-                    _lastEditedRow.buy_total, _lastEditedRow.sell_total, _lastEditedRow.is_settled);
+                await _overrideService.SaveOverrideAsync(_currentSid, year, row.month_num,
+                    row.buy_total, row.sell_total, row.is_settled);
+                row.MarkSaved();
             }
-            _lastEditedRow = null;
-            Dispatcher.BeginInvoke(() => dgMonthly.Items.Refresh());
+            catch (Exception ex)
+            {
+                MessageBox.Show($"保存往来数据失败: {ex.Message}", "错误");
+            }
         }
+        _ = Dispatcher.BeginInvoke(() => dgMonthly.Items.Refresh());
     }
 
     private async System.Threading.Tasks.Task LoadMonthlySummary(string cid)
@@ -132,20 +141,24 @@ public partial class MemberTransactionWindow : Window
         {
             MonthlyData.Clear();
             var data = await _arrearageRepo.GetMonthlyTransactionSummaryAsync(cid, year);
+            var monthMap = new Dictionary<int, dynamic>();
+            foreach (var row in data) monthMap[(int)row.month] = row;
 
             decimal totalBuy = 0, totalSell = 0;
 
-            foreach (var row in data)
+            // 补全当年 1-12 月，无数据的月份显示 0，保证所有客户月份一致
+            for (int monthNum = 1; monthNum <= 12; monthNum++)
             {
-                int monthNum = (int)row.month;
-                var sellTotal = (decimal)row.sell_total;
+                monthMap.TryGetValue(monthNum, out dynamic? dbRow);
+                var hasData = dbRow != null;
+                var sellTotal = hasData ? (decimal)dbRow!.sell_total : 0m;
                 var cacheKey = $"{cid}_{year}_{monthNum}";
 
                 // 进货列默认为0，不自动取数据库值；出货列自动取值
                 var buyTotal = 0m;
 
                 // 应用本地覆盖值（覆盖优先级最高）
-                var overrideEntry = _overrideService.GetOverride(cid, year, monthNum);
+                var overrideEntry = await _overrideService.GetOverrideAsync(cid, year, monthNum);
                 bool isSettled = _settledCache.TryGetValue(cacheKey, out var settled2) && settled2;
                 if (overrideEntry != null)
                 {
@@ -160,10 +173,12 @@ public partial class MemberTransactionWindow : Window
                     month_name = MonthNames[monthNum - 1],
                     buy_total = buyTotal,
                     sell_total = sellTotal,
-                    buy_settled = (decimal)row.buy_settled,
-                    sell_settled = (decimal)row.sell_settled,
+                    buy_settled = hasData ? (decimal)dbRow!.buy_settled : 0m,
+                    sell_settled = hasData ? (decimal)dbRow!.sell_settled : 0m,
                     is_settled = isSettled
                 };
+                // 记录当前加载值作为“已保存状态”，后续仅值变化时才写库
+                item.MarkSaved();
                 item.RowChanged += RefreshTotalSummary;
                 item.SettledChanged += () => OnRowSettledChanged(item);
                 MonthlyData.Add(item);
@@ -207,14 +222,22 @@ public partial class MemberTransactionWindow : Window
     }
 
     /// <summary>
-    /// 勾选已结清变更时，保存到本地JSON
+    /// 勾选已结清变更时，保存到数据库
     /// </summary>
-    private void OnRowSettledChanged(MonthlyTransactionRow row)
+    private async void OnRowSettledChanged(MonthlyTransactionRow row)
     {
         if (_currentSid == null || cboYear.SelectedItem == null) return;
         var year = (int)cboYear.SelectedItem;
-        _overrideService.SaveOverride(_currentSid, year, row.month_num,
-            row.buy_total, row.sell_total, row.is_settled);
+        try
+        {
+            await _overrideService.SaveOverrideAsync(_currentSid, year, row.month_num,
+                row.buy_total, row.sell_total, row.is_settled);
+            row.MarkSaved();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"保存已结清状态失败: {ex.Message}", "错误");
+        }
     }
 
     /// <summary>
@@ -276,6 +299,23 @@ public class MonthlyTransactionRow : INotifyPropertyChanged
     {
         get => _is_settled;
         set { _is_settled = value; OnPropertyChanged(); SettledChanged?.Invoke(); }
+    }
+
+    /// <summary>上次写库时的进货/出货/已结清快照（仅值变化时才持久化）</summary>
+    public decimal LastBuyTotal { get; private set; }
+    public decimal LastSellTotal { get; private set; }
+    public bool LastSettled { get; private set; }
+
+    /// <summary>当前值是否与上次写库快照有变化</summary>
+    public bool ChangedFromSaved =>
+        _buy_total != LastBuyTotal || _sell_total != LastSellTotal || _is_settled != LastSettled;
+
+    /// <summary>将当前值记录为“已写库状态”（加载及保存成功后调用）</summary>
+    public void MarkSaved()
+    {
+        LastBuyTotal = _buy_total;
+        LastSellTotal = _sell_total;
+        LastSettled = _is_settled;
     }
 
     /// <summary>勾选状态变更时通知外部持久化</summary>

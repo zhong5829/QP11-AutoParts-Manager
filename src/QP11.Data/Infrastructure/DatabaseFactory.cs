@@ -110,7 +110,7 @@ public static class DatabaseFactory
         if (string.IsNullOrEmpty(_server))
         {
             var driverStr = configuration["ConnectionStrings:QipeiDb_ODBC_Driver"] ?? "";
-            _server = ExtractKeyValue(driverStr, "Server") ?? "192.168.1.86,1433";
+            _server = ExtractKeyValue(driverStr, "Server") ?? "192.168.2.85,1433";
             _database = ExtractKeyValue(driverStr, "Database") ?? "qipei";
             _uid = ExtractKeyValue(driverStr, "Uid") ?? ExtractKeyValue(driverStr, "UID") ?? "sa";
             _pwd = ExtractKeyValue(driverStr, "Pwd") ?? ExtractKeyValue(driverStr, "PWD") ?? "";

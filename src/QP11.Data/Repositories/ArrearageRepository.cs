@@ -298,7 +298,7 @@ public class ArrearageRepository : IArrearageRepository
     /// 获取指定供应商指定年份的按月往来汇总
     /// 进货=bill_buy(supplier=sid)，total已含正负号直接SUM
     /// 出货=bill_sell(客户cid匹配)，total已含正负号直接SUM
-    /// 若供应商在客户表中无匹配记录，则出货为0
+    /// 供应商→客户按名称包含匹配（c.name LIKE '%' + s.name + '%'），若供应商在客户表中无匹配记录，则出货为0
     /// </summary>
     public async Task<IEnumerable<dynamic>> GetMonthlyTransactionSummaryAsync(string cid, int year)
     {
@@ -328,7 +328,7 @@ public class ArrearageRepository : IArrearageRepository
                 AND ISNULL(bs.flag,0) IN ({(int)BusinessConstants.BillFlag.Confirmed}, {(int)BusinessConstants.BillFlag.Returned})
                 AND bs.client IN (
                     SELECT c.cid FROM client_infor c
-                    INNER JOIN supplier_infor s ON c.name LIKE s.name + '%'
+                    INNER JOIN supplier_infor s ON c.name LIKE '%' + s.name + '%'
                     WHERE s.sid = @Cid
                 )
                 GROUP BY MONTH(bs.datetime)
