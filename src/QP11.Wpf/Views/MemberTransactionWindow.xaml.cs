@@ -26,6 +26,8 @@ public partial class MemberTransactionWindow : Window
     };
 
     private string? _currentSid;
+    /// <summary>当前月度明细实际所属年份（切换年份时 SaveSettledState 需用它而非下拉当前值）</summary>
+    private int _currentYear = DateTime.Now.Year;
 
     public MemberTransactionWindow(IArrearageRepository arrearageRepo)
     {
@@ -37,7 +39,7 @@ public partial class MemberTransactionWindow : Window
         InitYearCombo();
         // 预热建表（数据访问前自动确保存储表存在）
         _ = _overrideService.EnsureTableAsync();
-        LoadTransactionClients();
+        _ = LoadTransactionClientsAsync();
     }
 
     private void InitYearCombo()
@@ -50,7 +52,7 @@ public partial class MemberTransactionWindow : Window
         cboYear.SelectedItem = currentYear;
     }
 
-    private async void LoadTransactionClients(string? keyword = null)
+    private async System.Threading.Tasks.Task LoadTransactionClientsAsync(string? keyword = null, string? preserveSid = null)
     {
         try
         {
@@ -58,6 +60,13 @@ public partial class MemberTransactionWindow : Window
             var year = cboYear.SelectedItem as int? ?? DateTime.Now.Year;
             var data = await _arrearageRepo.GetTransactionClientsAsync(year, keyword);
             foreach (var c in data) TransactionClients.Add(c);
+
+            // 列表重建会清空选中（如切换年份），恢复原选中以触发明细刷新
+            if (preserveSid != null)
+            {
+                var row = TransactionClients.FirstOrDefault(c => (string)c.sid == preserveSid);
+                if (row != null) dgClients.SelectedItem = row;
+            }
         }
         catch (Exception ex)
         {
@@ -68,12 +77,12 @@ public partial class MemberTransactionWindow : Window
     private void TxtSearchClient_TextChanged(object sender, TextChangedEventArgs e)
     {
         var kw = txtSearchClient.Text.Trim();
-        if (kw.Length >= 2) LoadTransactionClients(kw);
-        else if (kw.Length == 0) LoadTransactionClients();
+        if (kw.Length >= 2) _ = LoadTransactionClientsAsync(kw);
+        else if (kw.Length == 0) _ = LoadTransactionClientsAsync();
     }
 
     private void BtnSearchClient_Click(object sender, RoutedEventArgs e)
-        => LoadTransactionClients(txtSearchClient.Text.Trim());
+        => _ = LoadTransactionClientsAsync(txtSearchClient.Text.Trim());
 
     private async void DgClients_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
@@ -86,11 +95,10 @@ public partial class MemberTransactionWindow : Window
     private async void CboYear_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (cboYear.SelectedItem == null) return;
-        // 年份切换时重新加载客户列表和月度明细
-        LoadTransactionClients(txtSearchClient.Text.Trim());
+        // 记住当前选中客户，列表重建后恢复选中并刷新月度明细
         var client = dgClients.SelectedItem as dynamic;
-        if (client != null)
-            await LoadMonthlySummary((string)client.sid);
+        var sid = client != null ? (string)client.sid : null;
+        await LoadTransactionClientsAsync(txtSearchClient.Text.Trim(), sid);
     }
 
     private MonthlyTransactionRow? _lastEditedRow;
@@ -110,12 +118,11 @@ public partial class MemberTransactionWindow : Window
 
         row.RecalcExternal();
         RefreshTotalSummary();
-        if (_currentSid != null && cboYear.SelectedItem != null && row.ChangedFromSaved)
+        if (_currentSid != null && row.ChangedFromSaved)
         {
-            var year = (int)cboYear.SelectedItem;
             try
             {
-                await _overrideService.SaveOverrideAsync(_currentSid, year, row.month_num,
+                await _overrideService.SaveOverrideAsync(_currentSid, _currentYear, row.month_num,
                     row.buy_total, row.sell_total, row.is_settled);
                 row.MarkSaved();
             }
@@ -132,10 +139,11 @@ public partial class MemberTransactionWindow : Window
         if (cboYear.SelectedItem == null) return;
         var year = (int)cboYear.SelectedItem;
 
-        // 切换客户前，保存当前勾选状态到缓存
+        // 切换客户/年份前，保存当前勾选状态到缓存（用当前明细实际年份）
         SaveSettledState();
 
         _currentSid = cid;
+        _currentYear = year;
 
         try
         {
@@ -226,11 +234,10 @@ public partial class MemberTransactionWindow : Window
     /// </summary>
     private async void OnRowSettledChanged(MonthlyTransactionRow row)
     {
-        if (_currentSid == null || cboYear.SelectedItem == null) return;
-        var year = (int)cboYear.SelectedItem;
+        if (_currentSid == null) return;
         try
         {
-            await _overrideService.SaveOverrideAsync(_currentSid, year, row.month_num,
+            await _overrideService.SaveOverrideAsync(_currentSid, _currentYear, row.month_num,
                 row.buy_total, row.sell_total, row.is_settled);
             row.MarkSaved();
         }
@@ -241,15 +248,14 @@ public partial class MemberTransactionWindow : Window
     }
 
     /// <summary>
-    /// 将当前月度明细的勾选状态保存到缓存
+    /// 将当前月度明细的勾选状态保存到缓存（key 使用明细实际年份 _currentYear，避免下拉已切换导致串年份）
     /// </summary>
     private void SaveSettledState()
     {
-        if (_currentSid == null || cboYear.SelectedItem == null) return;
-        var year = (int)cboYear.SelectedItem;
+        if (_currentSid == null) return;
         foreach (var row in MonthlyData)
         {
-            var key = $"{_currentSid}_{year}_{row.month_num}";
+            var key = $"{_currentSid}_{_currentYear}_{row.month_num}";
             _settledCache[key] = row.is_settled;
         }
     }
