@@ -9,14 +9,10 @@ using System.Windows.Threading;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using QP11.Core.Entities;
-using QP11.Core.AI;
 using QP11.Core.Interfaces;
 using QP11.Data.Infrastructure;
 using QP11.Data.Repositories;
 using QP11.Services;
-using QP11.Services.AI;
-using QP11.Services.AI.Abstractions;
-using QP11.Services.AI.Tools;
 using QP11.Services.Update;
 using QP11.Wpf.ViewModels;
 using QP11.Wpf.Views;
@@ -189,40 +185,8 @@ public partial class App : Application
             services.AddTransient<BaosunViewModel>();
             services.AddTransient<BorrowViewModel>();
 
-            // Agnes AI 助手
-            var agnesSection = configuration.GetSection("Agnes");
-            var agnesOptions = new AgnesOptions
-            {
-                Provider = agnesSection["Provider"] ?? "DeepSeek",
-                BaseUrl = agnesSection["BaseUrl"] ?? "https://api.deepseek.com/v1",
-                ApiKey = agnesSection["ApiKey"] ?? "YOUR_DEEPSEEK_API_KEY",
-                Model = agnesSection["Model"] ?? "deepseek-chat",
-                EnableStreaming = bool.TryParse(agnesSection["EnableStreaming"], out var es) ? es : true,
-                MaxHistoryMessages = int.TryParse(agnesSection["MaxHistoryMessages"], out var mhm) ? mhm : 20,
-                MaxToolRounds = int.TryParse(agnesSection["MaxToolRounds"], out var mtr) ? mtr : 5,
-                RequestTimeoutSeconds = int.TryParse(agnesSection["RequestTimeoutSeconds"], out var rts) ? rts : 120,
-                OfflineFallback = bool.TryParse(agnesSection["OfflineFallback"], out var of) ? of : true,
-                Temperature = double.TryParse(agnesSection["Temperature"], out var temp) ? temp : 0.3,
-                MaxTokens = int.TryParse(agnesSection["MaxTokens"], out var mt) ? mt : 2048
-            };
-            services.AddSingleton(agnesOptions);
-            services.AddSingleton<HttpClient>(sp =>
-            {
-                var opt = sp.GetRequiredService<AgnesOptions>();
-                return new HttpClient { Timeout = TimeSpan.FromSeconds(opt.RequestTimeoutSeconds) };
-            });
-            services.AddSingleton<AgnesAuditor>();
-            services.AddSingleton<IChatClient, DeepSeekChatClient>();
-            services.AddSingleton<IToolRegistry, ToolRegistry>();
-            services.AddTransient<AgnesOrchestrator>();
+            // 配件查询服务（配件选择窗口/库存等业务窗口使用）
             services.AddTransient<IPartQueryService, PartQueryService>();
-            services.AddTransient<IChatTool, SearchPartsTool>();
-            services.AddTransient<IChatTool, GetStockTool>();
-            services.AddTransient<IChatTool, GetStockAdvancedTool>();
-            services.AddTransient<IChatTool, GetPartPriceTool>();
-            services.AddTransient<IChatTool, GetSellHistoryTool>();
-            services.AddTransient<IChatTool, GetBuyHistoryTool>();
-            services.AddTransient<AgnesChatViewModel>();
 
             ServiceProvider = services.BuildServiceProvider();
 
@@ -232,60 +196,114 @@ public partial class App : Application
             // 初始化更新服务
             InitializeUpdateService(configuration);
 
-            Log.Information("DI容器初始化完成，显示登录窗口");
+            Log.Information("DI容器初始化完成，开始启动流程");
 
-            var login = new LoginWindow(
-                ServiceProvider.GetRequiredService<IAuthService>(),
-                ServiceProvider.GetRequiredService<IUserRepository>(),
-                ServiceProvider.GetRequiredService<IDatabaseInfoService>());
-            bool? loginResult = false;
-            try
-            {
-                loginResult = login.ShowDialog();
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "登录窗口异常");
-                ShowError("QP11 错误", $"登录窗口异常:\n{ex.Message}");
-                Shutdown();
-                return;
-            }
-
-            Log.Information("登录窗口关闭，结果: {Result}", loginResult);
-
-            if (loginResult == true && login.CurrentUser != null)
-            {
-                CurrentUser = login.CurrentUser;
-                Log.Information("用户 {Username} 登录成功，创建主窗口", CurrentUser.Username);
-
-                try
-                {
-                    var main = new MainWindow(login.CurrentUser);
-                    MainWindow = main;
-                    ShutdownMode = ShutdownMode.OnMainWindowClose;
-                    main.Show();
-                    Log.Information("主窗口已显示");
-
-                    // 异步检查更新，不阻塞启动
-                    _ = CheckUpdateAsync();
-                }
-                catch (Exception ex)
-                {
-                    Log.Error(ex, "创建主窗口失败");
-                    ShowError("QP11 错误", $"创建主窗口失败:\n{ex.Message}\n\n{ex.InnerException?.Message}");
-                    Shutdown();
-                }
-            }
-            else
-            {
-                Log.Information("用户取消登录，退出应用");
-                Shutdown();
-            }
+            // 异步启动：显示动画面 → 后台检测数据库（不阻塞UI）→ 成功显示登录窗；失败弹出配置窗
+            _ = RunStartupFlowAsync();
         }
         catch (Exception ex)
         {
             Log.Fatal(ex, "应用启动失败");
             ShowError("QP11 错误", $"启动失败:\n{ex.Message}\n\n{ex.InnerException?.Message}");
+            Shutdown();
+        }
+    }
+
+    /// <summary>
+    /// 异步启动流程：先显示动画面，后台检测数据库连接（5秒超时，UI 不冻结），
+    /// 连接失败弹出数据库配置窗口；保存成功后自动重连，之后才显示登录窗口。
+    /// </summary>
+    private async Task RunStartupFlowAsync()
+    {
+        var splash = new SplashWindow();
+        splash.Show();
+
+        try
+        {
+            string msg;
+            var ok = await Task.Run(() => DatabaseFactory.TestConnection(out msg));
+
+            // 连接失败：弹出配置窗口（循环直到保存成功或用户取消）
+            // 注意：splash 全程保持打开（关闭后的窗口不能再 Show），配置窗口模态显示在其上
+            while (!ok)
+            {
+                splash.UpdateStatus("数据库连接失败，请修改连接信息...");
+                var dialog = new DatabaseConfigWindow { Owner = splash };
+                var saved = dialog.ShowDialog() == true && dialog.Saved;
+                if (!saved)
+                {
+                    Log.Information("用户未保存数据库配置，仍进入登录窗口");
+                    splash.Close();
+                    await ShowLoginWindowAsync();
+                    return;
+                }
+
+                // 已保存新连接：重新测试，成功则继续进入登录窗口
+                splash.UpdateStatus("正在重新连接数据库...");
+                ok = await Task.Run(() => DatabaseFactory.TestConnection(out msg));
+            }
+
+            splash.Close();
+            Log.Information("数据库连接检测通过，显示登录窗口");
+            await ShowLoginWindowAsync();
+        }
+        catch (Exception ex)
+        {
+            splash.Close();
+            Log.Fatal(ex, "启动流程异常");
+            ShowError("QP11 错误", $"启动失败:\n{ex.Message}\n\n{ex.InnerException?.Message}");
+            Shutdown();
+        }
+    }
+
+    /// <summary>显示登录窗口；登录成功后创建主窗口</summary>
+    private async Task ShowLoginWindowAsync()
+    {
+        var login = new LoginWindow(
+            ServiceProvider.GetRequiredService<IAuthService>(),
+            ServiceProvider.GetRequiredService<IUserRepository>(),
+            ServiceProvider.GetRequiredService<IDatabaseInfoService>());
+        bool? loginResult = false;
+        try
+        {
+            loginResult = login.ShowDialog();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "登录窗口异常");
+            ShowError("QP11 错误", $"登录窗口异常:\n{ex.Message}");
+            Shutdown();
+            return;
+        }
+
+        Log.Information("登录窗口关闭，结果: {Result}", loginResult);
+
+        if (loginResult == true && login.CurrentUser != null)
+        {
+            CurrentUser = login.CurrentUser;
+            Log.Information("用户 {Username} 登录成功，创建主窗口", CurrentUser.Username);
+
+            try
+            {
+                var main = new MainWindow(login.CurrentUser);
+                MainWindow = main;
+                ShutdownMode = ShutdownMode.OnMainWindowClose;
+                main.Show();
+                Log.Information("主窗口已显示");
+
+                // 异步检查更新，不阻塞启动
+                _ = CheckUpdateAsync();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "创建主窗口失败");
+                ShowError("QP11 错误", $"创建主窗口失败:\n{ex.Message}\n\n{ex.InnerException?.Message}");
+                Shutdown();
+            }
+        }
+        else
+        {
+            Log.Information("用户取消登录，退出应用");
             Shutdown();
         }
     }

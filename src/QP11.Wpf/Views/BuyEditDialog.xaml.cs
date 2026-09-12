@@ -577,6 +577,23 @@ public partial class BuyEditDialog : Window
             return;
         }
 
+        // 必填项：单位、分类
+        if (string.IsNullOrWhiteSpace(cboUnit.Text))
+        {
+            _log.Information("BtnConfirm_Click: 单位为空，拒绝确认");
+            MessageBox.Show("请输入单位", "提示");
+            cboUnit.Focus();
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(cboClass.Text))
+        {
+            _log.Information("BtnConfirm_Click: 分类为空，拒绝确认");
+            MessageBox.Show("请输入分类", "提示");
+            cboClass.Focus();
+            return;
+        }
+
         if (!decimal.TryParse(txtAmount.Text, out var amount) || amount <= 0)
         {
             _log.Information("BtnConfirm_Click: 数量无效，拒绝确认: {Amount}", txtAmount.Text);

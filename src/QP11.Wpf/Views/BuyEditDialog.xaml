@@ -93,7 +93,9 @@
                         </ComboBox.ItemsPanel>
                     </ComboBox>
 
-                    <TextBlock Grid.Row="5" Text="单位:" VerticalAlignment="Center" Margin="0,2"/>
+                    <TextBlock Grid.Row="5" VerticalAlignment="Center" Margin="0,2">
+                        <Run Text="单位:"/><Run Text=" *" Foreground="Red"/>
+                    </TextBlock>
                     <ComboBox Grid.Row="5" Grid.Column="1" x:Name="cboUnit" IsEditable="True" IsTextSearchEnabled="False" Margin="1,2"
                               TextBoxBase.TextChanged="Dddw_TextChanged">
                         <ComboBox.ItemsPanel>
@@ -113,7 +115,9 @@
                         </ComboBox.ItemsPanel>
                     </ComboBox>
 
-                    <TextBlock Grid.Row="7" Text="分类:" VerticalAlignment="Center" Margin="0,2"/>
+                    <TextBlock Grid.Row="7" VerticalAlignment="Center" Margin="0,2">
+                        <Run Text="分类:"/><Run Text=" *" Foreground="Red"/>
+                    </TextBlock>
                     <ComboBox Grid.Row="7" Grid.Column="1" x:Name="cboClass" IsEditable="True" IsTextSearchEnabled="False" Margin="1,2"
                               TextBoxBase.TextChanged="Dddw_TextChanged">
                         <ComboBox.ItemsPanel>

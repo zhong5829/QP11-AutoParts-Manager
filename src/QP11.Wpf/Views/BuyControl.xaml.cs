@@ -569,6 +569,18 @@ public partial class BuyControl : UserControl, ITabContent
             return;
         }
 
+        // 供应商名称校验：输入的供应商必须在已存在供应商列表中精确匹配（不允许多余空格等情况）
+        var supplierInput = cboSupplier.SearchText;
+        var existingSupplier = _allSuppliers.FirstOrDefault(s =>
+            !string.IsNullOrEmpty(s.Name)
+            && string.Equals(s.Name.TrimEnd(), supplierInput, StringComparison.OrdinalIgnoreCase));
+        if (existingSupplier == null)
+        {
+            MessageBox.Show($"供应商“{supplierInput}”不存在，请从列表中选择正确的供应商", "提示");
+            cboSupplier.Focus();
+            return;
+        }
+
         if (string.IsNullOrWhiteSpace(cboWorker.Text.Trim()))
         {
             MessageBox.Show("请选择采购员", "提示");

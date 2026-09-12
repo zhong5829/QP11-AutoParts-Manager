@@ -334,7 +334,6 @@ public partial class MainWindow : Window
                 App.ServiceProvider.GetRequiredService<IPartRepository>())),
             "7g" => new WindowHostControl("数据迁移", () => new MigrationWindow(
                 App.ServiceProvider.GetRequiredService<MigrationService>())),
-            "agnes" => new AgnesAssistantTab(App.ServiceProvider.GetRequiredService<AgnesChatViewModel>()),
             _ => CreateTabContent(title)
         };
         var tabTitle = tag switch
@@ -386,7 +385,6 @@ public partial class MainWindow : Window
             "r5" => "单据打印设置",
             "7e" => "打印设置",
             "7g" => "数据迁移",
-            "agnes" => "Agnes AI 助手",
             _ => title
         };
         OpenTab(tag, tabTitle, content);

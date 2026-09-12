@@ -82,9 +82,6 @@
                 <Separator/>
                 <MenuItem Header="往来账管理" Tag="m3" Click="MenuGeneric_Click"/>
             </MenuItem>
-            <MenuItem Header="AI 助手(_A)">
-                <MenuItem Header="Agnes 对话" Tag="agnes" Click="MenuGeneric_Click"/>
-            </MenuItem>
             <MenuItem Header="退出系统(_X)">
                 <MenuItem Header="退出" Click="MenuExit_Click" InputGestureText="Alt+F4"/>
             </MenuItem>

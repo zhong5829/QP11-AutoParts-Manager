@@ -50,7 +50,6 @@ public partial class LoginWindow : Window
         _carTimer.Tick += CarTimer_Tick;
         _carTimer.Start();
 
-        TestDbConnectionAsync();
         Loaded += LoginWindow_Loaded;
     }
 
@@ -94,6 +93,10 @@ public partial class LoginWindow : Window
     private async void LoginWindow_Loaded(object sender, RoutedEventArgs e)
     {
         Loaded -= LoginWindow_Loaded;
+
+        // 显示连接状态并加载用户列表。数据库配置窗口已由启动流程（RunStartupFlowAsync）
+        // 在登录窗口弹出之前处理，此处失败仅提示，不再重复弹窗
+        await EnsureDatabaseConnectionAsync();
         await LoadUsersAsync();
     }
 
@@ -125,7 +128,8 @@ public partial class LoginWindow : Window
         }
     }
 
-    private async void TestDbConnectionAsync()
+    /// <summary>检测数据库连接并更新状态栏显示，返回连接是否可用（不再弹配置窗口）</summary>
+    private async Task<bool> EnsureDatabaseConnectionAsync()
     {
         txtStatus.Text = "Ver 13.1 | 数据库: 正在连接...";
         txtStatus.Foreground = System.Windows.Media.Brushes.Gray;
@@ -137,12 +141,14 @@ public partial class LoginWindow : Window
             txtStatus.Foreground = success
                 ? System.Windows.Media.Brushes.Green
                 : System.Windows.Media.Brushes.Red;
+            return success;
         }
         catch (Exception ex)
         {
             Serilog.Log.Warning(ex, "检查数据库连接失败");
             txtStatus.Text = $"Ver 13.1 | 数据库异常: {ex.Message}";
             txtStatus.Foreground = System.Windows.Media.Brushes.Red;
+            return false;
         }
     }
 

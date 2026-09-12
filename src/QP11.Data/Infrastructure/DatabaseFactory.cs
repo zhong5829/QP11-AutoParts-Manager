@@ -483,6 +483,97 @@ public static class DatabaseFactory
     public static string ConnectionMode => _connectionMode;
     public static string LastError => _lastError;
 
+    /// <summary>当前配置的服务器信息（供数据库配置窗口加载显示）</summary>
+    public static (string Server, int Port, string Database, string Uid, string Pwd, string Provider) GetConnectionInfo()
+    {
+        // 从缓存地址中分离 IP 与端口（地址形如 192.168.2.85,1433）
+        var address = string.IsNullOrEmpty(_server) ? "localhost" : _server;
+        int port = 1433;
+        var server = address;
+        var commaIdx = address.LastIndexOf(',');
+        if (commaIdx > 0 && int.TryParse(address.Substring(commaIdx + 1), out var p) && p > 0)
+        {
+            server = address.Substring(0, commaIdx);
+            port = p;
+        }
+        return (server, port, _database, _uid, _pwd, _provider);
+    }
+
+    /// <summary>
+    /// 用指定的临时连接信息构建连接串并测试连通性（不修改全局配置）。
+    /// provider 取值: OleDb / Odbc / SqlClient
+    /// </summary>
+    public static bool TestConnectionInfo(string server, int port, string database, string uid, string pwd,
+        string provider, out string message)
+    {
+        const string timeout = "5"; // 连接超时统一 5 秒
+        var address = $"{server},{port}".TrimStart(',').TrimEnd(',');
+        try
+        {
+            if (provider.Equals("OleDb", StringComparison.OrdinalIgnoreCase))
+            {
+                var connStr = $"Provider=SQLOLEDB;Data Source={address};Initial Catalog={database};User ID={uid};Password={pwd};Connect Timeout={timeout};";
+#pragma warning disable CA1416
+                using var conn = new OleDbCompatConnection(connStr);
+                conn.Open();
+#pragma warning restore CA1416
+                using var cmd = conn.CreateCommand();
+                cmd.CommandText = "SELECT 1";
+                cmd.ExecuteScalar();
+                message = "连接成功! (OleDb/SQLOLEDB)";
+                _connectionMode = "OleDb";
+                return true;
+            }
+            if (provider.Equals("Odbc", StringComparison.OrdinalIgnoreCase))
+            {
+                var connStr = $"Driver={{SQL Server}};Server={address};Database={database};Uid={uid};Pwd={pwd};Connection Timeout={timeout};";
+                using var conn = new OdbcCompatConnection(connStr);
+                conn.Open();
+                using var cmd = conn.CreateCommand();
+                cmd.CommandText = "SELECT 1";
+                cmd.ExecuteScalar();
+                message = "连接成功! (ODBC/SQL Server)";
+                _connectionMode = "ODBC(Driver)";
+                return true;
+            }
+            // 默认 SqlClient
+            var sqlConnStr = $"Server={address};Database={database};User Id={uid};Password={pwd};TrustServerCertificate=True;Connection Timeout={timeout};";
+            using var sqlConn = new Microsoft.Data.SqlClient.SqlConnection(sqlConnStr);
+            sqlConn.Open();
+            using var sqlCmd = sqlConn.CreateCommand();
+            sqlCmd.CommandText = "SELECT 1";
+            sqlCmd.ExecuteScalar();
+            message = "连接成功! (SqlClient)";
+            _connectionMode = "SqlClient";
+            return true;
+        }
+        catch (Exception ex)
+        {
+            message = $"连接失败: {ex.InnerException?.Message ?? ex.Message}";
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// 使用新的配置文件重新初始化连接串缓存（数据库配置窗口保存后调用，无需重启程序即生效）。
+    /// 调用前须将新连接信息写入 appsettings.json 并构建对应的 IConfiguration。
+    /// </summary>
+    public static void Reinitialize(IConfiguration configuration)
+    {
+        _connectionString = "";
+        _provider = "OleDb";
+        _connectionMode = "";
+        _server = "";
+        _database = "qipei";
+        _uid = "sa";
+        _pwd = "";
+        _detectedDriver = null;
+        _lastError = "";
+        Interlocked.Exchange(ref _initialized, 0);
+        Initialize(configuration);
+        Serilog.Log.Information("数据库配置已重新初始化: 模式={Mode}, 服务器={Server}", _connectionMode, _server);
+    }
+
     /// <summary>当前活跃连接数</summary>
     public static int ActiveConnections => Volatile.Read(ref _activeConnections);
     /// <summary>历史峰值连接数</summary>

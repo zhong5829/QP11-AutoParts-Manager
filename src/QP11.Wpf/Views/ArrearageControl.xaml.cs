@@ -15,6 +15,7 @@ public partial class ArrearageControl : UserControl, ITabContent
     private readonly IArrearageRepository _arrearageRepo;
     private readonly IFinanceService _financeService;
     private List<ArrearageDetailRow> _detailRows = new();
+    private CancellationTokenSource? _searchCts;
 
     private int _mode;
     private string _tabTitle;
@@ -97,7 +98,25 @@ public partial class ArrearageControl : UserControl, ITabContent
         }
     }
 
-    private void BtnSearch_Click(object sender, RoutedEventArgs e) => _ = LoadClientsAsync();
+    /// <summary>搜索框实时查询（防抖 300ms），取消旧的未完成搜索</summary>
+    private void TxtSearch_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        _searchCts?.Cancel();
+        _searchCts = new CancellationTokenSource();
+        var token = _searchCts.Token;
+        _ = DebounceSearchAsync(token);
+    }
+
+    private async System.Threading.Tasks.Task DebounceSearchAsync(CancellationToken token)
+    {
+        try
+        {
+            await System.Threading.Tasks.Task.Delay(300, token);
+            if (!token.IsCancellationRequested)
+                await Dispatcher.InvokeAsync(LoadClientsAsync);
+        }
+        catch (System.Threading.Tasks.TaskCanceledException) { }
+    }
 
     private void DgDetail_LoadingRow(object sender, DataGridRowEventArgs e)
     {

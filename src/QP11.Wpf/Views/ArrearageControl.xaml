@@ -10,8 +10,7 @@
 
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,4">
             <TextBlock Text="客户名称/拼音:" VerticalAlignment="Center"/>
-            <TextBox x:Name="txtSearch" Width="140" Margin="4,0"/>
-            <Button Content="搜索" Width="55" Click="BtnSearch_Click"/>
+            <TextBox x:Name="txtSearch" Width="140" Margin="4,0" TextChanged="TxtSearch_TextChanged"/>
             <TextBlock Text="模式:" VerticalAlignment="Center" Margin="12,0,0,0"/>
             <ComboBox x:Name="cboMode" Width="80" Margin="4,0" SelectedIndex="0" SelectionChanged="CboMode_SelectionChanged">
                 <ComboBoxItem Content="应付款" Tag="1"/>
