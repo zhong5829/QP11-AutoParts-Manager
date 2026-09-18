@@ -27,6 +27,7 @@ public class BuyDetailItem : INotifyPropertyChanged
     public string? CarName { get; set; }
     public string? Cartype { get; set; }
     public string? Unit { get; set; }
+    public string? Class { get; set; }
     public string? Place { get; set; }
     public string? Memo { get; set; }
 
@@ -211,6 +212,7 @@ public partial class BuyControl : UserControl, ITabContent
                     Amount = d.Amount ?? 0,
                     OriginalAmount = d.Amount ?? 0,
                     Unit = d.Unit,
+                    Class = d.Class,
                     Place = d.Place,
                     Memo = d.Memo
                 });
@@ -401,6 +403,7 @@ public partial class BuyControl : UserControl, ITabContent
                 CarName = dlg.ResultCarName,
                 Cartype = dlg.ResultCarType,
                 Unit = dlg.ResultUnit,
+                Class = dlg.ResultClass,
                 InPrice = dlg.ResultInPrice,
                 Amount = dlg.ResultAmount,
                 LsPrice = dlg.ResultLsPrice,
@@ -427,6 +430,7 @@ public partial class BuyControl : UserControl, ITabContent
             item.CarName = dlg.ResultCarName;
             item.Cartype = dlg.ResultCarType;
             item.Unit = dlg.ResultUnit;
+            item.Class = dlg.ResultClass;
             item.InPrice = dlg.ResultInPrice;
             item.Amount = dlg.ResultAmount;
             item.LsPrice = dlg.ResultLsPrice;

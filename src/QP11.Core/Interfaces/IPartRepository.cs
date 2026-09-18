@@ -18,6 +18,10 @@ public interface IPartRepository : IRepository<PartData>
     Task<int> DecreaseStockAsync(long partid, decimal quantity, IDbTransaction? transaction = null, IDbConnection? conn = null);
     /// <summary>更新库存售价（part_stock.lsprice/pfprice，0 表示不修改对应价格）</summary>
     Task<int> UpdatePricesAsync(long partid, decimal? lsprice, decimal? pfprice, IDbTransaction? transaction = null, IDbConnection? conn = null);
+    /// <summary>更新配件单位（part_data.unit，空值不更新，避免覆盖档案原有单位）</summary>
+    Task<int> UpdateUnitAsync(long partid, string? unit, IDbTransaction? transaction = null, IDbConnection? conn = null);
+    /// <summary>更新配件分类（part_data.[class]，空值不更新，避免覆盖档案原有分类）</summary>
+    Task<int> UpdateClassAsync(long partid, string? className, IDbTransaction? transaction = null, IDbConnection? conn = null);
     Task<PartStock?> GetStockByIdAsync(long partId, IDbTransaction? transaction = null, IDbConnection? conn = null);
     Task<IEnumerable<PartStockDisplay>> GetStockListAsync(string? keyword = null, int top = 0);
     Task<IEnumerable<PartStockDisplay>> GetStockListAdvancedAsync(string? partNo = null, string? partName = null, string? partNamePy = null, string? cartype = null, string? cartypePy = null, string? className = null, string? classPy = null, int queryMode = 3);

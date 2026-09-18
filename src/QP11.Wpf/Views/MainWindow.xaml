@@ -72,6 +72,8 @@
                 <MenuItem Header="系统日志" Tag="73" Click="MenuGeneric_Click"/>
                 <MenuItem Header="权限管理" Tag="78" Click="MenuGeneric_Click"/>
                 <Separator/>
+                <MenuItem Header="备忘录" Tag="memo" Click="MenuGeneric_Click"/>
+                <Separator/>
                 <MenuItem Header="系统参数设置" Tag="7f" Click="MenuGeneric_Click"/>
                 <Separator/>
                 <MenuItem Header="数据迁移" Tag="7g" Click="MenuGeneric_Click"/>

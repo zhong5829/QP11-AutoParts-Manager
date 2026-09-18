@@ -42,7 +42,7 @@
                 <Button Content="报损管理" Tag="17" Click="NavButton_Click" Margin="2" Padding="8,4"/>
                 <Button Content="借还管理" Tag="18" Click="NavButton_Click" Margin="2" Padding="8,4"/>
                 <Button Content="计算器" Click="NavCalc_Click" Margin="2" Padding="8,4"/>
-                <Button Content="记事本" Click="NavNotepad_Click" Margin="2" Padding="8,4"/>
+                <Button Content="备忘录" Click="NavNotepad_Click" Margin="2" Padding="8,4"/>
             </WrapPanel>
             <TextBlock Grid.Column="1" x:Name="txtModeIndicator" Text="退货模式" Foreground="Red" FontWeight="Bold" FontSize="14" VerticalAlignment="Center" Visibility="Collapsed" Margin="8,0,0,0"/>
         </Grid>

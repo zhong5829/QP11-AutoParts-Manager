@@ -188,6 +188,34 @@ public class PartRepository : IPartRepository
         return result;
     }
 
+    public async Task<int> UpdateUnitAsync(long partid, string? unit, IDbTransaction? transaction = null, IDbConnection? conn = null)
+    {
+        var db = conn ?? transaction?.Connection ?? await CreateConnectionAsync();
+        // 单位空值不更新，避免覆盖档案原有单位
+        var trimmed = unit?.Trim() ?? "";
+        if (string.IsNullOrEmpty(trimmed))
+            return 0;
+        var result = await db.ExecuteAsync(
+            "UPDATE part_data SET unit = @Unit WHERE partid = @PartId",
+            new { Unit = trimmed, PartId = partid }, transaction);
+        if (transaction == null && conn == null) db.Dispose();
+        return result;
+    }
+
+    public async Task<int> UpdateClassAsync(long partid, string? className, IDbTransaction? transaction = null, IDbConnection? conn = null)
+    {
+        var db = conn ?? transaction?.Connection ?? await CreateConnectionAsync();
+        // 分类空值不更新，避免覆盖档案原有分类
+        var trimmed = className?.Trim() ?? "";
+        if (string.IsNullOrEmpty(trimmed))
+            return 0;
+        var result = await db.ExecuteAsync(
+            "UPDATE part_data SET [class] = @Class WHERE partid = @PartId",
+            new { Class = trimmed, PartId = partid }, transaction);
+        if (transaction == null && conn == null) db.Dispose();
+        return result;
+    }
+
     public async Task<int> DecreaseStockAsync(long partid, decimal quantity, IDbTransaction? transaction = null, IDbConnection? conn = null)
     {
         var db = conn ?? transaction?.Connection ?? await CreateConnectionAsync();

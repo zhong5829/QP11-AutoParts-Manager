@@ -19,6 +19,7 @@ public partial class MainWindow : Window
 {
     private UserInfor? _currentUser;
     private readonly DispatcherTimer _timer;
+    private readonly DispatcherTimer _remindTimer;
     private readonly Dictionary<string, TabItem> _openTabs = new();
     private VinQueryWindow? _vinQueryWindow;
 
@@ -32,6 +33,11 @@ public partial class MainWindow : Window
         _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
         _timer.Tick += (s, e) => txtTime.Text = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
         _timer.Start();
+
+        // 备忘录到点提醒：每 30 秒扫描一次（仅本机当前操作员，多机由数据库抢占去重）
+        _remindTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(30) };
+        _remindTimer.Tick += async (s, e) => await CheckMemoRemindersAsync();
+        _remindTimer.Start();
 
         KeyDown += MainWindow_KeyDown;
     }
@@ -334,6 +340,8 @@ public partial class MainWindow : Window
                 App.ServiceProvider.GetRequiredService<IPartRepository>())),
             "7g" => new WindowHostControl("数据迁移", () => new MigrationWindow(
                 App.ServiceProvider.GetRequiredService<MigrationService>())),
+            "memo" => new WindowHostControl("备忘录", () => new MemoWindow(
+                App.ServiceProvider.GetRequiredService<MemoService>())),
             _ => CreateTabContent(title)
         };
         var tabTitle = tag switch
@@ -566,6 +574,30 @@ public partial class MainWindow : Window
         if (MessageBox.Show("确定退出系统?", "确认", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
         {
             Application.Current.Shutdown();
+        }
+    }
+
+    /// <summary>
+    /// 备忘录到点提醒扫描：抢占本机当前操作员的到期条目（多机由数据库 UPDLOCK+置位去重），
+    /// 命中后弹出非模态提醒窗口并播放提示音。
+    /// </summary>
+    private async Task CheckMemoRemindersAsync()
+    {
+        try
+        {
+            var op = _currentUser?.Username;
+            if (string.IsNullOrEmpty(op)) return;
+
+            var memoService = App.ServiceProvider.GetRequiredService<MemoService>();
+            var due = await memoService.ClaimDueAsync(op);
+            if (due.Count == 0) return;
+
+            var dialog = new MemoRemindDialog(due) { Owner = this };
+            dialog.Show(); // 非模态，不阻塞主窗口操作
+        }
+        catch (Exception ex)
+        {
+            Serilog.Log.Warning(ex, "备忘录提醒扫描失败");
         }
     }
 

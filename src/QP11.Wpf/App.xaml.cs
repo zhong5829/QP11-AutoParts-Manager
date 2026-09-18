@@ -98,6 +98,7 @@ public partial class App : Application
             DapperTypeMapper.Register<DetailJhdh>();
             DapperTypeMapper.Register<BillBaosun>();
             DapperTypeMapper.Register<DetailBaosun>();
+            DapperTypeMapper.Register<Memo>();
 
             var services = new ServiceCollection();
             services.AddSingleton<IConfiguration>(configuration);
@@ -174,6 +175,7 @@ public partial class App : Application
             // 无接口的服务 - 直接注册
             services.AddTransient<ExportService>();
             services.AddSingleton<MigrationService>();
+            services.AddSingleton<MemoService>();
 
             // ViewModel
             services.AddTransient<SellViewModel>();

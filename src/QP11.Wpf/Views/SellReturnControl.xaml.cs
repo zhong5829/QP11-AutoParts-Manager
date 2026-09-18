@@ -222,7 +222,12 @@ public partial class SellReturnControl : UserControl, ITabContent
 
     private void NavNotepad_Click(object sender, RoutedEventArgs e)
     {
-        try { System.Diagnostics.Process.Start("notepad.exe"); } catch (Exception ex) { Serilog.Log.Warning(ex, "打开记事本失败"); }
+        try
+        {
+            // 打开备忘录功能页（数据存数据库，按操作员隔离）
+            (Window.GetWindow(this) as MainWindow)?.OpenFunctionTab("memo", "备忘录");
+        }
+        catch (Exception ex) { Serilog.Log.Warning(ex, "打开备忘录失败"); }
     }
 
     private void CboClient_ClientSelected(object? sender, EventArgs e)

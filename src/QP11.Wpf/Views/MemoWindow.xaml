@@ -1,0 +1,64 @@
+<Window x:Class="QP11.Wpf.Views.MemoWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="备忘录" Width="860" Height="540">
+    <Grid Margin="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="备忘录（当前操作员个人备忘，到点自动提醒）" Margin="0,0,0,6" Foreground="Gray"/>
+
+        <DataGrid Grid.Row="1" x:Name="dg" AutoGenerateColumns="False" IsReadOnly="True"
+                  HeadersVisibility="Column" CanUserAddRows="False" CanUserDeleteRows="False"
+                  SelectionMode="Single" SelectionUnit="FullRow"
+                  HorizontalGridLinesBrush="#EEE" VerticalGridLinesBrush="#EEE"
+                  MouseDoubleClick="Dg_MouseDoubleClick">
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <Setter Property="Foreground" Value="#222"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsDue}" Value="True">
+                            <Setter Property="Foreground" Value="#C00000"/>
+                            <Setter Property="FontWeight" Value="Bold"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Done}" Value="True">
+                            <Setter Property="Foreground" Value="#999"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.RowStyle>
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Header="完成" Width="58">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <CheckBox IsChecked="{Binding Done, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      Checked="CheckDone_Changed" Unchecked="CheckDone_Changed"
+                                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="内容" Width="*" Binding="{Binding Content}"/>
+                <DataGridTemplateColumn Header="优先级" Width="70">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding PriorityText}" Foreground="{Binding PriorityBrush}" 
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="提醒" Width="190" Binding="{Binding RemindText}"/>
+                <DataGridTextColumn Header="创建时间" Width="130" Binding="{Binding CreateText}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+            <Button Content="新增" Width="80" Height="30" Margin="6,0" Click="BtnAdd_Click"/>
+            <Button Content="编辑" Width="80" Height="30" Margin="6,0" Click="BtnEdit_Click"/>
+            <Button Content="删除" Width="80" Height="30" Margin="6,0" Click="BtnDelete_Click"/>
+            <Button Content="刷新" Width="80" Height="30" Margin="6,0" Click="BtnRefresh_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

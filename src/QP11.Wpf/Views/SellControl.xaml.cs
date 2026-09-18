@@ -345,7 +345,8 @@ public partial class SellControl : UserControl, ITabContent
 
     private void NavNotepad_Click(object sender, RoutedEventArgs e)
     {
-        System.Diagnostics.Process.Start("notepad.exe");
+        // 打开备忘录功能页（数据存数据库，按操作员隔离）
+        (Window.GetWindow(this) as MainWindow)?.OpenFunctionTab("memo", "备忘录");
     }
 
     private void DgParts_MouseDoubleClick(object sender, MouseButtonEventArgs? e)

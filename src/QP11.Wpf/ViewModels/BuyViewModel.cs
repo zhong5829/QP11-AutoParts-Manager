@@ -201,7 +201,7 @@ public class BuyViewModel : BaseViewModel
                     Pfprice = d.PfPrice,
                     Stotal = d.SubTotal,
                     Place = !string.IsNullOrEmpty(d.Place) ? d.Place : partInfo?.Place,
-                    Class = partInfo?.ClassName,
+                    Class = !string.IsNullOrEmpty(d.Class) ? d.Class : partInfo?.ClassName,
                     Datetime = bill.Datetime,
                     Memo = d.Memo,
                     PartGg = partInfo?.PartGg,
@@ -276,6 +276,8 @@ public class BuyViewModel : BaseViewModel
                         Name = item.PartName?.Trim(),
                         Carname = item.CarName?.Trim(),
                         Cartype = item.Cartype?.Trim(),
+                        Unit = string.IsNullOrWhiteSpace(item.Unit) ? "" : item.Unit.Trim(),
+                        ClassName = string.IsNullOrWhiteSpace(item.Class) ? "" : item.Class.Trim(),
                         Inprice = item.InPrice,
                         Lsprice = item.LsPrice,
                         Pfprice = item.PfPrice,
@@ -300,7 +302,7 @@ public class BuyViewModel : BaseViewModel
                 }
             }
 
-            // 已有配件：更新库存数量，并同步本单零售价/批发价到配件档案
+            // 已有配件：更新库存数量，并同步本单零售价/批发价、单位、分类到配件档案
             foreach (var item in details)
             {
                 if (item.PartId > 0 && !newParts.Contains(item))
@@ -308,6 +310,12 @@ public class BuyViewModel : BaseViewModel
                     await _partRepo.IncreaseStockAsync(item.PartId, item.Amount, txn, dbConn);
                     if (item.LsPrice > 0 || item.PfPrice > 0)
                         await _partRepo.UpdatePricesAsync(item.PartId, item.LsPrice, item.PfPrice, txn, dbConn);
+                    // 单位非空才回写配件档案，下次采购自动带出，无需重复填写
+                    if (!string.IsNullOrWhiteSpace(item.Unit))
+                        await _partRepo.UpdateUnitAsync(item.PartId, item.Unit, txn, dbConn);
+                    // 分类非空才回写配件档案，下次采购自动带出，无需重复填写
+                    if (!string.IsNullOrWhiteSpace(item.Class))
+                        await _partRepo.UpdateClassAsync(item.PartId, item.Class, txn, dbConn);
                 }
             }
 
