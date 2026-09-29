@@ -175,9 +175,7 @@
                     <TextBlock Grid.Row="14" Text="备注:" VerticalAlignment="Center" Margin="0,2"/>
                     <TextBox Grid.Row="14" Grid.Column="1" x:Name="txtMemo" Margin="1,2"/>
 
-                    <CheckBox Grid.Row="15" Grid.ColumnSpan="2" x:Name="chkUpdateStock" Content="更新库存" IsChecked="True" Margin="0,4"/>
-
-                    <StackPanel Grid.Row="16" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,6,0,0">
+                    <StackPanel Grid.Row="15" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,6,0,0">
                         <Button Content="选择" Width="70" Height="26" Margin="0,0,6,0" Click="BtnSelect_Click"/>
                         <Button Content="确认(&amp;O)" Width="70" Height="26" Margin="0,0,6,0" Click="BtnConfirm_Click" IsDefault="True"/>
                         <Button Content="取消(&amp;C)" Width="70" Height="26" Click="BtnCancel_Click" IsCancel="True"/>

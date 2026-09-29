@@ -76,7 +76,6 @@ public partial class BuyEditDialog : Window
     public string? ResultPartTh => txtPartTh.Text.Trim();
     public string? ResultPartGg => txtPartGg.Text.Trim();
     public string? ResultPartCclb => txtPartCclb.Text.Trim();
-    public bool ResultUpdateStock => chkUpdateStock.IsChecked == true;
     public bool IsConfirmed { get; private set; }
 
     public void SetEditValues(decimal amount, decimal inPrice, string? place, string? memo)
