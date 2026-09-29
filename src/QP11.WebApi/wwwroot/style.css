@@ -6,12 +6,12 @@ body {
   background: #f0f2f5; color: #333; line-height: 1.4;
   -webkit-font-smoothing: antialiased;
 }
-.app { max-width: 960px; margin: 0 auto; min-height: 100vh; }
+.app { min-height: 100vh; }
 
 /* ========== 头部导航 ========== */
 .header {
   background: linear-gradient(135deg, #1a73e8, #0d47a1);
-  color: #fff; padding: 10px 14px 0; position: sticky; top: 0; z-index: 100;
+  color: #fff; padding: 10px 16px 0; position: sticky; top: 0; z-index: 100;
 }
 .header h1 { font-size: 1.05rem; font-weight: 600; margin-bottom: 8px; letter-spacing: 1px; }
 .tab-bar { display: flex; gap: 2px; }
@@ -23,7 +23,7 @@ body {
 .tab-btn.active { background: #fff; color: #1a73e8; font-weight: 600; }
 
 /* ========== Tab 内容 ========== */
-.tab-content { display: none; padding: 10px 12px 80px; }
+.tab-content { display: none; padding: 10px 16px 96px; }
 .tab-content.active { display: block; }
 
 /* ========== 卡片 ========== */
@@ -57,7 +57,7 @@ body {
 .data-table { width: 100%; border-collapse: collapse; font-size: .82rem; white-space: nowrap; }
 .data-table th {
   background: #f5f7fa; padding: 7px 8px; text-align: left; font-weight: 600; color: #555;
-  border-bottom: 2px solid #e0e0e0; position: sticky; top: 0;
+  border-bottom: 2px solid #e0e0e0; position: sticky; top: 0; z-index: 1;
 }
 .data-table td { padding: 6px 8px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
 .data-table tbody tr { cursor: pointer; transition: background .15s; }
@@ -69,6 +69,9 @@ body {
 .card-parts .data-table td:nth-child(4) { text-align: right; font-weight: 500; } /* 库存 */
 .card-parts .data-table td:nth-child(5), /* 零售价 */
 .card-parts .data-table td:nth-child(6) { text-align: right; color: #c62828; } /* 批发价 */
+
+/* 配件库存列表：固定高度，在区域内上下滑动查看/选择（表头 sticky 常驻） */
+.card-parts .table-wrap { height: 320px; overflow-y: auto; }
 
 /* 单据查询表格 */
 #billTable th:nth-child(5), /* 总额 */
@@ -115,7 +118,15 @@ body {
 #sumLabel { font-weight: 400; color: #666; font-size: .82rem; }
 
 /* ========== 按钮 ========== */
-.actions { display: flex; gap: 10px; margin-top: 12px; }
+/* 操作栏：固定在视口底部悬浮（仅销售开单页使用，切 Tab 时随内容自动隐藏） */
+.actions {
+  position: fixed; left: 0; right: 0; bottom: 0; margin: 0;
+  display: flex; gap: 10px; justify-content: center;
+  padding: 8px 16px calc(8px + env(safe-area-inset-bottom));
+  background: #fff; border-top: 1px solid #eee; z-index: 90;
+}
+/* 大屏下按钮限宽居中，避免两个按钮各占半屏；窄屏时按钮仍自然铺满 */
+.actions .btn { max-width: 280px; }
 .btn {
   flex: 1; padding: 13px 0; border: none; border-radius: 10px;
   font-size: .98rem; font-weight: 600; cursor: pointer; transition: all .2s;
@@ -272,6 +283,7 @@ body {
 .toast.success { background: #2e7d32; }
 
 /* ========== 响应式适配 ========== */
+/* ---------- 手机（≤650px）：单栏网格 + 列表卡片化 + 底部固定操作栏 ---------- */
 @media (max-width: 650px) {
   .query-row { grid-template-columns: 1fr 1fr; }
   .q-match { grid-column: span 2; }
@@ -279,12 +291,106 @@ body {
   .bh-client, .bh-memo-full { grid-column: span 2; }
   #tab-query .query-row { grid-template-columns: 1fr 1fr; }
   #tab-query .query-row button { grid-column: span 2; }
+
   /* 弹窗移动端：两栏变单栏 */
   .dlg2-col { flex-direction: column; }
   .dlg-left { width: 100%; border-right: none; border-bottom: 1px solid #eee; max-height: none; }
   .dlg-right { max-height: none; }
+
+  /* --- 表格转卡片：小屏隐藏表头，每行变一张卡片 --- */
+  .table-wrap { overflow: visible; }
+  /* 配件库存列表在手机上同样固定高度，区域内上下滑动 */
+  .card-parts .table-wrap { height: 260px; overflow-x: hidden; overflow-y: auto; }
+  .data-table { white-space: normal; }
+  .data-table thead { display: none; }
+  .data-table tbody, .data-table tr, .data-table td { display: block; width: 100%; }
+  .data-table tbody tr {
+    border: 1px solid #eee; border-radius: 8px; padding: 8px 10px;
+    margin-bottom: 8px; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.04);
+  }
+  .data-table tbody tr:last-child { margin-bottom: 0; }
+  .data-table td {
+    display: flex; justify-content: space-between; align-items: baseline;
+    gap: 10px; padding: 3px 0; border: none; text-align: right;
+  }
+  .data-table td::before { color: #888; font-weight: 400; flex-shrink: 0; }
+  /* 空态行（带 colspan 的单元格）：跨满整行、居中显示，不加字段名 */
+  .data-table tr > td[colspan] {
+    display: block; grid-column: 1 / -1; text-align: center; padding: 20px 8px;
+    border: none; box-shadow: none;
+  }
+  .data-table tr > td[colspan]::before { content: none; }
+
+  /* 字段名（行上没有 data-label，标签统一写在 CSS 里） */
+  #partsTable td:nth-child(1)::before { content: "编号"; }
+  #partsTable td:nth-child(2)::before { content: "名称"; }
+  #partsTable td:nth-child(3)::before { content: "车型"; }
+  #partsTable td:nth-child(4)::before { content: "库存"; }
+  #partsTable td:nth-child(5)::before { content: "零售价"; }
+  #partsTable td:nth-child(6)::before { content: "批发价"; }
+  #partsTable td:nth-child(7)::before { content: "仓位"; }
+
+  /* 配件卡片：一行两个字段（7 个字段排成 4 行），卡片更紧凑 */
+  #partsTable tbody tr {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 2px 12px; padding: 7px 10px;
+  }
+  #partsTable td { padding: 1px 0; gap: 6px; }
+
+  #detailTable td:nth-child(1)::before { content: "编号"; }
+  #detailTable td:nth-child(2)::before { content: "名称"; }
+  #detailTable td:nth-child(3)::before { content: "数量"; }
+  #detailTable td:nth-child(4)::before { content: "单价"; }
+  #detailTable td:nth-child(5)::before { content: "小计"; }
+  #detailTable td:nth-child(6)::before { content: "车型"; }
+  #detailTable td:nth-child(7)::before { content: "备注"; }
+  #detailTable td:last-child { justify-content: flex-end; }
+
+  #billTable td:nth-child(1)::before { content: "单号"; }
+  #billTable td:nth-child(2)::before { content: "日期"; }
+  #billTable td:nth-child(3)::before { content: "客户"; }
+  #billTable td:nth-child(4)::before { content: "业务员"; }
+  #billTable td:nth-child(5)::before { content: "总额"; }
+  #billTable td:nth-child(6)::before { content: "开票总额"; }
+  #billTable td:nth-child(7)::before { content: "状态"; }
+
+  /* 单据查询卡片：一行两个字段（7 个字段排成 4 行），卡片更紧凑 */
+  #billTable tbody tr {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 2px 12px; padding: 7px 10px;
+  }
+  #billTable td { padding: 1px 0; gap: 6px; }
+
+  /* 单据详情弹窗内的明细表（9 列） */
+  .modal-body .data-table td:nth-child(1)::before { content: "编号"; }
+  .modal-body .data-table td:nth-child(2)::before { content: "名称"; }
+  .modal-body .data-table td:nth-child(3)::before { content: "数量"; }
+  .modal-body .data-table td:nth-child(4)::before { content: "单价"; }
+  .modal-body .data-table td:nth-child(5)::before { content: "开票单价"; }
+  .modal-body .data-table td:nth-child(6)::before { content: "小计"; }
+  .modal-body .data-table td:nth-child(7)::before { content: "车型"; }
+  .modal-body .data-table td:nth-child(8)::before { content: "车牌"; }
+  .modal-body .data-table td:nth-child(9)::before { content: "备注"; }
+
+  /* 单据详情弹窗明细卡片：一行两个字段（9 个字段排成 5 行） */
+  .modal-body .data-table tbody tr {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 2px 12px; padding: 7px 10px;
+  }
+  .modal-body .data-table td { padding: 1px 0; gap: 6px; }
+  /* 单据详情单头摘要：手机档固定两列，避免逐项纵排过高 */
+  .bill-detail-head { grid-template-columns: 1fr 1fr; gap: 6px 12px; }
 }
-@media (min-width: 800px) {
+
+/* ---------- 平板（651–1023px）：保留表格，单头信息 3 列 ---------- */
+@media (min-width: 651px) and (max-width: 1023px) {
+  .bh-grid { grid-template-columns: repeat(3, 1fr); }
+  .bh-memo-full { grid-column: span 3; }
+  #tab-query .query-row { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ---------- 桌面（≥1024px）：单头信息 6 列 ---------- */
+@media (min-width: 1024px) {
   .bh-grid { grid-template-columns: 1.5fr 1fr .7fr .9fr .9fr 1fr; }
   .bh-memo-full { grid-column: span 1; }
 }

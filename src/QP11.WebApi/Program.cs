@@ -86,6 +86,7 @@ public class Program
         builder.Services.AddTransient<ISellService, QP11.Services.SellService>();
         builder.Services.AddTransient<IBuyService, QP11.Services.BuyService>();
         builder.Services.AddTransient<ISellRepository, QP11.Data.Repositories.SellRepository>();
+        builder.Services.AddTransient<IBuyRepository, QP11.Data.Repositories.BuyRepository>();
         builder.Services.AddTransient<IPartRepository, QP11.Data.Repositories.PartRepository>();
         builder.Services.AddTransient<IClientRepository, QP11.Data.Repositories.ClientRepository>();
         builder.Services.AddTransient<IUserRepository, QP11.Data.Repositories.UserRepository>();
