@@ -135,7 +135,7 @@ public class PartsController : ControllerBase
                 var partsList = parts.ToList();
                 _logger.LogInformation("[Search] 高级搜索返回 {Count} 条", partsList.Count);
 
-                // 精简字段：15→10（列表只需核心字段，Stock 实时查库不缓存）
+                // 精简字段：15→11（列表只需核心字段，Stock 实时查库不缓存；Memo 供手机卡片显示备注）
                 data = partsList.Select(p => new
                 {
                     p.PartId, p.PartNo, p.Name, p.CarType,
@@ -143,6 +143,7 @@ public class PartsController : ControllerBase
                     LsPrice = p.LsPrice ?? 0,
                     PfPrice = p.PfPrice ?? 0,
                     Stock = p.Amount ?? 0,
+                    Memo = p.Memo,
                     NamePy = p.NamePy
                 }).ToList();
             }
@@ -167,6 +168,7 @@ public class PartsController : ControllerBase
                         Unit = p.Unit, Place = p.Place,
                         LsPrice = p.Lsprice, PfPrice = p.Pfprice,
                         NamePy = p.NamePy,
+                        Memo = p.Memo,
                         Stock = stock?.Amount ?? 0
                     };
                 }).ToList();
@@ -186,6 +188,7 @@ public class PartsController : ControllerBase
                     LsPrice = p.LsPrice ?? 0,
                     PfPrice = p.PfPrice ?? 0,
                     Stock = p.Amount ?? 0,
+                    Memo = p.Memo,
                     NamePy = p.NamePy
                 }).ToList();
             }

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>QP11 销售开单</title>
-<link rel="stylesheet" href="style.css?v=1.7.0">
+<link rel="stylesheet" href="style.css?v=1.13.0">
 </head>
 <body>
 
@@ -80,9 +80,9 @@
         <table class="data-table" id="partsTable">
           <thead><tr>
             <th>编号</th><th>名称</th><th>车型</th><th>库存</th>
-            <th>零售价</th><th>批发价</th><th>仓位</th>
+            <th>零售价</th><th>批发价</th><th>仓位</th><th>备注</th>
           </tr></thead>
-          <tbody id="partsBody"><tr><td colspan="7" class="empty-hint">输入条件后回车或等待自动搜索...</td></tr></tbody>
+          <tbody id="partsBody"><tr><td colspan="8" class="empty-hint">输入条件后回车或等待自动搜索...</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -216,15 +216,15 @@
         <div class="field"><label>客户查询</label>
           <div style="position:relative">
             <input type="text" id="dlgClient" placeholder="输入客户名/拼音搜索..." autocomplete="off">
-            <div id="dlgClientDropdown" class="dropdown-menu"></div>
+            <div id="dlgClientDropdown" class="dropdown"></div>
           </div>
         </div>
 
         <!-- 配件编号（只读，对齐桌面端 txtPartNo 第52行） -->
-        <div class="field dlg-readonly"><label>配件编号</label><div id="dlgPno" class="readonly-val bold"></div></div>
+        <div class="field dlg-readonly field-pair"><label>配件编号</label><div id="dlgPno" class="readonly-val bold"></div></div>
 
         <!-- 配件名称（只读，对齐桌面端 txtPartName 第53行） -->
-        <div class="field dlg-readonly"><label>配件名称</label><div id="dlgPname" class="readonly-val bold"></div></div>
+        <div class="field dlg-readonly field-pair"><label>配件名称</label><div id="dlgPname" class="readonly-val bold"></div></div>
 
         <!-- 价格提示（对齐桌面端 txtPriceHint 第55行） -->
         <div id="dlgPriceHint" class="price-hint" style="display:none"></div>
@@ -246,10 +246,10 @@
         </div>
 
         <!-- 销售单价（对齐桌面端 txtPrice 第91行 + TextChanged自动同步开票价） -->
-        <div class="field"><label>销售单价</label><input type="number" id="dlgPrice" step="0.01"></div>
+        <div class="field field-pair"><label>销售单价</label><input type="number" id="dlgPrice" step="0.01"></div>
 
         <!-- 开票单价（对齐桌面端 txtBillPrice 第100行） -->
-        <div class="field"><label>开票单价</label><input type="number" id="dlgBillPrice" step="0.01"></div>
+        <div class="field field-pair"><label>开票单价</label><input type="number" id="dlgBillPrice" step="0.01"></div>
 
         <!-- 自动匹配（对齐桌面端 chkAutoMatch 第104-107行） -->
         <div class="auto-match-row">
@@ -292,6 +292,6 @@
 <!-- Toast 提示 -->
 <div id="toast" class="toast"></div>
 
-<script src="app.js?v=1.0.0"></script>
+<script src="app.js?v=1.14.0"></script>
 </body>
 </html>

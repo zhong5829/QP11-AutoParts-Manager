@@ -42,6 +42,8 @@ public static class WebServerManager
     public static void Stop()
     {
         if (!IsRunning) return;
+        // 服务即将停止，所有在线会话随之失效，立即清零在线计数（否则界面刷新仍显示停止前的在线数）
+        ConnectionCounter.Clear();
         Task.Run(async () =>
         {
             try

@@ -386,12 +386,16 @@ function _renderPartsFiltered() {
   }
 
   if (!parts || parts.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" class="empty-hint">' + (state.allParts.length > 0 && hideWaste ? '已隐藏全部废品仓配件' : '未找到匹配的配件') + '</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" class="empty-hint">' + (state.allParts.length > 0 && hideWaste ? '已隐藏全部废品仓配件' : '未找到匹配的配件') + '</td></tr>';
     return;
   }
 
-  tbody.innerHTML = parts.map(p => `
-    <tr data-part='${escapeAttr(JSON.stringify(p))}' onclick="onPartClick(this)">
+  tbody.innerHTML = parts.map(p => {
+    // 无库存（含负数）的行/卡片整体标红提示
+    const stock = (p.Stock ?? p.Amount ?? 0) || 0;
+    const rowClass = stock <= 0 ? 'row-nostock' : '';
+    return `
+    <tr class="${rowClass}" data-part='${escapeAttr(JSON.stringify(p))}' onclick="onPartClick(this)">
       <td>${escHtml(p.Partno || p.PartNo)}</td>
       <td>${escHtml(p.Name)}</td>
       <td>${escHtml(p.Cartype || p.CarType)}</td>
@@ -399,7 +403,9 @@ function _renderPartsFiltered() {
       <td>${fmt(p.LsPrice)}</td>
       <td>${fmt(p.PfPrice)}</td>
       <td>${escHtml(p.Place)}</td>
-    </tr>`).join('');
+      <td>${escHtml(p.Memo)}</td>
+    </tr>`;
+  }).join('');
 }
 
 /** 切换废品仓显示/隐藏 */
@@ -527,6 +533,10 @@ function openPartDialog(part, readOnly = false, editIndex = -1) {
 
   // 客户 - 对齐桌面端第60-61行
   $('dlgClient').value = dlgState.selectedClient ? dlgState.selectedClient.name : '';
+
+  // 清空客户下拉候选，避免上次打开弹窗时残留的候选列表再次显示
+  const dlgClientDd = $('dlgClientDropdown');
+  if (dlgClientDd) { dlgClientDd.classList.remove('show'); dlgClientDd.innerHTML = ''; }
 
   // 自动匹配默认勾选
   $('chkAutoMatch').checked = true;
@@ -997,7 +1007,7 @@ function clearAll() {
   const defWorker = Array.from($('workerSelect').options).find(o => o.textContent.includes('邓鹏'));
   if (defWorker) $('workerSelect').value = defWorker.value;
   $('qPartNo').value = ''; $('qPartName').value = ''; $('qCartype').value = '';
-  $('partsBody').innerHTML = '<tr><td colspan="7" class="empty-hint">输入条件后回车或等待自动搜索...</td></tr>';
+  $('partsBody').innerHTML = '<tr><td colspan="8" class="empty-hint">输入条件后回车或等待自动搜索...</td></tr>';
   renderDetails();
   calcTotals();
 }

@@ -22,12 +22,18 @@ public static class ConnectionCounter
 
     /// <summary>
     /// 用户心跳/请求时调用（更新最后活动时间）
+    /// 计数被清空后（如停止 Web 服务再启动），仍持有有效 Token 的页面在下一次心跳时会重新登记在线
     /// </summary>
     public static void OnHeartbeat(string token)
     {
-        if (!string.IsNullOrEmpty(token) && _activeTokens.ContainsKey(token))
+        if (!string.IsNullOrEmpty(token))
             _activeTokens[token] = DateTime.Now;
     }
+
+    /// <summary>
+    /// 清空在线连接（停止 Web 服务时调用：服务已停，不可能还有在线会话）
+    /// </summary>
+    public static void Clear() => _activeTokens.Clear();
 
     /// <summary>
     /// 用户登出/Token失效时调用
