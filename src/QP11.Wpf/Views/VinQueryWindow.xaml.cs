@@ -28,8 +28,14 @@ public class VinChatMessage : INotifyPropertyChanged
     public VinPartCard? ExpandedCard { get; set; }
     public string? Vin { get; set; }
 
+    /// <summary>按编号搜索时的关键词（VIN查询时为null）</summary>
+    public string? SearchKeyword { get; set; }
+
     public int PartCount => PartCategories?.SelectMany(c => c.Products).Count() ?? 0;
     public int MatchedCount => PartCategories?.SelectMany(c => c.Products).Count(p => p.IsLocalMatched) ?? 0;
+
+    /// <summary>配件汇总卡片标题（编号搜索与VIN适配区分显示）</summary>
+    public string SummaryTitle => string.IsNullOrEmpty(SearchKeyword) ? "配件适配结果" : $"编号搜索：{SearchKeyword}";
 
     public event PropertyChangedEventHandler? PropertyChanged;
     protected void OnPropertyChanged([CallerMemberName] string? name = null)
@@ -343,6 +349,7 @@ public partial class VinQueryWindow : Window, INotifyPropertyChanged
     {
         if (_currentVehicleInfo is not VinDecodeResult v || string.IsNullOrEmpty(v.Brand)) return;
         var lines = new List<string>();
+        if (!string.IsNullOrEmpty(v.Vin)) lines.Add($"车架号: {v.Vin}");
         if (!string.IsNullOrEmpty(v.Brand) || !string.IsNullOrEmpty(v.Series))
             lines.Add($"{v.Brand} {v.Series}".Trim());
         if (!string.IsNullOrEmpty(v.Models)) lines.Add($"车型: {v.Models}");
@@ -399,14 +406,23 @@ public partial class VinQueryWindow : Window, INotifyPropertyChanged
 
     private async Task QueryVinAsync()
     {
-        var vin = VinInput.Trim().ToUpperInvariant();
-        if (vin.Length != 17)
+        var input = VinInput.Trim();
+        if (input.Length == 0)
         {
-            Messages.Add(new VinChatMessage { IsUser = false, Text = "VIN码应为17位，请检查输入" });
+            Messages.Add(new VinChatMessage { IsUser = false, Text = "请输入17位VIN码或配件编号" });
             ScrollToBottom();
             return;
         }
 
+        if (input.Length == 17)
+            await QueryByVinAsync(input.ToUpperInvariant());
+        else
+            await QueryByKeywordAsync(input);
+    }
+
+    /// <summary>VIN查询流程（17位VIN码）</summary>
+    private async Task QueryByVinAsync(string vin)
+    {
         Messages.Add(new VinChatMessage { IsUser = true, Text = vin });
         VinInput = "";
         ScrollToBottom();
@@ -505,6 +521,141 @@ public partial class VinQueryWindow : Window, INotifyPropertyChanged
         {
             IsQuerying = false;
             ScrollToBottom();
+        }
+    }
+
+    /// <summary>按配件编号/型号/名称关键词搜索（不依赖VIN，全库搜索）</summary>
+    private async Task QueryByKeywordAsync(string keyword)
+    {
+        Messages.Add(new VinChatMessage { IsUser = true, Text = keyword });
+        VinInput = "";
+        ScrollToBottom();
+
+        IsQuerying = true;
+        try
+        {
+            if (_vinService.GetLoggedInSources().Count == 0)
+            {
+                Messages.Add(new VinChatMessage { IsUser = false, Text = "数据源Token已失效，请重新登录后再查询" });
+                RefreshSourceLoginStatus();
+                ScrollToBottom();
+                return;
+            }
+
+            // 单次最多加载10页（150条），避免过短关键词命中全库时产生大量请求
+            const int maxPages = 10;
+            var firstPage = await _vinService.SearchByKeywordAsync(keyword, 1);
+
+            if (firstPage == null && _vinService.GetLoggedInSources().Count == 0)
+            {
+                Messages.Add(new VinChatMessage { IsUser = false, Text = "数据源Token已失效，请重新登录后再查询" });
+                RefreshSourceLoginStatus();
+                ScrollToBottom();
+                return;
+            }
+
+            var allCategories = firstPage?.Categories ?? [];
+
+            if (firstPage != null && firstPage.Current < firstPage.Pages)
+            {
+                var lastPage = Math.Min(firstPage.Pages, maxPages);
+                for (int page = 2; page <= lastPage; page++)
+                {
+                    var nextPage = await _vinService.SearchByKeywordAsync(keyword, page);
+                    if (nextPage == null) break;
+                    foreach (var cat in nextPage.Categories)
+                    {
+                        var existing = allCategories.FirstOrDefault(c => c.TenantCategoryId == cat.TenantCategoryId);
+                        if (existing != null)
+                            existing.Products.AddRange(cat.Products);
+                        else
+                            allCategories.Add(cat);
+                    }
+                }
+            }
+
+            if (allCategories.Count == 0)
+            {
+                Messages.Add(new VinChatMessage { IsUser = false, Text = $"未找到编号/型号/名称包含\"{keyword}\"的配件" });
+                ScrollToBottom();
+                return;
+            }
+
+            // 标记命中的编号（UI高亮），并开启"适配车型"入口（仅编号搜索场景）
+            foreach (var card in allCategories.SelectMany(c => c.Products))
+            {
+                card.IsModelHighlighted = !string.IsNullOrEmpty(card.Model)
+                    && card.Model.Contains(keyword, StringComparison.OrdinalIgnoreCase);
+                card.ShowAdaptVehicle = true;
+            }
+
+            // 本地库存匹配（无车型上下文，跳过车型评分）
+            await _localMatchService.EnrichWithLocalDataAsync(allCategories.SelectMany(c => c.Products), null);
+
+            Messages.Add(new VinChatMessage
+            {
+                IsUser = false,
+                SearchKeyword = keyword,
+                PartCategories = allCategories
+            });
+
+            if (_vinService is CompositeVinQueryService composite && composite.LastQueryErrors.Count > 0)
+            {
+                var errorParts = composite.LastQueryErrors.Select(kv => $"【{kv.Key}】{kv.Value}");
+                Messages.Add(new VinChatMessage { IsUser = false, Text = "部分数据源查询异常: " + string.Join("; ", errorParts) });
+                RefreshSourceLoginStatus();
+            }
+
+            _currentVin = null;
+            _currentVehicleInfo = null;
+        }
+        catch (Exception ex)
+        {
+            Messages.Add(new VinChatMessage { IsUser = false, Text = $"查询失败: {ex.Message}" });
+        }
+        finally
+        {
+            IsQuerying = false;
+            ScrollToBottom();
+        }
+    }
+
+    /// <summary>展开/收起某个配件的适配车型（首次点击时才请求）</summary>
+    private async void AdaptVehicle_Click(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is not FrameworkElement fe || fe.Tag is not VinPartCard card) return;
+        e.Handled = true;
+
+        if (fe.Parent is not StackPanel infoPanel) return;
+        var box = infoPanel.Children.OfType<Border>().FirstOrDefault(b => b.Name == "adaptBox");
+        if (box == null) return;
+
+        // 已加载过则仅切换显隐
+        if (box.Tag is true)
+        {
+            box.Visibility = box.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
+            return;
+        }
+
+        var textBlock = box.Child as TextBlock;
+        box.Visibility = Visibility.Visible;
+        if (textBlock != null) textBlock.Text = "加载中...";
+
+        try
+        {
+            var brands = await _vinService.GetAdaptVehiclesAsync(card.Id);
+            if (textBlock != null)
+            {
+                textBlock.Text = brands.Count == 0
+                    ? "暂无适配车型数据"
+                    : string.Join("\n", brands.Select(b =>
+                        $"{b.BrandName}：{string.Join(" / ", b.Vehicles.Select(v => v.DisplayText).Distinct())}"));
+            }
+            box.Tag = true;
+        }
+        catch (Exception ex)
+        {
+            if (textBlock != null) textBlock.Text = $"加载失败: {ex.Message}";
         }
     }
 

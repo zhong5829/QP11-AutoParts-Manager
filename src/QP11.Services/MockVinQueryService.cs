@@ -139,6 +139,55 @@ public class MockVinQueryService : IVinQueryService, IVinDataSource
         return Task.FromResult<VinPartPageResult?>(result);
     }
 
+    /// <summary>按关键词搜索配件（Mock）</summary>
+    public Task<VinPartPageResult?> SearchByKeywordAsync(string keyword, int page = 1, CancellationToken ct = default)
+    {
+        var result = new VinPartPageResult
+        {
+            Total = 2,
+            Pages = 1,
+            Current = 1,
+            Categories =
+            [
+                new VinPartCategoryGroup
+                {
+                    TenantCategoryId = 9,
+                    CategoryName = "减振器",
+                    Products =
+                    [
+                        new VinPartCard
+                        {
+                            Id = 101, Name = $"HW 后避震器 {keyword}", Model = keyword,
+                            TenantBrandName = "恒稳HW", TenantCategoryName = "后减振器", Notes = "后",
+                            ImgUrlList = []
+                        },
+                        new VinPartCard
+                        {
+                            Id = 102, Name = $"HW 前避震器 {keyword}", Model = $"{keyword}-F",
+                            TenantBrandName = "恒稳HW", TenantCategoryName = "前减振器", Notes = "前",
+                            ImgUrlList = []
+                        }
+                    ]
+                }
+            ]
+        };
+        return Task.FromResult<VinPartPageResult?>(result);
+    }
+
+    /// <summary>查询适配车型（Mock）</summary>
+    public Task<List<VinAdaptVehicleBrand>> GetAdaptVehiclesAsync(long productId, CancellationToken ct = default)
+        => Task.FromResult(new List<VinAdaptVehicleBrand>
+        {
+            new VinAdaptVehicleBrand
+            {
+                BrandId = 539, BrandName = "本田",
+                Vehicles =
+                [
+                    new VinAdaptVehicleItem { Brand = "本田", Models = "思域", DisplacementWithT = "1.5T", YearRange = "2016-2022" }
+                ]
+            }
+        });
+
     public Task<bool> RefreshTokenAsync(CancellationToken ct = default)
     {
         return Task.FromResult(true);

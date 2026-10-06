@@ -24,8 +24,8 @@ public class VinLocalMatchService : IVinLocalMatchService
         _dbFactory = dbFactory;
     }
 
-    /// <summary>对配件列表执行本地库存匹配，直接修改cards的LocalXxx字段</summary>
-    public async Task EnrichWithLocalDataAsync(IEnumerable<VinPartCard> cards, VinDecodeResult vehicleInfo)
+    /// <summary>对配件列表执行本地库存匹配，直接修改cards的LocalXxx字段；vehicleInfo为null时跳过车型评分</summary>
+    public async Task EnrichWithLocalDataAsync(IEnumerable<VinPartCard> cards, VinDecodeResult? vehicleInfo)
     {
         var cardList = cards.ToList();
         if (cardList.Count == 0) return;
@@ -34,11 +34,11 @@ public class VinLocalMatchService : IVinLocalMatchService
         {
             var allParts = await GetLocalPartsAsync();
 
-            string vinSeries = vehicleInfo.Series ?? "";
-            string vinModels = vehicleInfo.Models ?? "";
+            string vinSeries = vehicleInfo?.Series ?? "";
+            string vinModels = vehicleInfo?.Models ?? "";
 
             Log.Information("VIN本地匹配: VIN车型={Brand} {Series} {Models}, 本地配件数={Count}, 待匹配={Cards}",
-                vehicleInfo.Brand ?? "", vinSeries, vinModels, allParts.Count, cardList.Count);
+                vehicleInfo?.Brand ?? "", vinSeries, vinModels, allParts.Count, cardList.Count);
 
             foreach (var card in cardList)
             {

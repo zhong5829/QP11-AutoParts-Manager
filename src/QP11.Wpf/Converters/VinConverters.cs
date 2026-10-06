@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Media;
 
 namespace QP11.Wpf.Converters;
 
@@ -63,6 +64,18 @@ public class IsNegativeConverter : IValueConverter
         if (value is double dbl) return dbl < 0;
         return false;
     }
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        => throw new NotSupportedException();
+}
+
+/// <summary>bool → Brush：true=编号命中高亮色(#E53935)，false=普通色(#333333)</summary>
+public class HighlightBrushConverter : IValueConverter
+{
+    private static readonly SolidColorBrush Highlight = new(Color.FromRgb(0xE5, 0x39, 0x35));
+    private static readonly SolidColorBrush Normal = new(Color.FromRgb(0x33, 0x33, 0x33));
+
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        => value is true ? Highlight : Normal;
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         => throw new NotSupportedException();
 }

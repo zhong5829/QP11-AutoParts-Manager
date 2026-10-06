@@ -16,6 +16,7 @@
         <cvt:InverseBoolConverter x:Key="InvBool"/>
         <cvt:NullToCollapsedConverter x:Key="NullToCollapsed"/>
         <cvt:ObjectToVisibilityConverter x:Key="ObjToVis"/>
+        <cvt:HighlightBrushConverter x:Key="HighlightToBrush"/>
 
         <!-- 用户消息气泡 -->
         <DataTemplate x:Key="UserMsgTpl">
@@ -55,6 +56,14 @@
                             <Run Text="🚗 "/><Run Text="{Binding Brand, Mode=OneWay}"/>
                             <Run Text=" "/><Run Text="{Binding Series, Mode=OneWay}"/>
                         </TextBlock>
+                        <Grid Margin="0,2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="80"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="车架号：" Foreground="#888"/>
+                            <TextBlock Grid.Column="1" Text="{Binding Vin}" Foreground="#333"/>
+                        </Grid>
                         <Grid Margin="0,2">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="80"/>
@@ -122,7 +131,7 @@
                         Visibility="{Binding PartCategories, Converter={StaticResource ObjToVis}}">
                     <StackPanel>
                         <TextBlock FontSize="14" FontWeight="Bold" Foreground="#2196F3">
-                            <Run Text="配件适配结果"/>
+                            <Run Text="{Binding SummaryTitle, Mode=OneWay}"/>
                         </TextBlock>
                         <TextBlock FontSize="12" Foreground="#666" Margin="0,4,0,0">
                             <Run Text="共 "/><Run Text="{Binding PartCount, Mode=OneWay}"/>
@@ -493,7 +502,8 @@
                                         <!-- 信息区 -->
                                         <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                             <TextBlock FontWeight="Bold" FontSize="12" Foreground="#333" TextTrimming="CharacterEllipsis">
-                                                <Run Text="{Binding Model, Mode=OneWay}"/>
+                                                <Run Text="{Binding Model, Mode=OneWay}"
+                                                     Foreground="{Binding IsModelHighlighted, Mode=OneWay, Converter={StaticResource HighlightToBrush}}"/>
                                                 <Run Text=" "/>
                                                 <Run Text="{Binding Name, Mode=OneWay}"/>
                                             </TextBlock>
@@ -528,6 +538,16 @@
                                                        Visibility="{Binding VehicleComment, Converter={StaticResource NullToCollapsed}}">
                                                 <Run Text="{Binding VehicleComment, Mode=OneWay}"/>
                                             </TextBlock>
+                                            <!-- 适配车型（编号搜索结果，点击懒加载展开） -->
+                                            <TextBlock FontSize="10" Foreground="#2196F3" Margin="0,2,0,0" Cursor="Hand"
+                                                       Text="适配车型：点击查看 ›"
+                                                       Visibility="{Binding ShowAdaptVehicle, Converter={StaticResource BoolToVis}}"
+                                                       MouseLeftButtonUp="AdaptVehicle_Click" Tag="{Binding}"/>
+                                            <Border x:Name="adaptBox" Visibility="Collapsed" Margin="0,2,0,0"
+                                                    Background="#F2F6FB" CornerRadius="3" Padding="6,4"
+                                                    HorizontalAlignment="Left">
+                                                <TextBlock FontSize="10" Foreground="#455A64" TextWrapping="Wrap" Text=""/>
+                                            </Border>
                                             <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
                                                 <TextBlock Text="¥" FontSize="11" Foreground="#E53935" VerticalAlignment="Center"/>
                                                 <TextBlock Text="{Binding Price, Mode=OneWay, StringFormat='{}{0:F0}'}"

@@ -351,6 +351,120 @@ public class VinQueryService : IVinDataSource
             str = ""
         };
 
+        return await PostAndParsePartPageAsync(url, body, ct);
+    }
+
+    /// <summary>
+    /// 按配件编号/型号/名称关键词全库搜索（对应小程序"按OE号"模式）。
+    /// 与VIN适配查询的差异：queryType=1（而非5）、isCard=0、vin与车型字段全空、str为关键词。
+    /// </summary>
+    public async Task<VinPartPageResult?> SearchByKeywordAsync(string keyword, int page = 1, CancellationToken ct = default)
+    {
+        var url = $"{ApiBase}/app/product/user/pageProduct";
+        var body = new
+        {
+            querySource = 1,
+            queryType = 1,
+            tenantId = int.Parse(TenantId),
+            vin = "",
+            current = page,
+            size = 15,
+            str = keyword,
+            tenantBrandId = "",
+            tenantCategoryId = "",
+            isCard = 0,
+            bodyType = "",
+            brand = "",
+            chassisCode4 = "",
+            displacementWithT = "",
+            driveMode = "",
+            emissionStandard = "",
+            engineModel = "",
+            frontBrake = "",
+            frontRim = "",
+            frontSuspension = "",
+            fuelType = "",
+            gearNumber = "",
+            generation = "",
+            idlingYear = "",
+            induction = "",
+            intelligentStopStart = "",
+            listingYear = "",
+            manufacturers = "",
+            modelYear = "",
+            models = "",
+            powerKw = "",
+            powerSteering = "",
+            producedYear = "",
+            productIds = new List<string>(),
+            rearBrake = "",
+            rearRim = "",
+            rearSuspension = "",
+            series = "",
+            tailTag = "",
+            transmissionDescription = ""
+        };
+
+        return await PostAndParsePartPageAsync(url, body, ct);
+    }
+
+    /// <summary>查询指定配件的适配车型列表（品牌分组）</summary>
+    public async Task<List<VinAdaptVehicleBrand>> GetAdaptVehiclesAsync(long productId, CancellationToken ct = default)
+    {
+        try
+        {
+            var url = $"{ApiBase}/app/product/listProductAdaptVehicle?productId={productId}&tenantId={TenantId}";
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            var response = await SendWithAuthAsync(request, ct);
+            if (!response.IsSuccessStatusCode) return [];
+
+            var json = await response.Content.ReadAsStringAsync();
+            using var doc = JsonDocument.Parse(json);
+            var root = doc.RootElement;
+            var code = root.TryGetProperty("code", out var c) ? c.GetInt32() : 0;
+            if (code != 10200) return [];
+            if (!root.TryGetProperty("data", out var data)) return [];
+            if (!data.TryGetProperty("vehicleBrandList", out var brands) || brands.ValueKind != JsonValueKind.Array)
+                return [];
+
+            var list = new List<VinAdaptVehicleBrand>();
+            foreach (var b in brands.EnumerateArray())
+            {
+                var group = new VinAdaptVehicleBrand
+                {
+                    BrandId = b.TryGetProperty("id", out var id) && id.ValueKind == JsonValueKind.Number ? id.GetInt64() : 0,
+                    BrandName = b.TryGetProperty("brandName", out var bn) ? bn.GetString() ?? "" : ""
+                };
+
+                if (b.TryGetProperty("vehicleList", out var vl) && vl.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var v in vl.EnumerateArray())
+                    {
+                        group.Vehicles.Add(new VinAdaptVehicleItem
+                        {
+                            Brand = v.TryGetProperty("brand", out var br) ? br.GetString() ?? "" : "",
+                            Models = v.TryGetProperty("models", out var md) ? md.GetString() ?? "" : "",
+                            DisplacementWithT = v.TryGetProperty("displacementWithT", out var dp) ? dp.GetString() ?? "" : "",
+                            YearRange = v.TryGetProperty("yearRange", out var yr) ? yr.GetString() ?? "" : ""
+                        });
+                    }
+                }
+
+                list.Add(group);
+            }
+
+            return list;
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "查询配件适配车型失败: productId={ProductId}", productId);
+            return [];
+        }
+    }
+
+    /// <summary>发送POST请求并解析配件分页结果（pageProduct 的公共解析逻辑）</summary>
+    private async Task<VinPartPageResult?> PostAndParsePartPageAsync(string url, object body, CancellationToken ct)
+    {
         var request = new HttpRequestMessage(HttpMethod.Post, url)
         {
             Content = JsonContent.Create(body)
@@ -360,7 +474,7 @@ public class VinQueryService : IVinDataSource
 
         // 手动解析，因为响应结构嵌套较深
         var json = await response.Content.ReadAsStringAsync();
-        var doc = JsonDocument.Parse(json);
+        using var doc = JsonDocument.Parse(json);
         var root = doc.RootElement;
         var code = root.TryGetProperty("code", out var c) ? c.GetInt32() : 0;
         if (code != 10200) return null;
@@ -369,10 +483,11 @@ public class VinQueryService : IVinDataSource
 
         var result = new VinPartPageResult
         {
-            Total = data.TryGetProperty("total", out var total) ? total.GetInt32() : 0,
-            Pages = data.TryGetProperty("pages", out var pages) ? pages.GetInt32() : 0,
-            Current = data.TryGetProperty("current", out var cur) ? cur.GetInt32() : 1,
-            AdaptQueryRecordId = data.TryGetProperty("adaptQueryRecordId", out var aqri) ? aqri.GetInt64() : 0
+            Total = data.TryGetProperty("total", out var total) && total.ValueKind == JsonValueKind.Number ? total.GetInt32() : 0,
+            Pages = data.TryGetProperty("pages", out var pages) && pages.ValueKind == JsonValueKind.Number ? pages.GetInt32() : 0,
+            Current = data.TryGetProperty("current", out var cur) && cur.ValueKind == JsonValueKind.Number ? cur.GetInt32() : 1,
+            // 编号搜索（queryType=1）时 adaptQueryRecordId 可能为 null，需判断类型
+            AdaptQueryRecordId = data.TryGetProperty("adaptQueryRecordId", out var aqri) && aqri.ValueKind == JsonValueKind.Number ? aqri.GetInt64() : 0
         };
 
         // 解析 empowerTenantProductList
@@ -382,7 +497,7 @@ public class VinQueryService : IVinDataSource
             {
                 var categoryGroup = new VinPartCategoryGroup
                 {
-                    TenantCategoryId = group.TryGetProperty("tenantCategoryId", out var tci) ? tci.GetInt64() : 0,
+                    TenantCategoryId = group.TryGetProperty("tenantCategoryId", out var tci) && tci.ValueKind == JsonValueKind.Number ? tci.GetInt64() : 0,
                     CategoryName = group.TryGetProperty("categoryName", out var cn) ? cn.GetString() : ""
                 };
 
@@ -396,6 +511,7 @@ public class VinQueryService : IVinDataSource
                         });
                         if (card != null)
                         {
+                            card.ImgUrlList ??= [];
                             card.SourceName = "318car";
                             // VehicleComment留给品秀的vehicleComment字段，318car不再覆盖（避免与Notes重复）
                             categoryGroup.Products.Add(card);

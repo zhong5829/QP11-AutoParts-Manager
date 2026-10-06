@@ -467,6 +467,14 @@ public class PinxiuDataSource : IVinDataSource
         }
     }
 
+    /// <summary>按关键词搜索配件 — 品秀接口强依赖VIN解码得到的mjsid，不支持不依赖VIN的全库关键词搜索</summary>
+    public Task<VinPartPageResult?> SearchByKeywordAsync(string keyword, int page = 1, CancellationToken ct = default)
+        => Task.FromResult<VinPartPageResult?>(null);
+
+    /// <summary>查询配件适配车型 — 品秀数据源不支持</summary>
+    public Task<List<VinAdaptVehicleBrand>> GetAdaptVehiclesAsync(long productId, CancellationToken ct = default)
+        => Task.FromResult(new List<VinAdaptVehicleBrand>());
+
     public async Task<bool> RefreshTokenAsync(CancellationToken ct = default)
     {
         // 品秀Token有效期15天，无refreshToken机制

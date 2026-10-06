@@ -211,6 +211,51 @@ public class CompositeVinQueryService : IVinQueryService
         return merged;
     }
 
+    /// <summary>并行按关键词搜索配件（不依赖VIN）— 多数据源合并</summary>
+    public async Task<VinPartPageResult?> SearchByKeywordAsync(string keyword, int page = 1, CancellationToken ct = default)
+    {
+        var loggedInSources = GetLoggedInSources();
+        if (loggedInSources.Count == 0)
+        {
+            Log.Warning("无已登录数据源，无法按关键词搜索: {Keyword}", keyword);
+            return null;
+        }
+
+        Log.Information("并行按关键词搜索配件: {Keyword}, Page={Page}，数据源: {Sources}", keyword, page,
+            string.Join(", ", loggedInSources.Select(s => s.SourceName)));
+
+        var tasks = loggedInSources.Select(s => SafeExecuteAsync(
+            () => s.SearchByKeywordAsync(keyword, page, ct), s.SourceName, "SearchByKeyword"));
+
+        var results = await Task.WhenAll(tasks);
+        var validResults = results.Where(r => r != null).ToList();
+        if (validResults.Count == 0)
+        {
+            Log.Warning("所有数据源关键词搜索均失败: {Keyword}", keyword);
+            return null;
+        }
+
+        if (validResults.Count == 1)
+            return validResults[0];
+
+        var merged = MergePartResults(validResults!);
+        Log.Information("关键词搜索合并完成: {Keyword}, 分类数={Categories}, 总配件数={Products}",
+            keyword, merged.Categories.Count, merged.Categories.Sum(c => c.Products.Count));
+        return merged;
+    }
+
+    /// <summary>查询配件适配车型 — 取首个返回非空结果的数据源（仅318car支持）</summary>
+    public async Task<List<VinAdaptVehicleBrand>> GetAdaptVehiclesAsync(long productId, CancellationToken ct = default)
+    {
+        foreach (var source in GetLoggedInSources())
+        {
+            var result = await SafeExecuteAsync(
+                () => source.GetAdaptVehiclesAsync(productId, ct), source.SourceName, "GetAdaptVehicles");
+            if (result is { Count: > 0 }) return result;
+        }
+        return [];
+    }
+
     /// <summary>刷新所有已登录数据源的Token，任一成功即返回true</summary>
     public async Task<bool> RefreshTokenAsync(CancellationToken ct = default)
     {

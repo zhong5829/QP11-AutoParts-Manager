@@ -71,6 +71,14 @@ public class VinPartCard
         }
     }
 
+    /// <summary>编号搜索时 Model 是否命中检索关键词（供UI高亮），仅运行时使用</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public bool IsModelHighlighted { get; set; }
+
+    /// <summary>是否按编号搜索的结果（决定UI是否显示"适配车型"入口），仅运行时使用</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public bool ShowAdaptVehicle { get; set; }
+
     /// <summary>第一张图片URL（用于列表显示）</summary>
     public string? FirstImgUrl => ImgUrlList.Count > 0 ? ImgUrlList[0] : null;
 }

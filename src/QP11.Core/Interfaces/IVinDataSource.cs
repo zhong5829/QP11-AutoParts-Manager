@@ -32,6 +32,12 @@ public interface IVinDataSource
     /// <summary>获取适配配件列表</summary>
     Task<VinPartPageResult?> GetPartCardsAsync(string vin, VinDecodeResult vehicleInfo, int page = 1, CancellationToken ct = default);
 
+    /// <summary>按配件编号/型号/名称关键词搜索配件（不依赖VIN，全库搜索）</summary>
+    Task<VinPartPageResult?> SearchByKeywordAsync(string keyword, int page = 1, CancellationToken ct = default);
+
+    /// <summary>查询指定配件的适配车型列表（品牌分组），不支持的数据源返回空列表</summary>
+    Task<List<VinAdaptVehicleBrand>> GetAdaptVehiclesAsync(long productId, CancellationToken ct = default);
+
     /// <summary>刷新Token</summary>
     Task<bool> RefreshTokenAsync(CancellationToken ct = default);
 
