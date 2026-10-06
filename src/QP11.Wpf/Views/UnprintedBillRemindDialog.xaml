@@ -1,0 +1,32 @@
+<Window x:Class="QP11.Wpf.Views.UnprintedBillRemindDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="未打印单据提醒" Width="640" SizeToContent="Height"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        Topmost="True">
+    <Border BorderBrush="#E8463A" BorderThickness="2" Background="#FFF5F5" Padding="16">
+        <StackPanel>
+            <TextBlock x:Name="txtHeader" Text="未打印单据提醒" FontSize="15" FontWeight="Bold" Foreground="#8A1F16" Margin="0,0,0,8"/>
+            <TextBlock x:Name="txtSummary" Foreground="#5C2A22" Margin="0,0,0,8" TextWrapping="Wrap"/>
+            <DataGrid x:Name="dgBills" AutoGenerateColumns="False" IsReadOnly="True"
+                      HeadersVisibility="Column" CanUserAddRows="False"
+                      GridLinesVisibility="Horizontal" Height="260"
+                      RowBackground="Transparent" AlternatingRowBackground="#FBE9E7"
+                      BorderBrush="#E8BDB8" BorderThickness="1">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="单号" Width="110" Binding="{Binding Sn}"/>
+                    <DataGridTextColumn Header="类型" Width="60" Binding="{Binding BillType}"/>
+                    <DataGridTextColumn Header="日期" Width="110" Binding="{Binding Datetime, StringFormat=yyyy-MM-dd HH:mm}"/>
+                    <DataGridTextColumn Header="客户" Width="160" Binding="{Binding ClientName}"/>
+                    <DataGridTextColumn Header="金额" Width="90" Binding="{Binding Total, StringFormat=N2}"/>
+                    <DataGridTextColumn Header="操作员" Width="80" Binding="{Binding BillOperator}"/>
+                </DataGrid.Columns>
+            </DataGrid>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,14,0,0">
+                <Button x:Name="btnOk" Content="知道了" Width="90" Height="28" IsDefault="True" Click="BtnOk_Click"/>
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</Window>

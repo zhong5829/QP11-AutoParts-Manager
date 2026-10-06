@@ -20,7 +20,12 @@ public partial class MainWindow : Window
     private UserInfor? _currentUser;
     private readonly DispatcherTimer _timer;
     private readonly DispatcherTimer _remindTimer;
+    private readonly DispatcherTimer _unprintedTimer;
     private readonly Dictionary<string, TabItem> _openTabs = new();
+
+    /// <summary>未打印单据提醒去重：记录「今天已提醒过的单号」，仅在出现新未打印单号时才再次弹窗</summary>
+    private readonly HashSet<string> _remindedUnprintedSns = new();
+    private DateTime _remindedUnprintedDate = DateTime.MinValue;
     private VinQueryWindow? _vinQueryWindow;
 
     public UserInfor? CurrentUser => _currentUser;
@@ -34,10 +39,20 @@ public partial class MainWindow : Window
         _timer.Tick += (s, e) => txtTime.Text = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
         _timer.Start();
 
-        // 备忘录到点提醒：每 30 秒扫描一次（仅本机当前操作员，多机由数据库抢占去重）
+        // 备忘录到点提醒 + 未打印单据提醒：每 30 秒扫描一次
+        // 备忘录仅本机当前操作员，多机由数据库抢占去重；未打印为全店当天范围，本机按单号集合去重
         _remindTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(30) };
-        _remindTimer.Tick += async (s, e) => await CheckMemoRemindersAsync();
+        _remindTimer.Tick += async (s, e) =>
+        {
+            await CheckMemoRemindersAsync();
+            await CheckUnprintedRemindersAsync();
+        };
         _remindTimer.Start();
+
+        // 状态栏未打印计数用更短的周期单独刷新，避免打印后要等 30 秒才看到数字变化
+        _unprintedTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(5) };
+        _unprintedTimer.Tick += async (s, e) => await RefreshUnprintedIndicatorAsync();
+        _unprintedTimer.Start();
 
         KeyDown += MainWindow_KeyDown;
     }
@@ -598,6 +613,100 @@ public partial class MainWindow : Window
         catch (Exception ex)
         {
             Serilog.Log.Warning(ex, "备忘录提醒扫描失败");
+        }
+    }
+
+    /// <summary>
+    /// 未打印单据扫描：全店当天未打印的销售单/退货单。
+    /// 状态栏常驻计数始终反映当天未打印数量；弹窗则当天首次命中弹一次，
+    /// 之后仅在出现「新的」未打印单号时才再弹，避免反复骚扰。
+    /// </summary>
+    private async Task CheckUnprintedRemindersAsync()
+    {
+        try
+        {
+            // 跨天时清空当日已提醒记录，使新的一天重新提醒
+            var today = DateTime.Today;
+            if (_remindedUnprintedDate != today)
+            {
+                _remindedUnprintedDate = today;
+                _remindedUnprintedSns.Clear();
+            }
+
+            var printLogService = App.ServiceProvider.GetRequiredService<PrintLogService>();
+            var unprinted = await printLogService.GetUnprintedTodayAsync();
+
+            // 常驻计数：无论是否弹窗都要刷新（未补打的单据即使不再弹窗也能被看到）
+            UpdateUnprintedIndicator(unprinted.Count);
+
+            if (unprinted.Count == 0) return;
+
+            var fresh = unprinted.Where(b => !string.IsNullOrEmpty(b.Sn) && !_remindedUnprintedSns.Contains(b.Sn!)).ToList();
+            if (fresh.Count == 0) return;
+
+            foreach (var b in fresh)
+                _remindedUnprintedSns.Add(b.Sn!);
+
+            var dialog = new UnprintedBillRemindDialog(unprinted) { Owner = this };
+            dialog.Show(); // 非模态，不阻塞主窗口操作
+        }
+        catch (Exception ex)
+        {
+            Serilog.Log.Warning(ex, "未打印单据提醒扫描失败");
+        }
+    }
+
+    /// <summary>刷新状态栏未打印计数（独立 5 秒周期，保证打印/标记后尽快看到变化）</summary>
+    private async Task RefreshUnprintedIndicatorAsync()
+    {
+        try
+        {
+            var printLogService = App.ServiceProvider.GetRequiredService<PrintLogService>();
+            var unprinted = await printLogService.GetUnprintedTodayAsync();
+            UpdateUnprintedIndicator(unprinted.Count);
+        }
+        catch (Exception ex)
+        {
+            Serilog.Log.Warning(ex, "刷新未打印计数失败");
+        }
+    }
+
+    /// <summary>刷新状态栏未打印计数（数量为 0 时隐藏）</summary>
+    private void UpdateUnprintedIndicator(int count)
+    {
+        if (count > 0)
+        {
+            txtUnprinted.Text = $"未打印：{count}";
+            itemUnprinted.Visibility = Visibility.Visible;
+        }
+        else
+        {
+            itemUnprinted.Visibility = Visibility.Collapsed;
+        }
+    }
+
+    /// <summary>点击状态栏计数：查看未打印单据清单（现查现显，保证数据最新）</summary>
+    private async void UnprintedCount_Click(object sender, MouseButtonEventArgs e)
+    {
+        try
+        {
+            var printLogService = App.ServiceProvider.GetRequiredService<PrintLogService>();
+            var unprinted = await printLogService.GetUnprintedTodayAsync();
+            UpdateUnprintedIndicator(unprinted.Count);
+
+            if (unprinted.Count == 0)
+            {
+                MessageBox.Show("当前没有未打印的销售单/退货单", "未打印单据", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var dialog = new UnprintedBillRemindDialog(unprinted, isReminder: false) { Owner = this };
+            dialog.ShowDialog();
+        }
+        catch (Exception ex)
+        {
+            Serilog.Log.Warning(ex, "查看未打印单据失败");
+            MessageBox.Show($"查看未打印单据失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 

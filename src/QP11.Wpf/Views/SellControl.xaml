@@ -279,7 +279,14 @@
             <DataGrid Grid.Row="1" x:Name="dgBills" AutoGenerateColumns="False" CanUserAddRows="False"
                       VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
                       SelectionMode="Single" SelectionChanged="DgBills_SelectionChanged" Margin="0,0,0,4"
-                      LoadingRow="DgBills_LoadingRow" CellEditEnding="DgBills_CellEditEnding">
+                      LoadingRow="DgBills_LoadingRow" CellEditEnding="DgBills_CellEditEnding"
+                      PreviewMouseRightButtonDown="DgBills_PreviewMouseRightButtonDown">
+                <DataGrid.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="标记为已打印" Click="MarkPrinted_Click"/>
+                        <MenuItem Header="取消打印标记" Click="UnmarkPrinted_Click"/>
+                    </ContextMenu>
+                </DataGrid.ContextMenu>
                 <DataGrid.CellStyle>
                     <Style TargetType="DataGridCell" BasedOn="{StaticResource {x:Type DataGridCell}}">
                         <Setter Property="Foreground" Value="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow}, Path=Foreground}"/>
@@ -293,6 +300,13 @@
                     <DataGridTextColumn Header="总额" Width="90" Binding="{Binding Total, StringFormat=N2}" IsReadOnly="True" ElementStyle="{StaticResource SingleLineCell}"/>
                     <DataGridTextColumn Header="开票总额" Width="90" Binding="{Binding BillTotal, StringFormat=N2}" IsReadOnly="True" ElementStyle="{StaticResource SingleLineCell}"/>
                     <DataGridTextColumn Header="状态" Width="70" Binding="{Binding FlagText, Converter={StaticResource SingleLineConverter}}" IsReadOnly="True" ElementStyle="{StaticResource SingleLineCell}"/>
+                    <DataGridTemplateColumn Header="打印" Width="60" IsReadOnly="True">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding PrintStatusText}" Foreground="{Binding PrintStatusColor}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
                     <DataGridTextColumn Header="备注" Width="*" Binding="{Binding Memo, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}"/>
                 </DataGrid.Columns>
             </DataGrid>

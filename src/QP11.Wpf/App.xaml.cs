@@ -176,6 +176,7 @@ public partial class App : Application
             services.AddTransient<ExportService>();
             services.AddSingleton<MigrationService>();
             services.AddSingleton<MemoService>();
+            services.AddSingleton<PrintLogService>();
 
             // ViewModel
             services.AddTransient<SellViewModel>();

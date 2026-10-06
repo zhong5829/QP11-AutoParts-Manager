@@ -126,6 +126,12 @@
                 <TextBlock x:Name="txtPermission" Text="权限："/>
             </StatusBarItem>
             <Separator/>
+            <StatusBarItem x:Name="itemUnprinted" Visibility="Collapsed">
+                <Border Background="Transparent" Cursor="Hand" ToolTip="点击查看未打印单据清单"
+                        MouseLeftButtonUp="UnprintedCount_Click">
+                    <TextBlock x:Name="txtUnprinted" Foreground="#C62828" FontWeight="Bold" TextDecorations="Underline"/>
+                </Border>
+            </StatusBarItem>
             <StatusBarItem HorizontalAlignment="Right">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock x:Name="txtConnection" Text="● 已连接" Foreground="Green" Margin="0,0,16,0"/>

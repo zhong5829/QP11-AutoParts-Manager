@@ -1,4 +1,5 @@
 using QP11.Core.Interfaces;
+using QP11.Services;
 using Dapper;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -82,6 +83,17 @@ public static class WebPrintService
             using var queue = new System.Printing.LocalPrintServer().DefaultPrintQueue;
             var writer = System.Printing.PrintQueue.CreateXpsDocumentWriter(queue);
             writer.Write(pd);
+
+            // 打印成功后登记打印状态（WebApi 无登录上下文，操作员记为 WebApi）
+            try
+            {
+                var printLogService = App.ServiceProvider.GetRequiredService<PrintLogService>();
+                await printLogService.MarkPrintedAsync(PrintLogService.BillTypeSell, bill.Sn, "WebApi");
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Warning(ex, "登记单据打印状态失败: {Sn}", bill.Sn);
+            }
 
             return null; // null 表示成功
         }

@@ -16,6 +16,7 @@ using QP11.Core.Constants;
 using QP11.Core.Entities;
 using QP11.Core.Models;
 using QP11.Core.Interfaces;
+using QP11.Services;
 using QP11.Wpf.ViewModels;
 using QP11.Wpf.Helpers;
 using QP11.Wpf.Services.LabelPrint;
@@ -77,6 +78,31 @@ public class BillSellDisplay : INotifyPropertyChanged
     }
 
     public string? FlagText => BusinessConstants.GetFlagText(Flag ?? 0);
+
+    /// <summary>打印状态是否纳入跟踪（销售单/退货单跟踪，报损等其他单据不跟踪）</summary>
+    public bool IsPrintTracked =>
+        Flag == (int)BusinessConstants.BillFlag.Confirmed ||
+        Flag == (int)BusinessConstants.BillFlag.Returned;
+
+    private bool _printed;
+    /// <summary>是否已打印（仅对 IsPrintTracked 为真的单据有意义）</summary>
+    public bool Printed
+    {
+        get => _printed;
+        set
+        {
+            if (_printed == value) return;
+            _printed = value;
+            OnPropertyChanged(nameof(Printed));
+            OnPropertyChanged(nameof(PrintStatusText));
+            OnPropertyChanged(nameof(PrintStatusColor));
+        }
+    }
+
+    public string PrintStatusText => !IsPrintTracked ? "—" : (Printed ? "已打印" : "未打印");
+
+    public Brush PrintStatusColor =>
+        !IsPrintTracked ? Brushes.Gray : (Printed ? Brushes.Green : Brushes.Red);
 
     public event PropertyChangedEventHandler? PropertyChanged;
     protected void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
@@ -777,10 +803,87 @@ public partial class SellControl : UserControl, ITabContent
 
             var display = await _viewModel.SearchBillsAsync(qStart, qEnd, txtQClient.SearchText);
             dgBills.ItemsSource = display;
+            await ApplyPrintStatusAsync(display);
         }
         catch (Exception ex)
         {
             MessageBox.Show($"查询失败: {ex.Message}", "错误");
+        }
+    }
+
+    /// <summary>填充单据的打印状态（仅销售单/退货单参与跟踪）</summary>
+    private static async Task ApplyPrintStatusAsync(IEnumerable<BillSellDisplay> bills)
+    {
+        try
+        {
+            var tracked = bills.Where(b => b.IsPrintTracked && !string.IsNullOrEmpty(b.Sn)).ToList();
+            if (tracked.Count == 0) return;
+
+            var printLogService = App.ServiceProvider.GetRequiredService<PrintLogService>();
+            var printed = await printLogService.GetPrintedSnsAsync(tracked.Select(b => b.Sn!));
+            foreach (var b in tracked)
+                b.Printed = printed.Contains(b.Sn!);
+        }
+        catch (Exception ex)
+        {
+            Serilog.Log.Warning(ex, "查询单据打印状态失败");
+        }
+    }
+
+    /// <summary>右键点击行时先选中该行，保证右键菜单作用于目标单据</summary>
+    private void DgBills_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        var dg = (DataGrid)sender;
+        if (ItemsControl.ContainerFromElement(dg, (DependencyObject)e.OriginalSource) is DataGridRow row)
+        {
+            row.IsSelected = true;
+            dg.SelectedItem = row.Item;
+        }
+    }
+
+    /// <summary>人工标记为已打印（应对补打、漏打等自动标记无法覆盖的情况）</summary>
+    private async void MarkPrinted_Click(object sender, RoutedEventArgs e)
+    {
+        if (dgBills.SelectedItem is not BillSellDisplay row || string.IsNullOrEmpty(row.Sn)) return;
+        if (!row.IsPrintTracked)
+        {
+            MessageBox.Show("仅销售单/退货单跟踪打印状态", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        var billType = row.Flag == (int)BusinessConstants.BillFlag.Returned
+            ? PrintLogService.BillTypeReturn : PrintLogService.BillTypeSell;
+        try
+        {
+            var printLogService = App.ServiceProvider.GetRequiredService<PrintLogService>();
+            await printLogService.MarkPrintedAsync(billType, row.Sn, App.CurrentUser?.Username);
+            row.Printed = true;
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"标记失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    /// <summary>取消打印标记，使该单据重新计入未打印</summary>
+    private async void UnmarkPrinted_Click(object sender, RoutedEventArgs e)
+    {
+        if (dgBills.SelectedItem is not BillSellDisplay row || string.IsNullOrEmpty(row.Sn)) return;
+        if (!row.IsPrintTracked)
+        {
+            MessageBox.Show("仅销售单/退货单跟踪打印状态", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        try
+        {
+            var printLogService = App.ServiceProvider.GetRequiredService<PrintLogService>();
+            await printLogService.UnmarkPrintedAsync(row.Sn);
+            row.Printed = false;
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"取消标记失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 
@@ -898,9 +1001,11 @@ public partial class SellControl : UserControl, ITabContent
         }
         try
         {
+            // 单据类型按 flag 判定：flag=2 为退货单，需用退货的打印列配置，不能写死为销售
+            var isReturnBill = _selectedBill.Flag == (int)BusinessConstants.BillFlag.Returned;
             var billData = new BillPrintData
             {
-                BillType = "销售",
+                BillType = isReturnBill ? "退货" : "销售",
                 Sn = _selectedBill.Sn,
                 DateText = _selectedBill.Datetime?.ToString("yyyy-MM-dd") ?? "",
                 PartnerName = txtQClientName.Text,
@@ -970,7 +1075,7 @@ public partial class SellControl : UserControl, ITabContent
                 }
             }
 
-            var dlg = new PrintPreviewWindow(billData, $"销售单-{_selectedBill.Sn}")
+            var dlg = new PrintPreviewWindow(billData, $"{(isReturnBill ? "退货单" : "销售单")}-{_selectedBill.Sn}")
             {
                 Owner = Window.GetWindow(this)
             };

@@ -274,7 +274,7 @@ public partial class PrintPreviewWindow : Window
         docReader.Document = doc;
     }
 
-    private void BtnPrint_Click(object sender, RoutedEventArgs e)
+    private async void BtnPrint_Click(object sender, RoutedEventArgs e)
     {
         var printerName = cmbPrinter.SelectedItem?.ToString();
         if (string.IsNullOrEmpty(printerName))
@@ -315,6 +315,9 @@ public partial class PrintPreviewWindow : Window
             var writer = System.Printing.PrintQueue.CreateXpsDocumentWriter(queue);
             writer.Write(paginator, ticket);
 
+            // 打印成功后登记打印状态（仅销售单/退货单；失败不登记，避免漏提醒）
+            await MarkPrintedAsync();
+
             // 打印后重新赋值文档，防止预览变空白
             docReader.Document = null;
             docReader.Document = doc;
@@ -322,6 +325,26 @@ public partial class PrintPreviewWindow : Window
         catch (Exception ex)
         {
             MessageBox.Show($"打印失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    /// <summary>登记当前单据的打印状态（非销售/退货单、无单号或登记失败时静默跳过）</summary>
+    private async Task MarkPrintedAsync()
+    {
+        var billType = _billData?.BillType;
+        var sn = _billData?.Sn;
+        if (string.IsNullOrWhiteSpace(billType) || string.IsNullOrWhiteSpace(sn)) return;
+        if (billType != PrintLogService.BillTypeSell && billType != PrintLogService.BillTypeReturn) return;
+
+        try
+        {
+            var printLogService = App.ServiceProvider.GetRequiredService<PrintLogService>();
+            await printLogService.MarkPrintedAsync(billType, sn, App.CurrentUser?.Username);
+        }
+        catch (Exception ex)
+        {
+            // 登记失败不影响打印本身
+            Serilog.Log.Warning(ex, "登记单据打印状态失败: {Sn}", sn);
         }
     }
 

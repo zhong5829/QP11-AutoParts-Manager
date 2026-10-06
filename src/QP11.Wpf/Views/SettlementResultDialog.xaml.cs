@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Windows;
+using Microsoft.Extensions.DependencyInjection;
+using QP11.Services;
 using QP11.Wpf.Services;
 
 namespace QP11.Wpf.Views;
@@ -23,13 +26,13 @@ public partial class SettlementResultDialog : Window
         txtArrear.Text = $"¥{arrear:N2}";
     }
 
-    private void BtnOk_Click(object sender, RoutedEventArgs e)
+    private async void BtnOk_Click(object sender, RoutedEventArgs e)
     {
         if (chkPrintNow.IsChecked == true && PrintData != null)
         {
             try
             {
-                SilentPrintHelper.Print(PrintData);
+                await SilentPrintHelper.PrintAsync(PrintData);
             }
             catch (Exception ex)
             {
@@ -47,7 +50,7 @@ public partial class SettlementResultDialog : Window
 /// </summary>
 public static class SilentPrintHelper
 {
-    public static void Print(BillPrintData billData)
+    public static async Task PrintAsync(BillPrintData billData)
     {
         var settings = PrintSettingsService.Load();
         var billType = billData.BillType ?? "销售";
@@ -77,5 +80,27 @@ public static class SilentPrintHelper
 
         var writer = System.Printing.PrintQueue.CreateXpsDocumentWriter(queue);
         writer.Write(paginator, ticket);
+
+        // 打印成功后登记打印状态（仅销售单/退货单）
+        await MarkPrintedAsync(billData);
+    }
+
+    /// <summary>登记打印状态（非销售/退货单、无单号或登记失败时静默跳过，不影响打印结果）</summary>
+    private static async Task MarkPrintedAsync(BillPrintData billData)
+    {
+        var type = billData.BillType;
+        var sn = billData.Sn;
+        if (string.IsNullOrWhiteSpace(type) || string.IsNullOrWhiteSpace(sn)) return;
+        if (type != PrintLogService.BillTypeSell && type != PrintLogService.BillTypeReturn) return;
+
+        try
+        {
+            var printLogService = App.ServiceProvider.GetRequiredService<PrintLogService>();
+            await printLogService.MarkPrintedAsync(type, sn, App.CurrentUser?.Username);
+        }
+        catch (Exception ex)
+        {
+            Serilog.Log.Warning(ex, "登记单据打印状态失败: {Sn}", sn);
+        }
     }
 }
