@@ -39,19 +39,14 @@ public partial class MainWindow : Window
         _timer.Tick += (s, e) => txtTime.Text = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
         _timer.Start();
 
-        // 备忘录到点提醒 + 未打印单据提醒：每 30 秒扫描一次
-        // 备忘录仅本机当前操作员，多机由数据库抢占去重；未打印为全店当天范围，本机按单号集合去重
+        // 备忘录到点提醒：每 30 秒扫描一次，仅本机当前操作员，多机由数据库抢占去重
         _remindTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(30) };
-        _remindTimer.Tick += async (s, e) =>
-        {
-            await CheckMemoRemindersAsync();
-            await CheckUnprintedRemindersAsync();
-        };
+        _remindTimer.Tick += async (s, e) => await CheckMemoRemindersAsync();
         _remindTimer.Start();
 
-        // 状态栏未打印计数用更短的周期单独刷新，避免打印后要等 30 秒才看到数字变化
-        _unprintedTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(5) };
-        _unprintedTimer.Tick += async (s, e) => await RefreshUnprintedIndicatorAsync();
+        // 未打印单据检测：每 2 分钟扫描一次（计数 + 弹窗提醒），全店当天范围，本机按单号集合去重
+        _unprintedTimer = new DispatcherTimer { Interval = TimeSpan.FromMinutes(2) };
+        _unprintedTimer.Tick += async (s, e) => await CheckUnprintedRemindersAsync();
         _unprintedTimer.Start();
 
         KeyDown += MainWindow_KeyDown;
@@ -653,21 +648,6 @@ public partial class MainWindow : Window
         catch (Exception ex)
         {
             Serilog.Log.Warning(ex, "未打印单据提醒扫描失败");
-        }
-    }
-
-    /// <summary>刷新状态栏未打印计数（独立 5 秒周期，保证打印/标记后尽快看到变化）</summary>
-    private async Task RefreshUnprintedIndicatorAsync()
-    {
-        try
-        {
-            var printLogService = App.ServiceProvider.GetRequiredService<PrintLogService>();
-            var unprinted = await printLogService.GetUnprintedTodayAsync();
-            UpdateUnprintedIndicator(unprinted.Count);
-        }
-        catch (Exception ex)
-        {
-            Serilog.Log.Warning(ex, "刷新未打印计数失败");
         }
     }
 

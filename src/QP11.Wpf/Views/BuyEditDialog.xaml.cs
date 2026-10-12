@@ -245,7 +245,12 @@ public partial class BuyEditDialog : Window
 
     private void FilterDddw(ComboBox cbo, List<string> allItems)
     {
-        var text = cbo.Text.Trim();
+        // 保存原始文本与光标位置：恢复文本时必须用原始值（含空格），
+        // 否则输入尾部空格会被 Trim 后的重设吞掉
+        var originalText = cbo.Text;
+        var text = originalText.Trim();
+        var editTb = FindComboBoxTextBox(cbo);
+        var caretIndex = editTb?.CaretIndex ?? originalText.Length;
         _isUpdatingDddw = true;
         try
         {
@@ -288,13 +293,14 @@ public partial class BuyEditDialog : Window
                 cbo.SelectedItem = null;
             });
 
-            // 恢复用户正在输入的文本（替换 ItemsSource 后 ComboBox 可能清空文本）
-            if (cbo.Text != text)
-                cbo.Text = text;
+            // 恢复用户正在输入的文本（替换 ItemsSource 后 ComboBox 可能清空文本）。
+            // 必须恢复原始文本而非 Trim 后文本，否则尾部空格会被吞掉
+            if (cbo.Text != originalText)
+                cbo.Text = originalText;
 
             cbo.IsDropDownOpen = true;
 
-            // 展开下拉框后 ComboBox 会自动全选文本，延迟将光标移到末尾取消全选
+            // 展开下拉框后 ComboBox 会自动全选文本，延迟将光标恢复到输入时的位置（中间插入空格后光标不应跳到末尾）
             var capturedText = cbo.Text;
             System.Windows.Threading.Dispatcher.CurrentDispatcher.BeginInvoke(
                 System.Windows.Threading.DispatcherPriority.Input, new Action(() =>
@@ -302,9 +308,9 @@ public partial class BuyEditDialog : Window
                 if (cbo.IsDropDownOpen && cbo.Text == capturedText)
                 {
                     // ComboBox 的 Select 方法不可用，需通过内部 TextBox 设置光标
-                    var editTextBox = FindComboBoxTextBox(cbo);
-                    if (editTextBox != null)
-                        editTextBox.Select(editTextBox.Text.Length, 0);
+                    var tb = FindComboBoxTextBox(cbo);
+                    if (tb != null)
+                        tb.Select(Math.Min(caretIndex, tb.Text.Length), 0);
                 }
             }));
 

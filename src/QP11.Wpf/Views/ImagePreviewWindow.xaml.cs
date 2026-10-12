@@ -19,12 +19,12 @@ public partial class ImagePreviewWindow : Window
     private readonly List<BitmapSource> _displayImages = new();
     private const int MaxDisplaySize = 4096;
 
-    public ImagePreviewWindow(DataGrid dataGrid, string title = "导出预览")
-        : this(new[] { (dataGrid, title) })
+    public ImagePreviewWindow(DataGrid dataGrid, string title = "导出预览", string? amountSummary = null)
+        : this(new[] { (dataGrid, title) }, amountSummary)
     {
     }
 
-    public ImagePreviewWindow((DataGrid dg, string title)[] grids)
+    public ImagePreviewWindow((DataGrid dg, string title)[] grids, string? amountSummary = null)
     {
         InitializeComponent();
         foreach (var (dg, title) in grids)
@@ -35,6 +35,7 @@ public partial class ImagePreviewWindow : Window
         ShowThumbnails();
         txtCount.Text = _displayImages.Count.ToString();
         txtStatus.Text = $"共 {_displayImages.Count} 张图片，点击图片可查看大图并复制";
+        txtAmount.Text = amountSummary ?? "";
         Closed += (s, e) => CleanupTempFiles();
     }
 

@@ -56,6 +56,9 @@
             <StatusBarItem>
                 <TextBlock x:Name="txtStatus" Text="就绪"/>
             </StatusBarItem>
+            <StatusBarItem>
+                <TextBlock x:Name="txtAmount" Text="" FontWeight="Bold" Foreground="#FFC00000"/>
+            </StatusBarItem>
             <StatusBarItem HorizontalAlignment="Right">
                 <TextBlock x:Name="txtPageSize" Text=""/>
             </StatusBarItem>

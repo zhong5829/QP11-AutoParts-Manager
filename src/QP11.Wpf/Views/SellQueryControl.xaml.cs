@@ -627,7 +627,8 @@ public partial class SellQueryControl : UserControl, ITabContent
 
     private void ApplyRangeSelection(DataGrid dg, int startIdx, int currentIdx)
     {
-        System.Collections.IList sourceItems = dg.Name == "dgBills" ? _currentBills : (System.Collections.IList)_currentDetails;
+        // 按 DataGrid 当前视图顺序（受列头排序影响）遍历，而非底层列表顺序，
+        // 否则排序后视觉索引与集合索引错位导致勾选错乱
         var min = Math.Min(startIdx, currentIdx);
         var max = Math.Max(startIdx, currentIdx);
 
@@ -638,14 +639,13 @@ public partial class SellQueryControl : UserControl, ITabContent
         UnbindSelectionEvents();
         try
         {
-            for (int i = 0; i < sourceItems.Count; i++)
+            for (int i = 0; i < dg.Items.Count; i++)
             {
-                var item = sourceItems[i]!;
+                var item = dg.Items[i];
                 bool shouldSelect = i >= min && i <= max;
                 if (dg.Name == "dgBills")
                 {
-                    var bill = (SellBillItem)item;
-                    if (bill.IsSelected != shouldSelect)
+                    if (item is SellBillItem bill && bill.IsSelected != shouldSelect)
                     {
                         bill.IsSelected = shouldSelect;
                         changedBills.Add(bill);
@@ -653,8 +653,7 @@ public partial class SellQueryControl : UserControl, ITabContent
                 }
                 else
                 {
-                    var detail = (SellQueryDetailItem)item;
-                    if (detail.IsSelected != shouldSelect)
+                    if (item is SellQueryDetailItem detail && detail.IsSelected != shouldSelect)
                     {
                         detail.IsSelected = shouldSelect;
                         changedDetailSns.Add(detail.Sn ?? "");
@@ -763,8 +762,8 @@ public partial class SellQueryControl : UserControl, ITabContent
         var payPanel = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 4, 0, 8) };
         payPanel.Children.Add(new TextBlock { Text = "收款方式:", VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 8, 0) });
 
-        var rbCash = new RadioButton { Content = "现金", Tag = "cash", Margin = new Thickness(0, 0, 10, 0), IsChecked = true, GroupName = "PayMethod" };
-        var rbWeixin = new RadioButton { Content = "微信", Tag = "weixin", Margin = new Thickness(0, 0, 10, 0), GroupName = "PayMethod" };
+        var rbCash = new RadioButton { Content = "现金", Tag = "cash", Margin = new Thickness(0, 0, 10, 0), GroupName = "PayMethod" };
+        var rbWeixin = new RadioButton { Content = "微信", Tag = "weixin", Margin = new Thickness(0, 0, 10, 0), IsChecked = true, GroupName = "PayMethod" };
         var rbAlipay = new RadioButton { Content = "支付宝", Tag = "zhifubao", Margin = new Thickness(0, 0, 10, 0), GroupName = "PayMethod" };
         var rbBank = new RadioButton { Content = "银行卡", Tag = "checks", GroupName = "PayMethod" };
 
@@ -888,18 +887,31 @@ public partial class SellQueryControl : UserControl, ITabContent
 
     private void BtnExport_Click(object sender, RoutedEventArgs e)
     {
-        var hasAnySelection = _currentBills.Any(b => b.IsSelected) || _currentDetails.Any(d => d.IsSelected);
+        // 按 DataGrid 当前视图顺序（受列头排序影响）取数，保证导出图片顺序与界面一致
+        var viewBills = dgBills.Items.Cast<SellBillItem>().ToList();
+        var viewDetails = dgDetails.Items.Cast<SellQueryDetailItem>().ToList();
 
-        IEnumerable<SellBillItem> billsSource = hasAnySelection ? _currentBills.Where(b => b.IsSelected).ToList() : _currentBills;
-        IEnumerable<SellQueryDetailItem> detailsSource = hasAnySelection ? _currentDetails.Where(d => d.IsSelected).ToList() : _currentDetails;
+        var hasAnySelection = viewBills.Any(b => b.IsSelected) || viewDetails.Any(d => d.IsSelected);
+
+        IEnumerable<SellBillItem> billsSource = hasAnySelection ? viewBills.Where(b => b.IsSelected).ToList() : viewBills;
+        IEnumerable<SellQueryDetailItem> detailsSource = hasAnySelection ? viewDetails.Where(d => d.IsSelected).ToList() : viewDetails;
 
         var originalBills = dgBills.ItemsSource;
         var originalDetails = dgDetails.ItemsSource;
 
+        // 预览窗口显示导出内容（勾选优先，否则全部）的金额合计
+        var billsList = billsSource.ToList();
+        var detailsList = detailsSource.ToList();
+        var summaryParts = new List<string>();
+        if (billsList.Count > 0)
+            summaryParts.Add($"{(hasAnySelection ? "勾选" : "共")} {billsList.Count} 单，售价合计 {billsList.Sum(b => b.Total):N2}，开票合计 {billsList.Sum(b => b.BillTotal):N2}");
+        if (detailsList.Count > 0)
+            summaryParts.Add($"{(hasAnySelection ? "勾选" : "共")} {detailsList.Count} 条明细，小计合计 {detailsList.Sum(d => d.Stotal ?? 0m):N2}，开票合计 {detailsList.Sum(d => d.Btotal ?? 0m):N2}");
+
         dgBills.ItemsSource = billsSource;
         dgDetails.ItemsSource = detailsSource;
 
-        var win = new ImagePreviewWindow(new[] { (dgBills, "销售单据"), (dgDetails, "销售明细") });
+        var win = new ImagePreviewWindow(new[] { (dgBills, "销售单据"), (dgDetails, "销售明细") }, string.Join("　", summaryParts));
         win.Owner = Window.GetWindow(this);
         win.ShowDialog();
 
@@ -909,10 +921,14 @@ public partial class SellQueryControl : UserControl, ITabContent
 
     private async void BtnExportTable_Click(object sender, RoutedEventArgs e)
     {
-        var hasAnySelection = _currentBills.Any(b => b.IsSelected) || _currentDetails.Any(d => d.IsSelected);
+        // 按 DataGrid 当前视图顺序（受列头排序影响）取数，保证导出表格顺序与界面一致
+        var viewBills = dgBills.Items.Cast<SellBillItem>().ToList();
+        var viewDetails = dgDetails.Items.Cast<SellQueryDetailItem>().ToList();
 
-        var billsData = hasAnySelection ? _currentBills.Where(b => b.IsSelected).ToList() : _currentBills;
-        var detailsData = hasAnySelection ? _currentDetails.Where(d => d.IsSelected).ToList() : _currentDetails;
+        var hasAnySelection = viewBills.Any(b => b.IsSelected) || viewDetails.Any(d => d.IsSelected);
+
+        var billsData = hasAnySelection ? viewBills.Where(b => b.IsSelected).ToList() : viewBills;
+        var detailsData = hasAnySelection ? viewDetails.Where(d => d.IsSelected).ToList() : viewDetails;
 
         var clientName = string.IsNullOrWhiteSpace(cmbClient.SearchText) ? "全部客户" : cmbClient.SearchText.Trim();
         var dateRange = $"{dtStart.SelectedDate:yyyy-MM-dd}~{dtEnd.SelectedDate:yyyy-MM-dd}";
