@@ -37,6 +37,20 @@ public partial class BuyEditDialog : Window
     private static List<string> _cachedPlaces = new();
     private static bool _cacheLoaded;
 
+    /// <summary>配件档案变更（新增/修改）后调用，强制下次打开对话框重新加载下拉缓存</summary>
+    public static void InvalidateCache()
+    {
+        _cacheLoaded = false;
+        _cachedPartNos = new List<string>();
+        _cachedNames = new List<string>();
+        _cachedCarNames = new List<string>();
+        _cachedCarTypes = new List<string>();
+        _cachedUnits = new List<string>();
+        _cachedAreas = new List<string>();
+        _cachedClasses = new List<string>();
+        _cachedPlaces = new List<string>();
+    }
+
     private List<string> _allPartNos = new();
     private List<string> _allNames = new();
     private List<string> _allCarNames = new();
@@ -84,7 +98,6 @@ public partial class BuyEditDialog : Window
         _editInPrice = inPrice;
         _editPlace = place;
         _editMemo = memo;
-        _log.Information("SetEditValues: Amount={Amount}, InPrice={InPrice}, Place={Place}, Memo={Memo}", amount, inPrice, place, memo);
     }
 
     public BuyEditDialog(long partId = 0, string? partNo = null)
@@ -93,21 +106,16 @@ public partial class BuyEditDialog : Window
         _partId = partId;
         if (!string.IsNullOrEmpty(partNo))
             cboPartNo.Text = partNo;
-        _log.Information("构造: partId={PartId}, partNo={PartNo}", partId, partNo);
     }
 
     private async void Window_Loaded(object sender, RoutedEventArgs e)
     {
-        _log.Information("Window_Loaded 开始, partId={PartId}, cboPartNo.Text={PartNo}", _partId, cboPartNo.Text);
-
         await LoadDddwDataAsync();
 
         if (_partId > 0)
             await LoadPartByIdAsync(_partId);
         else if (!string.IsNullOrEmpty(cboPartNo.Text))
             await LoadPartByNoAsync(cboPartNo.Text.Trim());
-
-        _log.Information("Window_Loaded 完成, _currentPart={HasPart}", _currentPart != null);
     }
 
     private async Task LoadDddwDataAsync()
@@ -116,7 +124,6 @@ public partial class BuyEditDialog : Window
         {
             if (!_cacheLoaded)
             {
-                _log.Information("LoadDddwDataAsync: 缓存未加载，开始查询数据库");
                 var dbFactory = App.ServiceProvider.GetRequiredService<IDbConnectionFactory>();
                 using var db = await dbFactory.CreateAsync();
 
@@ -138,12 +145,9 @@ public partial class BuyEditDialog : Window
                     "SELECT DISTINCT place FROM part_stock WHERE place IS NOT NULL ORDER BY place")).ToList();
 
                 _cacheLoaded = true;
-                _log.Information("LoadDddwDataAsync: 缓存加载完成, PartNos={PartNoCount}, Names={NameCount}, CarTypes={CarTypeCount}",
-                    _cachedPartNos.Count, _cachedNames.Count, _cachedCarTypes.Count);
             }
             else
             {
-                _log.Information("LoadDddwDataAsync: 使用已有缓存");
             }
 
             // 从缓存复制到实例字段（每个实例独立，支持 ICollectionView 过滤）
@@ -188,9 +192,6 @@ public partial class BuyEditDialog : Window
         var currentText = cbo.Text;
         if (cbo == cboPartNo && currentText == _lastPartNoText) return;
         if (cbo == cboName && currentText == _lastNameText) return;
-
-        _log.Information("Dddw_TextChanged: cbo={Name}, text={Text}", cbo.Name, currentText);
-
         var list = GetDddwList(cbo);
         if (list != null)
             FilterDddw(cbo, list);
@@ -220,7 +221,6 @@ public partial class BuyEditDialog : Window
             txtPfPrice.Text = "";
             imgPart.Source = null;
             dgBuyHistory.ItemsSource = null;
-            _log.Information("ClearAllFields: 配件编号清空，重置所有字段");
         }
         finally
         {
@@ -263,7 +263,6 @@ public partial class BuyEditDialog : Window
                     cbo.SelectedItem = null;
                 });
                 cbo.IsDropDownOpen = false;
-                _log.Information("FilterDddw: cbo={Name}, text为空或精确匹配模式, 关闭下拉", cbo.Name);
                 return;
             }
 
@@ -277,7 +276,6 @@ public partial class BuyEditDialog : Window
             if (matches.Count == 0)
             {
                 cbo.IsDropDownOpen = false;
-                _log.Information("FilterDddw: cbo={Name}, text={Text}, 无匹配项, 关闭下拉", cbo.Name, text);
                 return;
             }
 
@@ -315,7 +313,6 @@ public partial class BuyEditDialog : Window
             }));
 
             var totalCount = matches.Count > MaxDropDownItems ? $"{MaxDropDownItems}+" : matches.Count.ToString();
-            _log.Information("FilterDddw: cbo={Name}, text={Text}, 匹配{Count}项, 展开下拉", cbo.Name, text, totalCount);
         }
         finally
         {
@@ -362,7 +359,6 @@ public partial class BuyEditDialog : Window
             _isSelecting = true;
             try
             {
-                _log.Information("CboPartNo_SelectionChanged: selected={Selected}", selected);
                 await LoadPartByNoAsync(selected);
             }
             finally
@@ -379,7 +375,6 @@ public partial class BuyEditDialog : Window
             var text = cboPartNo.Text.Trim();
             if (!string.IsNullOrEmpty(text))
             {
-                _log.Information("CboPartNo_KeyDown Enter: text={Text}", text);
                 await LoadPartByNoAsync(text);
             }
         }
@@ -387,7 +382,6 @@ public partial class BuyEditDialog : Window
 
     private async Task LoadPartByIdAsync(long partId)
     {
-        _log.Information("LoadPartByIdAsync: partId={PartId}", partId);
         try
         {
             var dbFactory = App.ServiceProvider.GetRequiredService<IDbConnectionFactory>();
@@ -400,9 +394,6 @@ public partial class BuyEditDialog : Window
                 _log.Warning("LoadPartByIdAsync: 未找到 partId={PartId}", partId);
                 return;
             }
-
-            _log.Information("LoadPartByIdAsync: 找到配件 partno={PartNo}, name={Name}", _currentPart.Partno, _currentPart.Name);
-
             _partId = _currentPart.Partid;
             _currentStock = await db.QueryFirstOrDefaultAsync<PartStock>(
                 "SELECT * FROM part_stock WHERE partid=@Id", new { Id = partId });
@@ -419,7 +410,6 @@ public partial class BuyEditDialog : Window
 
     private async Task LoadPartByNoAsync(string partNo)
     {
-        _log.Information("LoadPartByNoAsync: partNo={PartNo}", partNo);
         try
         {
             var dbFactory = App.ServiceProvider.GetRequiredService<IDbConnectionFactory>();
@@ -433,9 +423,6 @@ public partial class BuyEditDialog : Window
                 _log.Warning("LoadPartByNoAsync: 未找到 partNo={PartNo}", partNo);
                 return;
             }
-
-            _log.Information("LoadPartByNoAsync: 找到配件 partid={PartId}, name={Name}, inprice={InPrice}",
-                _currentPart.Partid, _currentPart.Name, _currentPart.Inprice);
 
             _partId = _currentPart.Partid;
             _currentStock = await db.QueryFirstOrDefaultAsync<PartStock>(
@@ -481,9 +468,6 @@ public partial class BuyEditDialog : Window
                 cboPlace.Text = _editPlace;
             if (_editMemo != null)
                 txtMemo.Text = _editMemo;
-
-            _log.Information("AutoFillFields: partno={PartNo}, name={Name}, cartype={CarType}, inprice={InPrice}, lsprice={LsPrice}, place={Place}",
-                cboPartNo.Text, cboName.Text, cboCarType.Text, txtInPrice.Text, txtLsPrice.Text, cboPlace.Text);
         }
         finally
         {
@@ -507,7 +491,6 @@ public partial class BuyEditDialog : Window
             var history = await db.QueryAsync<dynamic>(sql, new { PartId = partId });
             var historyList = history.ToList();
             dgBuyHistory.ItemsSource = historyList;
-            _log.Information("LoadBuyHistoryAsync: partId={PartId}, 记录数={Count}", partId, historyList.Count);
         }
         catch (Exception ex)
         {
@@ -520,7 +503,6 @@ public partial class BuyEditDialog : Window
         if (picture == null || picture.Length == 0)
         {
             imgPart.Source = null;
-            _log.Information("DisplayImage: 无图片数据");
             return;
         }
         try
@@ -535,7 +517,6 @@ public partial class BuyEditDialog : Window
             }
             bitmap.Freeze();
             imgPart.Source = bitmap;
-            _log.Information("DisplayImage: 图片加载成功, size={Size}", picture.Length);
         }
         catch (Exception ex)
         {
@@ -545,15 +526,12 @@ public partial class BuyEditDialog : Window
 
     private async void BtnSelect_Click(object sender, RoutedEventArgs e)
     {
-        _log.Information("BtnSelect_Click: 打开配件选择窗口");
         var selector = new PartSelectorWindow(App.ServiceProvider.GetRequiredService<IPartRepository>(), App.ServiceProvider.GetRequiredService<IPartQueryService>()) { Owner = Window.GetWindow(this) };
         if (selector.ShowDialog() != true || selector.SelectedParts.Count == 0) return;
 
         var part = selector.SelectedParts[0];
         _partId = part.Partid;
         _currentPart = part;
-        _log.Information("BtnSelect_Click: 选中配件 partid={PartId}, partno={PartNo}", part.Partid, part.Partno);
-
         try
         {
             var dbFactory = App.ServiceProvider.GetRequiredService<IDbConnectionFactory>();
@@ -576,24 +554,14 @@ public partial class BuyEditDialog : Window
     {
         if (string.IsNullOrWhiteSpace(cboPartNo.Text))
         {
-            _log.Information("BtnConfirm_Click: 配件编号为空，拒绝确认");
             MessageBox.Show("请输入或选择配件编号", "提示");
             cboPartNo.Focus();
             return;
         }
 
-        // 必填项：单位、分类
-        if (string.IsNullOrWhiteSpace(cboUnit.Text))
-        {
-            _log.Information("BtnConfirm_Click: 单位为空，拒绝确认");
-            MessageBox.Show("请输入单位", "提示");
-            cboUnit.Focus();
-            return;
-        }
-
+        // 必填项：分类（单位不强制）
         if (string.IsNullOrWhiteSpace(cboClass.Text))
         {
-            _log.Information("BtnConfirm_Click: 分类为空，拒绝确认");
             MessageBox.Show("请输入分类", "提示");
             cboClass.Focus();
             return;
@@ -601,7 +569,6 @@ public partial class BuyEditDialog : Window
 
         if (!decimal.TryParse(txtAmount.Text, out var amount) || amount <= 0)
         {
-            _log.Information("BtnConfirm_Click: 数量无效，拒绝确认: {Amount}", txtAmount.Text);
             MessageBox.Show("请输入有效的采购数量（必须大于 0）", "提示");
             txtAmount.Focus();
             txtAmount.SelectAll();
@@ -616,8 +583,6 @@ public partial class BuyEditDialog : Window
                 return;
         }
 
-        _log.Information("BtnConfirm_Click: 确认, partId={PartId}, partno={PartNo}, inprice={InPrice}, amount={Amount}",
-            _partId, cboPartNo.Text, txtInPrice.Text, txtAmount.Text);
         IsConfirmed = true;
 
         // 触发事件，通知调用方将配件添加到明细
@@ -644,11 +609,11 @@ public partial class BuyEditDialog : Window
             txtInPrice.Text = "";
             txtLsPrice.Text = "";
             txtPfPrice.Text = "";
-            txtAmount.Text = "";
+            // 数量恢复默认值 1，与窗口首次打开时一致
+            txtAmount.Text = "1";
             txtMemo.Text = "";
             imgPart.Source = null;
             dgBuyHistory.ItemsSource = null;
-            _log.Information("BtnConfirm_Click: 窗口已重置，等待下一个配件输入");
         }
         finally
         {
@@ -659,7 +624,6 @@ public partial class BuyEditDialog : Window
 
     private void BtnCancel_Click(object sender, RoutedEventArgs e)
     {
-        _log.Information("BtnCancel_Click: 取消");
         IsConfirmed = false;
         DialogResult = false;
         Close();
@@ -678,9 +642,6 @@ public partial class BuyEditDialog : Window
             Filter = "图片文件|*.jpg;*.jpeg;*.png;*.bmp;*.gif|所有文件|*.*"
         };
         if (dlg.ShowDialog() != true) return;
-
-        _log.Information("BtnUploadImage_Click: 上传图片, partId={PartId}, file={File}", _partId, dlg.FileName);
-
         try
         {
             var bytes = File.ReadAllBytes(dlg.FileName);
@@ -689,7 +650,6 @@ public partial class BuyEditDialog : Window
             db.Execute("UPDATE part_data SET picture=@Picture WHERE partid=@Id",
                 new { Picture = bytes, Id = _partId });
             DisplayImage(bytes);
-            _log.Information("BtnUploadImage_Click: 上传成功, size={Size}", bytes.Length);
         }
         catch (Exception ex)
         {

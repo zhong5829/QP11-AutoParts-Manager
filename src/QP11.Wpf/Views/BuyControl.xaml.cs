@@ -388,7 +388,11 @@ public partial class BuyControl : UserControl, ITabContent
 
     private void OnPartConfirmed(BuyEditDialog dlg)
     {
-        var existing = Details.FirstOrDefault(d => d.PartId == dlg.ResultPartId);
+        // 新配件（PartId=0）按编码去重，避免第二个新配件误匹配到第一个新配件行导致数量累加
+        var existing = dlg.ResultPartId > 0
+            ? Details.FirstOrDefault(d => d.PartId == dlg.ResultPartId)
+            : Details.FirstOrDefault(d =>
+                string.Equals(d.PartNo?.Trim(), dlg.ResultPartNo?.Trim(), StringComparison.OrdinalIgnoreCase));
         if (existing != null)
         {
             existing.Amount += dlg.ResultAmount;
@@ -703,6 +707,9 @@ public partial class BuyControl : UserControl, ITabContent
             var sn = txtBillNo.Text.Trim();
             await _viewModel.SettleBillAsync(sn, Details.ToList(), newParts, _pendingNameUpdates);
             _pendingNameUpdates.Clear();
+            // 结算时新配件已建档，使配件下拉联想缓存失效
+            if (newParts.Count > 0)
+                BuyEditDialog.InvalidateCache();
 
             MessageBox.Show("结算成功，库存已更新", "提示");
             ClearBill();

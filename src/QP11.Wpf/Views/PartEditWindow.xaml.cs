@@ -121,6 +121,8 @@ public partial class PartEditWindow : Window
                 await _partRepo.UpdateAsync(entity);
             else
                 await _partRepo.InsertAsync(entity);
+            // 配件档案已变更，使入库等模块的下拉联想缓存失效
+            BuyEditDialog.InvalidateCache();
             DialogResult = true;
         }
         catch (Exception ex) { Serilog.Log.Warning(ex, "保存配件失败"); MessageBox.Show($"保存失败: {ex.Message}", "错误"); }
