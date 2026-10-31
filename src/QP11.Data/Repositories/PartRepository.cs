@@ -134,10 +134,13 @@ public class PartRepository : IPartRepository
         using var db = await CreateConnectionAsync();
         var sql = @"UPDATE part_data SET partno=@Partno, name=@Name, carname=@Carname, cartype=@Cartype,
                     unit=@Unit, [class]=@ClassName, area=@Area, inprice=@Inprice, lsprice=@Lsprice,
-                    pfprice=@Pfprice, name_py=@NamePy, cartype_py=@CartypePy, memo=@Memo
+                    pfprice=@Pfprice, name_py=@NamePy, cartype_py=@CartypePy, memo=@Memo,
+                    place = CASE WHEN @Place IS NOT NULL AND @Place <> '' THEN @Place ELSE place END
                     WHERE partid=@Partid;
                     -- 配件属性保存价格后同步库存售价（part_stock 为售价主表，销售开单直读；0 保留现有值）
+                    -- 仓位同步到库存表（销售开单/库存查询直读 part_stock.place），空值保留原值
                     UPDATE part_stock SET
+                    place = CASE WHEN @Place IS NOT NULL AND @Place <> '' THEN @Place ELSE place END,
                     lsprice = CASE WHEN @Lsprice > 0 THEN @Lsprice ELSE lsprice END,
                     pfprice = CASE WHEN @Pfprice > 0 THEN @Pfprice ELSE pfprice END
                     WHERE partid=@Partid";

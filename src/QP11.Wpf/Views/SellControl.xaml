@@ -102,9 +102,12 @@
                           VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
                           MouseDoubleClick="DgParts_MouseDoubleClick" PreviewKeyDown="DgParts_PreviewKeyDown"
                           SelectionChanged="DgParts_SelectionChanged"
+                          PreviewMouseRightButtonDown="DgParts_PreviewMouseRightButtonDown"
                           SelectionMode="Single">
                     <DataGrid.ContextMenu>
                         <ContextMenu>
+                            <MenuItem Header="修改配件属性" Click="MiEditPart_Click"/>
+                            <Separator/>
                             <MenuItem Header="隐藏废品仓" IsCheckable="True" IsChecked="True" Click="MiHideScrap_Click"/>
                         </ContextMenu>
                     </DataGrid.ContextMenu>
@@ -197,6 +200,8 @@
             <DataGrid Grid.Row="3" x:Name="dgDetails" AutoGenerateColumns="False" CanUserAddRows="False"
                       VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
                       Margin="0,0,0,4"
+                      SelectionUnit="Cell"
+                      PreviewKeyDown="DgDetails_PreviewKeyDown"
                       PreparingCellForEdit="DgDetails_PreparingCellForEdit">
                 <DataGrid.ContextMenu>
                     <ContextMenu>

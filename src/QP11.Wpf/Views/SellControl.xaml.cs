@@ -115,6 +115,7 @@ public partial class SellControl : UserControl, ITabContent
     private readonly IBuyRepository _buyRepo;
     private readonly IClientRepository _clientRepo;
     private readonly IDbConnectionFactory _dbFactory;
+    private readonly IPartRepository _partRepo;
     private List<ClientInfor> _allClients = new();
 
     private bool _isQueryMode;
@@ -147,6 +148,7 @@ public partial class SellControl : UserControl, ITabContent
         _buyRepo = App.ServiceProvider.GetRequiredService<IBuyRepository>();
         _clientRepo = App.ServiceProvider.GetRequiredService<IClientRepository>();
         _dbFactory = App.ServiceProvider.GetRequiredService<IDbConnectionFactory>();
+        _partRepo = App.ServiceProvider.GetRequiredService<IPartRepository>();
         _queryTextBoxes = new[] { txtPartNo, txtPartName, txtCartype, txtClass };
         dgDetails.ItemsSource = _viewModel.Details;
         dtBillDate.SelectedDate = DateTime.Now;
@@ -466,6 +468,57 @@ public partial class SellControl : UserControl, ITabContent
         if (sender is MenuItem mi)
             _hideScrapPlace = mi.IsChecked;
         _ = LoadPartList();
+    }
+
+    /// <summary>右键点击行时先选中该行，保证右键菜单作用于目标配件</summary>
+    private void DgParts_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        var dg = (DataGrid)sender;
+        if (ItemsControl.ContainerFromElement(dg, (DependencyObject)e.OriginalSource) is DataGridRow row)
+        {
+            row.IsSelected = true;
+            dg.SelectedItem = row.Item;
+        }
+    }
+
+    /// <summary>右键菜单：修改选中配件的档案属性，保存后立即刷新配件列表</summary>
+    private async void MiEditPart_Click(object sender, RoutedEventArgs e)
+    {
+        if (dgParts.SelectedItem is not PartStockDisplay row)
+        {
+            MessageBox.Show("请先在配件列表中选择一行配件", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        try
+        {
+            var part = await _partRepo.GetByIdAsync(row.PartId);
+            if (part == null)
+            {
+                MessageBox.Show("配件档案不存在", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var dlg = new PartEditWindow(part) { Owner = Window.GetWindow(this) };
+            if (dlg.ShowDialog() != true) return;
+
+            // 保存成功：重新加载列表反映最新属性，并尽量保持选中同一配件
+            await LoadPartList();
+            if (dgParts.ItemsSource is IEnumerable<PartStockDisplay> list)
+            {
+                var match = list.FirstOrDefault(p => p.PartId == row.PartId);
+                if (match != null)
+                {
+                    dgParts.SelectedItem = match;
+                    dgParts.ScrollIntoView(match);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Serilog.Log.Warning(ex, "修改配件属性失败");
+            MessageBox.Show($"修改配件属性失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 
     private void DgParts_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -1207,6 +1260,14 @@ public partial class SellControl : UserControl, ITabContent
     {
         if (e.EditingElement is TextBox tb)
             Dispatcher.BeginInvoke(new Action(() => tb.SelectAll()), System.Windows.Threading.DispatcherPriority.Input);
+    }
+
+    /// <summary>禁用 Ctrl+A 全选明细区：焦点不在明细区编辑文本框内时按 Ctrl+A 不再选中所有单元格（编辑中 TextBox 的 Ctrl+A 全选文本不受影响）</summary>
+    private void DgDetails_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key != Key.A || Keyboard.Modifiers != ModifierKeys.Control) return;
+        if (Keyboard.FocusedElement is TextBox tb && dgDetails.IsAncestorOf(tb)) return;
+        e.Handled = true;
     }
 
     public void OnSave() => SaveBill();

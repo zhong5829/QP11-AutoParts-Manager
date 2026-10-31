@@ -74,6 +74,15 @@ public partial class PartEditWindow : Window
             var areas = await Dapper.SqlMapper.QueryAsync<string>(db,
                 "SELECT DISTINCT area FROM part_data WHERE area IS NOT NULL AND area <> '' ORDER BY area");
             LoadCombo(cboArea, areas);
+
+            // 仓位以库存表 part_stock.place 为准（销售开单/库存查询直读该字段），有值时覆盖档案中的值
+            if (_isEdit && _editEntity != null)
+            {
+                var stockPlace = await Dapper.SqlMapper.QueryFirstOrDefaultAsync<string>(db,
+                    "SELECT place FROM part_stock WHERE partid=@PartId", new { PartId = _editEntity.Partid });
+                if (!string.IsNullOrEmpty(stockPlace))
+                    cboPlace.Text = stockPlace;
+            }
         }
         catch (Exception ex)
         {
