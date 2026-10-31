@@ -1185,7 +1185,8 @@ public partial class SellControl : UserControl, ITabContent
             return;
         }
 
-        if (dgDetails.SelectedItem is not SellControlItem item) return;
+        var item = GetDetailTargetItem();
+        if (item == null) return;
 
         try
         {
@@ -1232,16 +1233,46 @@ public partial class SellControl : UserControl, ITabContent
             VoidSelectedBill();
             return;
         }
-        if (dgDetails.SelectedItem is SellControlItem item)
+        var item = GetDetailTargetItem();
+        if (item != null)
         {
             _viewModel.Details.Remove(item);
             UpdateTotals();
         }
     }
 
+    /// <summary>
+    /// 获取明细区当前目标行。该表为单元格选择模式（SelectionUnit=Cell），
+    /// DataGrid.SelectedItem 恒为空，必须改用当前单元格所在行。
+    /// </summary>
+    private SellControlItem? GetDetailTargetItem()
+    {
+        if (dgDetails.CurrentCell.IsValid && dgDetails.CurrentCell.Item is SellControlItem cellItem)
+            return cellItem;
+        if (dgDetails.CurrentItem is SellControlItem currentItem)
+            return currentItem;
+        return null;
+    }
+
+    /// <summary>右键点击明细单元格时将该单元格设为当前单元格，保证右键菜单作用于目标行</summary>
+    private void DgDetails_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        // 单元格编辑中不改变当前单元格，避免打断编辑
+        if (Keyboard.FocusedElement is TextBox tb && dgDetails.IsAncestorOf(tb)) return;
+
+        var cell = ItemsControl.ContainerFromElement(dgDetails, (DependencyObject)e.OriginalSource) as DataGridCell;
+        if (cell == null) return;
+
+        var info = new DataGridCellInfo(cell);
+        dgDetails.CurrentCell = info;
+        dgDetails.SelectedCells.Clear();
+        dgDetails.SelectedCells.Add(info);
+    }
+
     private void DgDetails_Delete_Click(object sender, RoutedEventArgs e)
     {
-        if (dgDetails.SelectedItem is not SellControlItem item) return;
+        var item = GetDetailTargetItem();
+        if (item == null) return;
         if (MessageBox.Show($"确定删除 [{item.PartName}]？", "确认删除", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
             return;
         _viewModel.Details.Remove(item);
@@ -1250,7 +1281,8 @@ public partial class SellControl : UserControl, ITabContent
 
     private void DgDetails_Price_LostFocus(object sender, RoutedEventArgs e)
     {
-        if (sender is not TextBox tb || dgDetails.SelectedItem is not SellControlItem item) return;
+        // 编辑器 TextBox 的 DataContext 即所在行数据，失焦时用它可以避免当前单元格已切换导致的取错行
+        if (sender is not TextBox tb || tb.DataContext is not SellControlItem item) return;
         if (decimal.TryParse(tb.Text, out var price) && price != item.BillPrice)
             item.BillPrice = price;
         UpdateTotals();
@@ -1265,6 +1297,19 @@ public partial class SellControl : UserControl, ITabContent
     /// <summary>禁用 Ctrl+A 全选明细区：焦点不在明细区编辑文本框内时按 Ctrl+A 不再选中所有单元格（编辑中 TextBox 的 Ctrl+A 全选文本不受影响）</summary>
     private void DgDetails_PreviewKeyDown(object sender, KeyEventArgs e)
     {
+        // Delete 键删除当前明细行；单元格编辑中（如单价输入框）时交给编辑框处理，不拦截
+        if (e.Key == Key.Delete && !(Keyboard.FocusedElement is TextBox tbEdit && dgDetails.IsAncestorOf(tbEdit)))
+        {
+            var item = GetDetailTargetItem();
+            if (item != null)
+            {
+                _viewModel.Details.Remove(item);
+                UpdateTotals();
+                e.Handled = true;
+                return;
+            }
+        }
+
         if (e.Key != Key.A || Keyboard.Modifiers != ModifierKeys.Control) return;
         if (Keyboard.FocusedElement is TextBox tb && dgDetails.IsAncestorOf(tb)) return;
         e.Handled = true;
