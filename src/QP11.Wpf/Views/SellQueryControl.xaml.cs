@@ -911,7 +911,29 @@ public partial class SellQueryControl : UserControl, ITabContent
         dgBills.ItemsSource = billsSource;
         dgDetails.ItemsSource = detailsSource;
 
-        var win = new ImagePreviewWindow(new[] { (dgBills, "销售单据"), (dgDetails, "销售明细") }, string.Join("　", summaryParts));
+        // 图片标题带客户名称，未选客户时显示"全部客户"
+        var clientTitle = string.IsNullOrWhiteSpace(cmbClient.SearchText) ? "全部客户" : cmbClient.SearchText.Trim();
+
+        // 图片副标题：单据日期范围 + 共计金额（勾选时只算勾选行）
+        // 日期始终取导出数据本身的实际单据日期（最早-最晚），与查询条件无关
+        static string DateRangeOfDates(IEnumerable<DateTime?> dates)
+        {
+            var valid = dates.Where(d => d.HasValue).Select(d => d!.Value).ToList();
+            return valid.Count > 0 ? $"{valid.Min():yyyy年M月d号}-{valid.Max():yyyy年M月d号}" : "";
+        }
+
+        var billsDateRange = DateRangeOfDates(billsList.Select(b => b.Datetime));
+        var detailsDateRange = DateRangeOfDates(detailsList.Select(d => d.Datetime));
+        string? billsSub = billsList.Count > 0 ? $"{billsDateRange}　共计金额：{billsList.Sum(b => b.Total):N2}" : billsDateRange;
+        string? detailsSub = detailsList.Count > 0 ? $"{detailsDateRange}　共计金额：{detailsList.Sum(d => d.Stotal ?? 0m):N2}" : detailsDateRange;
+
+        // 导出图片不展示开票单价/开票总额/业务员（两张图）；客户列仅明细图移除（单据图保留）
+        var grids = new (System.Windows.Controls.DataGrid dg, string title, string? subTitle, IEnumerable<string>? excludedHeaders)[]
+        {
+            (dgBills, $"{clientTitle}销售单据", billsSub, new[] { "开票单价", "开票总额", "业务员" }),
+            (dgDetails, $"{clientTitle}销售明细", detailsSub, new[] { "客户", "开票单价", "开票总额", "业务员" })
+        };
+        var win = new ImagePreviewWindow(grids, string.Join("　", summaryParts));
         win.Owner = Window.GetWindow(this);
         win.ShowDialog();
 

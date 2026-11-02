@@ -20,17 +20,18 @@ public partial class ImagePreviewWindow : Window
     private const int MaxDisplaySize = 4096;
 
     public ImagePreviewWindow(DataGrid dataGrid, string title = "导出预览", string? amountSummary = null)
-        : this(new[] { (dataGrid, title) }, amountSummary)
+        : this(new[] { (dataGrid, title, null as string, null as IEnumerable<string>) }, amountSummary)
     {
     }
 
-    public ImagePreviewWindow((DataGrid dg, string title)[] grids, string? amountSummary = null)
+    /// <param name="grids">每张图：DataGrid + 标题 + 副标题（日期/金额，可空）+ 该图排除的列（按表头名，可空）</param>
+    public ImagePreviewWindow((DataGrid dg, string title, string? subTitle, IEnumerable<string>? excludedHeaders)[] grids, string? amountSummary = null)
     {
         InitializeComponent();
-        foreach (var (dg, title) in grids)
+        foreach (var (dg, title, subTitle, excluded) in grids)
         {
             Title = title;
-            RenderDataGridToImages(dg, title);
+            RenderDataGridToImages(dg, title, subTitle, excluded);
         }
         ShowThumbnails();
         txtCount.Text = _displayImages.Count.ToString();
@@ -39,7 +40,7 @@ public partial class ImagePreviewWindow : Window
         Closed += (s, e) => CleanupTempFiles();
     }
 
-    private void RenderDataGridToImages(DataGrid dg, string title = "销售明细")
+    private void RenderDataGridToImages(DataGrid dg, string title = "销售明细", string? subTitle = null, IEnumerable<string>? excludedHeaders = null)
     {
         var columns = dg.Columns.ToList();
         if (columns.Count == 0) return;
@@ -84,7 +85,7 @@ public partial class ImagePreviewWindow : Window
         }
 
         var colWidths = CalculateColumnWidths(columns, headers, rows);
-        RenderPage(headers, colWidths, rows, 1, 1, title, rowFlags);
+        RenderPage(headers, colWidths, rows, 1, 1, title, rowFlags, subTitle, excludedHeaders);
     }
 
     private double[] CalculateColumnWidths(List<DataGridColumn> columns, string[] headers, List<string[]> rows)
@@ -218,11 +219,11 @@ public partial class ImagePreviewWindow : Window
         }
     }
 
-    private void RenderPage(string[] headers, double[] colWidths, List<string[]> dataRows, int pageNum, int totalPages, string pageTitle = "销售明细", List<int>? rowFlags = null)
+    private void RenderPage(string[] headers, double[] colWidths, List<string[]> dataRows, int pageNum, int totalPages, string pageTitle = "销售明细", List<int>? rowFlags = null, string? subTitle = null, IEnumerable<string>? excludedHeaders = null)
     {
         var skipCols = new HashSet<int>();
         for (int i = 0; i < headers.Length; i++)
-            if (headers[i] == "备注") skipCols.Add(i);
+            if (headers[i] == "备注" || (excludedHeaders?.Contains(headers[i]) ?? false)) skipCols.Add(i);
         var validIdx = Enumerable.Range(0, headers.Length).Where(i => !skipCols.Contains(i)).ToArray();
         var validHeaders = validIdx.Select(i => headers[i]).ToArray();
         var validWidths = validIdx.Select(i => colWidths[i]).ToArray();
@@ -231,12 +232,14 @@ public partial class ImagePreviewWindow : Window
         var rowH = 22;
         var headerH = 28;
         var titleH = 42;
+        // 标题下方副标题行（单据日期范围 + 共计金额），无副标题时不占位
+        var subH = string.IsNullOrEmpty(subTitle) ? 0 : 30;
         var footerH = 24;
         var margin = 16;
         var tableW = (int)validWidths.Sum(w => w);
         var contentH = headerH + validRows.Count * rowH;
         var width = tableW + margin * 2;
-        var height = titleH + contentH + footerH + margin * 2;
+        var height = titleH + subH + contentH + footerH + margin * 2;
 
         var tempFile = System.IO.Path.Combine(
             System.IO.Path.GetTempPath(),
@@ -264,6 +267,17 @@ public partial class ImagePreviewWindow : Window
                     g.DrawString($"第 {pageNum} / {totalPages} 页", pageFont, grayBrush, width - margin - 72, margin + 14);
 
                 var y = margin + titleH;
+                if (subH > 0 && subTitle != null)
+                {
+                    // 副标题（日期范围+共计金额）水平居中
+                    using (var subFont = new SD.Font("Microsoft YaHei", 14))
+                    using (var grayBrush = new SD.SolidBrush(SD.Color.FromArgb(60, 60, 60)))
+                    {
+                        var subSize = g.MeasureString(subTitle, subFont);
+                        g.DrawString(subTitle, subFont, grayBrush, (width - subSize.Width) / 2, y + 3);
+                    }
+                    y += subH;
+                }
                 using (var headerBgBrush = new SD.SolidBrush(SD.Color.FromArgb(255, 70, 130, 180)))
                     g.FillRectangle(headerBgBrush, margin, y, tableW, headerH);
                 using (var headerFont = new SD.Font("Microsoft YaHei", 11, SD.FontStyle.Bold))
@@ -302,7 +316,7 @@ public partial class ImagePreviewWindow : Window
         {
             var startRow = batch * batchSize;
             var endRow = Math.Min(startRow + batchSize, validRows.Count);
-            var startY = margin + titleH + headerH + startRow * rowH;
+            var startY = margin + titleH + subH + headerH + startRow * rowH;
 
             using (var bmp = SD.Image.FromFile(tempFile) as SD.Bitmap)
             {
@@ -362,9 +376,10 @@ public partial class ImagePreviewWindow : Window
 
                     if (batch == totalBatches - 1)
                     {
-                        var footerY = margin + titleH + headerH + validRows.Count * rowH;
+                        var footerY = margin + titleH + subH + headerH + validRows.Count * rowH;
                         var amtIdx = Array.IndexOf(validHeaders, "数量");
                         var stotalIdx = Array.IndexOf(validHeaders, "小计");
+                        var totalIdx = Array.IndexOf(validHeaders, "售价总额");
                         var btotalIdx = Array.IndexOf(validHeaders, "开票总额");
                         using (var sumBgBrush = new SD.SolidBrush(SD.Color.FromArgb(255, 70, 130, 180)))
                             g.FillRectangle(sumBgBrush, margin, footerY, tableW, rowH + 3);
@@ -377,9 +392,7 @@ public partial class ImagePreviewWindow : Window
                                 string sumText = "";
                                 if (i == amtIdx)
                                     sumText = validRows.Sum(r => int.TryParse(r.Length > i ? r[i] : "", out var v) ? v : 0).ToString("N2");
-                                else if (i == stotalIdx)
-                                    sumText = validRows.Sum(r => decimal.TryParse(r.Length > i ? r[i] : "", out var v) ? v : 0m).ToString("N2");
-                                else if (i == btotalIdx)
+                                else if (i == stotalIdx || i == totalIdx || i == btotalIdx)
                                     sumText = validRows.Sum(r => decimal.TryParse(r.Length > i ? r[i] : "", out var v) ? v : 0m).ToString("N2");
                                 else if (i == 0)
                                     sumText = "合 计";
