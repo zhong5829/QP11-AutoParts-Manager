@@ -98,8 +98,10 @@ namespace QP11.Wpf.Helpers
             if (code >= 0xC5BE && code <= 0xC6D9) return 'P';
             if (code >= 0xC6DA && code <= 0xC8BA) return 'Q';
             if (code >= 0xC8BB && code <= 0xC8F5) return 'R';
-            if (code >= 0xC8F6 && code <= 0xCBF0) return 'S';
-            if (code >= 0xCBF1 && code <= 0xCDD9) return 'T';
+            // S/T 边界实测修正：GB2312 中 S 读音字实际排到 0xCBF9（所），0xCBFA（塌）起才是 T。
+            // 流传区间表误画为 0xCBF0/CBF1，导致笋蓑梭唆缩琐索锁所 9 字被误归 T（如"索兰托2.2"→tlt22）。
+            if (code >= 0xC8F6 && code <= 0xCBF9) return 'S';
+            if (code >= 0xCBFA && code <= 0xCDD9) return 'T';
             if (code >= 0xCDDA && code <= 0xCEF3) return 'W';
             if (code >= 0xCEF4 && code <= 0xD1B8) return 'X';
             if (code >= 0xD1B9 && code <= 0xD4D0) return 'Y';

@@ -67,6 +67,39 @@ public partial class MainWindow : Window
         else if (e.Key == Key.F12) { ExecuteOnActiveTab(c => c.OnClose()); e.Handled = true; }
     }
 
+    // 双击 Alt 定位到工具栏 VIN 输入框：记录上次 Alt 按下时刻，两次间隔 ≤ 500ms 视为双击
+    private DateTime _lastAltPressTime = DateTime.MinValue;
+    private const double AltDoubleClickIntervalMs = 500;
+
+    /// <summary>
+    /// 全局双击 Alt 快捷键：任何页面（含子控件、菜单获得焦点时）按两次 Alt 直接聚焦工具栏 VIN 输入框并全选，
+    /// 输入 VIN 后按回车即发送（txtVinToolbar 已绑定回车发送）。使用 PreviewKeyDown 隧道事件确保不被子页面拦截。
+    /// </summary>
+    private void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        // 按 Alt 时 WPF 将 e.Key 置为 Key.System，实际按键在 e.SystemKey 中
+        var key = e.Key == Key.System ? e.SystemKey : e.Key;
+        if (key != Key.LeftAlt && key != Key.RightAlt) return;
+        if (e.IsRepeat) return; // 长按自动重复不算双击
+
+        var now = DateTime.Now;
+        bool isDoubleClick = (now - _lastAltPressTime).TotalMilliseconds <= AltDoubleClickIntervalMs;
+        _lastAltPressTime = now;
+        if (!isDoubleClick) return;
+
+        _lastAltPressTime = DateTime.MinValue; // 重置，避免三连按再次触发
+        e.Handled = true;
+        FocusVinToolbar();
+    }
+
+    /// <summary>聚焦工具栏 VIN 输入框并全选已有内容，方便直接输入覆盖</summary>
+    private void FocusVinToolbar()
+    {
+        txtVinToolbar.Focus();
+        Keyboard.Focus(txtVinToolbar);
+        txtVinToolbar.SelectAll();
+    }
+
     private void LoadWindowIcon()
     {
         try
@@ -494,20 +527,21 @@ public partial class MainWindow : Window
         }
     }
 
-    /// <summary>从工具栏发送VIN到查询窗口</summary>
+    /// <summary>从工具栏发送VIN到查询窗口（窗口未打开时自动打开再发送）</summary>
     private void SendVinFromToolbar()
     {
         var vin = txtVinToolbar.Text.Trim().ToUpperInvariant();
         if (string.IsNullOrEmpty(vin)) return;
 
+        // VIN查询窗口未打开时自动打开（单例方法内部会处理已打开场景）
         if (_vinQueryWindow == null || !_vinQueryWindow.IsLoaded)
-        {
-            MessageBox.Show("请先打开VIN查询窗口（菜单 → VIN查询）", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
-            return;
-        }
+            OpenVinQueryWindow();
+
+        var win = _vinQueryWindow;
+        if (win == null || !win.IsLoaded) return;
 
         txtVinToolbar.Clear();
-        _vinQueryWindow.QueryFromExternal(vin);
+        win.QueryFromExternal(vin);
     }
 
     /// <summary>获取当前活跃的销售开单控件（供VinQueryWindow调用）</summary>

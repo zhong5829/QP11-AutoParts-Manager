@@ -3,7 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="QP11汽配管理系统" Height="768" Width="1200"
         WindowStartupLocation="CenterScreen"
-        Loaded="Window_Loaded">
+        Loaded="Window_Loaded"
+        PreviewKeyDown="MainWindow_PreviewKeyDown">
     <DockPanel>
         <Menu x:Name="mainMenu" DockPanel.Dock="Top">
             <MenuItem Header="打印机设置(_R)">

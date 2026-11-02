@@ -188,6 +188,9 @@
                     <Image x:Name="imgPart" Stretch="Uniform" Width="196" Height="196"/>
                 </Border>
                 <Button x:Name="btnUploadImage" Content="上传图片" Width="80" Height="26" Margin="0,6,0,0" Click="BtnUploadImage_Click"/>
+                <TextBlock x:Name="txtImgInfo" FontSize="11" Foreground="#888"
+                           Margin="0,4,0,0" Text="" TextWrapping="Wrap" MaxWidth="200"
+                           HorizontalAlignment="Center" Visibility="Collapsed"/>
             </StackPanel>
         </Grid>
 

@@ -12,6 +12,7 @@ using Dapper;
 using Microsoft.Extensions.DependencyInjection;
 using QP11.Core.Entities;
 using QP11.Core.Interfaces;
+using QP11.Wpf.Helpers;
 
 namespace QP11.Wpf.Views;
 
@@ -399,7 +400,7 @@ public partial class BuyEditDialog : Window
                 "SELECT * FROM part_stock WHERE partid=@Id", new { Id = partId });
             AutoFillFields();
             await LoadBuyHistoryAsync(partId);
-            DisplayImage(_currentPart.Picture);
+            DisplayImageForPart(_currentPart.Picture);
         }
         catch (Exception ex)
         {
@@ -429,7 +430,7 @@ public partial class BuyEditDialog : Window
                 "SELECT * FROM part_stock WHERE partid=@Id", new { Id = _currentPart.Partid });
             AutoFillFields();
             await LoadBuyHistoryAsync(_currentPart.Partid);
-            DisplayImage(_currentPart.Picture);
+            DisplayImageForPart(_currentPart.Picture);
         }
         catch (Exception ex)
         {
@@ -507,21 +508,19 @@ public partial class BuyEditDialog : Window
         }
         try
         {
-            var bitmap = new BitmapImage();
-            using (var stream = new MemoryStream(picture))
-            {
-                bitmap.BeginInit();
-                bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                bitmap.StreamSource = stream;
-                bitmap.EndInit();
-            }
-            bitmap.Freeze();
-            imgPart.Source = bitmap;
+            imgPart.Source = ImageCompressor.LoadBitmap(picture);
         }
         catch (Exception ex)
         {
             _log.Warning(ex, "加载配件图片失败");
         }
+    }
+
+    /// <summary>切换配件时显示档案图片，并清除上一次上传的压缩提示</summary>
+    private void DisplayImageForPart(byte[]? picture)
+    {
+        txtImgInfo.Visibility = Visibility.Collapsed;
+        DisplayImage(picture);
     }
 
     private async void BtnSelect_Click(object sender, RoutedEventArgs e)
@@ -613,6 +612,7 @@ public partial class BuyEditDialog : Window
             txtAmount.Text = "1";
             txtMemo.Text = "";
             imgPart.Source = null;
+            txtImgInfo.Visibility = Visibility.Collapsed;
             dgBuyHistory.ItemsSource = null;
         }
         finally
@@ -644,7 +644,12 @@ public partial class BuyEditDialog : Window
         if (dlg.ShowDialog() != true) return;
         try
         {
-            var bytes = File.ReadAllBytes(dlg.FileName);
+            var raw = File.ReadAllBytes(dlg.FileName);
+            // 超过 100KB 自动压缩，与配件编辑窗口保持一致（part_data.picture 统一限 100KB）
+            var bytes = ImageCompressor.CompressToLimit(raw, out var compressed);
+            if (compressed)
+                ShowImageInfo($"已压缩：{ImageCompressor.FormatSize(raw.Length)} → {ImageCompressor.FormatSize(bytes.Length)}");
+
             var dbFactory = App.ServiceProvider.GetRequiredService<IDbConnectionFactory>();
             using var db = await dbFactory.CreateAsync();
             db.Execute("UPDATE part_data SET picture=@Picture WHERE partid=@Id",
@@ -656,5 +661,12 @@ public partial class BuyEditDialog : Window
             _log.Error(ex, "上传图片失败, partId={PartId}", _partId);
             MessageBox.Show($"上传失败: {ex.Message}", "错误");
         }
+    }
+
+    /// <summary>上传按钮下方显示图片压缩信息（无信息时隐藏）</summary>
+    private void ShowImageInfo(string text)
+    {
+        txtImgInfo.Text = text;
+        txtImgInfo.Visibility = Visibility.Visible;
     }
 }

@@ -435,6 +435,7 @@ public partial class VinQueryWindow : Window, INotifyPropertyChanged
             {
                 Messages.Add(new VinChatMessage { IsUser = false, Text = "数据源Token已失效，请重新登录后再查询" });
                 RefreshSourceLoginStatus();
+                SyncPartListViewAfterQuery(null);
                 ScrollToBottom();
                 return;
             }
@@ -453,6 +454,7 @@ public partial class VinQueryWindow : Window, INotifyPropertyChanged
                 {
                     Messages.Add(new VinChatMessage { IsUser = false, Text = "VIN解码失败，未找到车型信息" });
                 }
+                SyncPartListViewAfterQuery(null);
                 ScrollToBottom();
                 return;
             }
@@ -464,6 +466,7 @@ public partial class VinQueryWindow : Window, INotifyPropertyChanged
             {
                 Messages.Add(new VinChatMessage { IsUser = false, Text = "数据源Token已失效，请重新登录后再查询" });
                 RefreshSourceLoginStatus();
+                SyncPartListViewAfterQuery(null);
                 ScrollToBottom();
                 return;
             }
@@ -502,6 +505,8 @@ public partial class VinQueryWindow : Window, INotifyPropertyChanged
                 Vin = vin
             };
             Messages.Add(msg);
+            // 停留在旧结果页时，直接切换到本次查询结果的配件适配列表
+            SyncPartListViewAfterQuery(allCategories);
 
             // Step 5: 检查各数据源错误
             if (_vinService is CompositeVinQueryService composite && composite.LastQueryErrors.Count > 0)
@@ -516,6 +521,7 @@ public partial class VinQueryWindow : Window, INotifyPropertyChanged
         catch (Exception ex)
         {
             Messages.Add(new VinChatMessage { IsUser = false, Text = $"查询失败: {ex.Message}" });
+            SyncPartListViewAfterQuery(null);
         }
         finally
         {
@@ -538,6 +544,7 @@ public partial class VinQueryWindow : Window, INotifyPropertyChanged
             {
                 Messages.Add(new VinChatMessage { IsUser = false, Text = "数据源Token已失效，请重新登录后再查询" });
                 RefreshSourceLoginStatus();
+                SyncPartListViewAfterQuery(null);
                 ScrollToBottom();
                 return;
             }
@@ -550,6 +557,7 @@ public partial class VinQueryWindow : Window, INotifyPropertyChanged
             {
                 Messages.Add(new VinChatMessage { IsUser = false, Text = "数据源Token已失效，请重新登录后再查询" });
                 RefreshSourceLoginStatus();
+                SyncPartListViewAfterQuery(null);
                 ScrollToBottom();
                 return;
             }
@@ -577,6 +585,7 @@ public partial class VinQueryWindow : Window, INotifyPropertyChanged
             if (allCategories.Count == 0)
             {
                 Messages.Add(new VinChatMessage { IsUser = false, Text = $"未找到编号/型号/名称包含\"{keyword}\"的配件" });
+                SyncPartListViewAfterQuery(null);
                 ScrollToBottom();
                 return;
             }
@@ -598,6 +607,8 @@ public partial class VinQueryWindow : Window, INotifyPropertyChanged
                 SearchKeyword = keyword,
                 PartCategories = allCategories
             });
+            // 停留在旧结果页时，直接切换到本次搜索结果的配件适配列表
+            SyncPartListViewAfterQuery(allCategories);
 
             if (_vinService is CompositeVinQueryService composite && composite.LastQueryErrors.Count > 0)
             {
@@ -612,6 +623,7 @@ public partial class VinQueryWindow : Window, INotifyPropertyChanged
         catch (Exception ex)
         {
             Messages.Add(new VinChatMessage { IsUser = false, Text = $"查询失败: {ex.Message}" });
+            SyncPartListViewAfterQuery(null);
         }
         finally
         {
@@ -792,6 +804,18 @@ public partial class VinQueryWindow : Window, INotifyPropertyChanged
     private void BtnPartListBack_Click(object sender, RoutedEventArgs e)
     {
         BackToChatView();
+    }
+
+    /// <summary>
+    /// 查询结束时同步视图：若窗口正停留在旧的配件适配列表页，先切回聊天视图；
+    /// 本次查询有结果时直接进入新结果的配件适配列表，无需手动点返回再找新消息。
+    /// </summary>
+    private void SyncPartListViewAfterQuery(List<VinPartCategoryGroup>? categories)
+    {
+        if (!_isShowingPartList) return;
+        BackToChatView();
+        if (categories != null && categories.Count > 0)
+            ShowPartListView(categories);
     }
 
     private void LstPartCategories_SelectionChanged(object sender, SelectionChangedEventArgs e)
