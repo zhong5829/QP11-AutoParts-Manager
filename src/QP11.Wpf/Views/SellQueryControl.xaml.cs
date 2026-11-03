@@ -149,10 +149,12 @@ public partial class SellQueryControl : UserControl, ITabContent
                 }
                 _customOrder = reordered;
                 lstActiveClients.ItemsSource = _customOrder;
+                UpdateActiveClientCount();
             }
             else
             {
                 lstActiveClients.ItemsSource = _allActiveClients;
+                UpdateActiveClientCount();
             }
         }
         catch (Exception ex)
@@ -173,6 +175,14 @@ public partial class SellQueryControl : UserControl, ITabContent
         if (lstActiveClients.SelectedItem is not ActiveClientItem client) return;
         cmbClient.SearchText = client.Name;
         DoSearch();
+    }
+
+    /// <summary>更新「活跃客户」标题后的总数显示（跟随当前列表内容）</summary>
+    private void UpdateActiveClientCount()
+    {
+        var count = (lstActiveClients.ItemsSource as System.Collections.IEnumerable)?
+            .Cast<object>().Count() ?? 0;
+        txtActiveClientCount.Text = $"（{count}个）";
     }
 
     private static List<ActiveClientItem> SortActiveClients(List<ActiveClientItem> clients)
@@ -248,6 +258,7 @@ public partial class SellQueryControl : UserControl, ITabContent
 
             _customOrder = matched;
             lstActiveClients.ItemsSource = _customOrder;
+            UpdateActiveClientCount();
             dlg.DialogResult = true;
             dlg.Close();
         };
@@ -260,6 +271,7 @@ public partial class SellQueryControl : UserControl, ITabContent
     {
         _customOrder = null;
         lstActiveClients.ItemsSource = _allActiveClients;
+        UpdateActiveClientCount();
     }
 
     private async void DoSearch()

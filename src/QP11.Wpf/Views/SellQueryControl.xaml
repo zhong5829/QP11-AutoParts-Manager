@@ -167,7 +167,9 @@
         <Border Grid.Column="1" Margin="6,0,0,0" BorderBrush="#CCC" BorderThickness="1" CornerRadius="3">
             <DockPanel>
                 <Border DockPanel.Dock="Top" Background="#F0F0F0" Padding="8,5" CornerRadius="3,3,0,0">
-                    <TextBlock Text="活跃客户" FontWeight="SemiBold" FontSize="13"/>
+                    <TextBlock FontWeight="SemiBold" FontSize="13">
+                        <Run Text="活跃客户"/><Run x:Name="txtActiveClientCount" Text="" Foreground="#666" FontWeight="Normal"/>
+                    </TextBlock>
                 </Border>
                 <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="4,2">
                     <Button Content="粘贴排序" FontSize="11" Padding="8,2" Click="BtnPasteOrder_Click"/>

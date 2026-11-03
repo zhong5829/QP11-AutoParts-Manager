@@ -33,8 +33,6 @@ public partial class PartEditWindow : Window
         if (_isEdit && entity != null)
         {
             txtPartno.Text = entity.Partno;
-            txtPartno.IsReadOnly = true;
-            txtPartno.Background = SystemColors.ControlBrush;
             txtName.Text = entity.Name;
             cboCarname.Text = entity.Carname;
             cboCartype.Text = entity.Cartype;
@@ -182,10 +180,34 @@ public partial class PartEditWindow : Window
             return;
         }
 
+        var newPartno = txtPartno.Text.Trim();
+        try
+        {
+            // 件号放开编辑后，校验不与其他配件重复（入库去重、联想匹配均依赖件号）
+            var dbFactory = App.ServiceProvider.GetRequiredService<IDbConnectionFactory>();
+            using (var db = await dbFactory.CreateAsync())
+            {
+                var dupId = await db.ExecuteScalarAsync<long?>(
+                    "SELECT partid FROM part_data WHERE RTRIM(partno)=@Partno AND partid<>@Id",
+                    new { Partno = newPartno, Id = _editEntity?.Partid ?? 0 });
+                if (dupId.HasValue)
+                {
+                    MessageBox.Show($"件号 {newPartno} 已被其他配件使用，请修改", "提示");
+                    return;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Serilog.Log.Warning(ex, "校验配件件号重复失败");
+            MessageBox.Show($"校验件号失败: {ex.Message}", "错误");
+            return;
+        }
+
         var entity = new PartData
         {
             Partid = _editEntity?.Partid ?? 0,
-            Partno = txtPartno.Text.Trim(),
+            Partno = newPartno,
             Name = txtName.Text.Trim(),
             Carname = cboCarname.Text?.Trim(),
             Cartype = cboCartype.Text?.Trim(),
