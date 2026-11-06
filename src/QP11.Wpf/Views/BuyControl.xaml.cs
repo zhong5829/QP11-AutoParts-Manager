@@ -83,6 +83,16 @@ public class BuyBillDisplay
     public int Flag { get; set; }
 }
 
+/// <summary>选中配件的进货历史行</summary>
+public class BuyPartHistoryItem
+{
+    public string? Sn { get; set; }
+    public DateTime? Datetime { get; set; }
+    public string? SupplierName { get; set; }
+    public long? Amount { get; set; }
+    public decimal? Inprice { get; set; }
+}
+
 public partial class BuyControl : UserControl, ITabContent
 {
     private readonly BuyViewModel _viewModel;
@@ -223,6 +233,52 @@ public partial class BuyControl : UserControl, ITabContent
         catch (Exception ex)
         {
             MessageBox.Show($"加载单据失败: {ex.Message}", "错误");
+        }
+    }
+
+    /// <summary>明细选中行变化时刷新右侧进货历史</summary>
+    private async void DgDetails_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        var item = dgDetails.SelectedItem as BuyDetailItem;
+        await LoadPartHistoryAsync(item?.PartId ?? 0);
+    }
+
+    /// <summary>
+    /// 加载选中配件的进货历史（口径与 SellEditDialog 的采购历史一致，按日期倒序）。
+    /// 新配件（PartId=0）或无选中行时显示空态。
+    /// </summary>
+    private async Task LoadPartHistoryAsync(long partId)
+    {
+        if (partId <= 0)
+        {
+            dgPartHistory.ItemsSource = null;
+            txtPartHistoryEmpty.Visibility = Visibility.Visible;
+            return;
+        }
+
+        try
+        {
+            var dbFactory = App.ServiceProvider.GetRequiredService<IDbConnectionFactory>();
+            using var db = await dbFactory.CreateAsync();
+            var sql = @"SELECT bill_buy.sn AS Sn, detail_buy.datetime AS Datetime,
+                        supplier_infor.name AS SupplierName,
+                        detail_buy.amount AS Amount, detail_buy.inprice AS Inprice
+                        FROM detail_buy
+                        LEFT JOIN bill_buy ON bill_buy.sn = detail_buy.sn
+                        LEFT JOIN supplier_infor ON supplier_infor.sid = bill_buy.supplier
+                        WHERE detail_buy.partid = @PartId
+                        ORDER BY detail_buy.datetime DESC";
+            var data = (await db.QueryAsync<BuyPartHistoryItem>(sql, new { PartId = partId })).ToList();
+
+            // 选择已切换则丢弃过期结果，避免异步返回错位
+            if (dgDetails.SelectedItem is not BuyDetailItem current || current.PartId != partId) return;
+
+            dgPartHistory.ItemsSource = data;
+            txtPartHistoryEmpty.Visibility = data.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"加载进货历史失败: {ex.Message}", "错误");
         }
     }
 
@@ -379,42 +435,58 @@ public partial class BuyControl : UserControl, ITabContent
             return;
         }
 
-        var dlg = new BuyEditDialog(partId: 0, partNo: "");
-        dlg.Owner = Window.GetWindow(this);
-        dlg.PartConfirmed += OnPartConfirmed;
-        dlg.ShowDialog();
-        dlg.PartConfirmed -= OnPartConfirmed;
+        // 打开选配件窗口，双击/回车打开采购编辑窗口，确认后即时加入进货明细
+        var selector = new PartSelectorWindow(
+            App.ServiceProvider.GetRequiredService<IPartRepository>(),
+            App.ServiceProvider.GetRequiredService<IPartQueryService>())
+        {
+            BuyEditMode = true
+        };
+        selector.ItemAdded += OnSelectorItemAdded;
+
+        var owner = Window.GetWindow(this);
+        if (owner != null && owner.IsLoaded)
+            selector.Owner = owner;
+
+        selector.ShowDialog();
     }
 
-    private void OnPartConfirmed(BuyEditDialog dlg)
+    /// <summary>选配件窗口中的采购编辑窗口确认后，加入进货明细</summary>
+    private void OnSelectorItemAdded(PartSelectResult result)
+    {
+        AddOrMergeDetail(new BuyDetailItem
+        {
+            PartId = result.PartId,
+            PartNo = result.PartNo,
+            PartName = result.PartName,
+            CarName = result.CarName,
+            Cartype = result.Cartype,
+            Unit = result.Unit,
+            Class = result.Class,
+            InPrice = result.InPrice,
+            Amount = result.Amount,
+            LsPrice = result.LsPrice,
+            PfPrice = result.PfPrice,
+            Place = result.Place,
+            Memo = result.Memo
+        });
+    }
+
+    /// <summary>合并到进货明细：已有配件按 PartId 去重，新配件按编码去重；已存在则累加数量</summary>
+    private void AddOrMergeDetail(BuyDetailItem item)
     {
         // 新配件（PartId=0）按编码去重，避免第二个新配件误匹配到第一个新配件行导致数量累加
-        var existing = dlg.ResultPartId > 0
-            ? Details.FirstOrDefault(d => d.PartId == dlg.ResultPartId)
+        var existing = item.PartId > 0
+            ? Details.FirstOrDefault(d => d.PartId == item.PartId)
             : Details.FirstOrDefault(d =>
-                string.Equals(d.PartNo?.Trim(), dlg.ResultPartNo?.Trim(), StringComparison.OrdinalIgnoreCase));
+                string.Equals(d.PartNo?.Trim(), item.PartNo?.Trim(), StringComparison.OrdinalIgnoreCase));
         if (existing != null)
         {
-            existing.Amount += dlg.ResultAmount;
+            existing.Amount += item.Amount;
         }
         else
         {
-            Details.Add(new BuyDetailItem
-            {
-                PartId = dlg.ResultPartId,
-                PartNo = dlg.ResultPartNo,
-                PartName = dlg.ResultName,
-                CarName = dlg.ResultCarName,
-                Cartype = dlg.ResultCarType,
-                Unit = dlg.ResultUnit,
-                Class = dlg.ResultClass,
-                InPrice = dlg.ResultInPrice,
-                Amount = dlg.ResultAmount,
-                LsPrice = dlg.ResultLsPrice,
-                PfPrice = dlg.ResultPfPrice,
-                Place = dlg.ResultPlace,
-                Memo = dlg.ResultMemo
-            });
+            Details.Add(item);
         }
         UpdateTotal();
     }

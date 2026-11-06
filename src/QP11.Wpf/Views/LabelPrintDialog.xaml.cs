@@ -15,10 +15,15 @@ namespace QP11.Wpf.Views;
 public partial class LabelPrintDialog : Window
 {
     private readonly LabelPrintItem _baseItem;
+    /// <summary>零件编码/配件名称原始值快照，打印完成后还原（改动仅本次打印生效，不写库）</summary>
+    private readonly string? _originalPartNo;
+    private readonly string? _originalName;
 
     public LabelPrintDialog(LabelPrintItem item)
     {
         InitializeComponent();
+        _originalPartNo = item.PartNo;
+        _originalName = item.Name;
         // 固定引用：预览编辑器与打印都操作同一份数据（双击修改后立即生效）
         _baseItem = new LabelPrintItem { PartNo = item.PartNo, Name = item.Name, CarType = item.CarType };
         txtPartNo.Text = _baseItem.PartNo;
@@ -114,6 +119,12 @@ public partial class LabelPrintDialog : Window
 
     private void Copies_Changed(object sender, System.Windows.Controls.TextChangedEventArgs e) => BuildPreview();
 
+    /// <summary>零件编码编辑实时刷新预览（仅本次打印生效）</summary>
+    private void PartNo_Changed(object sender, System.Windows.Controls.TextChangedEventArgs e) => BuildPreview();
+
+    /// <summary>配件名称编辑实时刷新预览（仅本次打印生效）</summary>
+    private void Name_Changed(object sender, System.Windows.Controls.TextChangedEventArgs e) => BuildPreview();
+
     /// <summary>车型编辑实时刷新预览（仅本次打印生效）</summary>
     private void CarType_Changed(object sender, System.Windows.Controls.TextChangedEventArgs e) => BuildPreview();
 
@@ -122,6 +133,15 @@ public partial class LabelPrintDialog : Window
         if (cboTemplate.SelectedItem is not LabelTemplate tpl) return;
         editor.SetTemplate(tpl);
         editor.SetItems(new[] { CurrentItem() });
+    }
+
+    /// <summary>打印完成后还原零件编码/配件名称原值（仅内存，不写库）</summary>
+    private void RestoreOriginalValues()
+    {
+        _baseItem.PartNo = _originalPartNo;
+        _baseItem.Name = _originalName;
+        txtPartNo.Text = _originalPartNo ?? "";
+        txtName.Text = _originalName ?? "";
     }
 
     private void BtnPrint_Click(object sender, RoutedEventArgs e)
@@ -143,6 +163,8 @@ public partial class LabelPrintDialog : Window
             var items = Enumerable.Repeat(editor.Items.FirstOrDefault() ?? CurrentItem(), CurrentCopies());
             var (doc, _) = LabelLayoutBuilder.Build(items, tpl);
             LabelPrintHelper.Print(doc, printerName, tpl);
+            // 本次打印已完成：还原零件编码/配件名称原值
+            RestoreOriginalValues();
             DialogResult = true;
         }
         catch (Exception ex)

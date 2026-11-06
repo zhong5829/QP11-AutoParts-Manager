@@ -88,6 +88,8 @@ public partial class LabelPrintWindow : Window
     private readonly IPartRepository _partRepo;
     private CancellationTokenSource? _searchCts;
     private readonly ObservableCollection<LabelPrintRow> _items = new();
+    /// <summary>零件编码/配件名称原始值快照，打印完成后还原（改动仅本次打印生效，不写库）</summary>
+    private readonly List<(LabelPrintRow Row, string? PartNo, string? Name)> _originalValues = new();
     /// <summary>抑制勾选批量更新时的重复预览刷新</summary>
     private bool _updatingSelection;
     private bool _uiReady;
@@ -127,6 +129,7 @@ public partial class LabelPrintWindow : Window
         {
             _items.Clear();
             dgItems.UnselectAll();
+            _originalValues.Clear();
             var data = await _partRepo.GetLabelItemsAsync(txtPartNo.Text.Trim(), txtName.Text.Trim(), txtCarType.Text.Trim());
             foreach (var d in data)
             {
@@ -141,6 +144,7 @@ public partial class LabelPrintWindow : Window
                 };
                 row.PropertyChanged += Item_PropertyChanged;
                 _items.Add(row);
+                _originalValues.Add((row, row.PartNo, row.Name));
             }
             chkAll.IsChecked = false;
             txtStatus.Text = $"共 {_items.Count} 条 · 标签按 仓位→零件编码 排序输出";
@@ -452,6 +456,17 @@ public partial class LabelPrintWindow : Window
         }
     }
 
+    /// <summary>打印完成后还原零件编码/配件名称原值（仅内存，预览与列表同步恢复）</summary>
+    private void RestoreOriginalValues()
+    {
+        foreach (var (row, partNo, name) in _originalValues)
+        {
+            row.PartNo = partNo;
+            row.Name = name;
+        }
+        RefreshPreview();
+    }
+
     private List<LabelPrintItem> SelectedRows()
     {
         dgItems.CommitEdit(System.Windows.Controls.DataGridEditingUnit.Cell, true);
@@ -496,6 +511,8 @@ public partial class LabelPrintWindow : Window
                 return;
             }
             LabelPrintHelper.Print(doc, printerName, tpl);
+            // 本次打印已完成：还原本页修改的零件编码/配件名称
+            RestoreOriginalValues();
             MessageBox.Show($"已发送 {rows.Count} 张标签到打印机：{printerName}", "提示");
         }
         catch (Exception ex)

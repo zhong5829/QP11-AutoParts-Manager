@@ -30,6 +30,9 @@ public partial class App : Application
     /// <summary>Web 服务是否正在运行</summary>
     public static bool WebServiceIsRunning => QP11.WebApi.Services.WebServerManager.IsRunning;
 
+    /// <summary>程序内部发起的退出（如更新重启）为 true，主窗口关闭时跳过用户退出确认</summary>
+    public static bool IsProgrammaticExit { get; set; }
+
     /// <summary>显示原生错误对话框（不依赖 WPF 窗口状态）</summary>
     private static void ShowError(string title, string message)
     {
@@ -377,7 +380,11 @@ public partial class App : Application
         };
         UpdateService = new UpdateService(client)
         {
-            ShutdownApp = () => Dispatcher.Invoke(() => Shutdown()),
+            ShutdownApp = () => Dispatcher.Invoke(() =>
+            {
+                IsProgrammaticExit = true;
+                Shutdown();
+            }),
             AccessToken = client.AccessToken,
             DownloadProxy = client.DownloadProxy
         };

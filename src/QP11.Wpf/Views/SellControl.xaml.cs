@@ -208,14 +208,11 @@ public partial class SellControl : UserControl, ITabContent
     {
         try
         {
-            // 3个查询并行执行，而非串行等待
+            // 2个查询并行执行，而非串行等待
             var clientsTask = _viewModel.LoadClientsAsync();
             var usersTask = _viewModel.LoadUsersAsync();
-            var dbFactory = App.ServiceProvider.GetRequiredService<IDbConnectionFactory>();
-            using var db = await dbFactory.CreateAsync();
-            var workersTask = db.QueryAsync("SELECT workid, name FROM work_infor ORDER BY workid");
 
-            await Task.WhenAll(clientsTask, usersTask, workersTask);
+            await Task.WhenAll(clientsTask, usersTask);
 
             var clients = await clientsTask;
             _allClients = clients;
@@ -226,10 +223,6 @@ public partial class SellControl : UserControl, ITabContent
             cboWorker.ItemsSource = users;
             cboWorker.DisplayMemberPath = "Name";
             cboWorker.SelectedValuePath = "Username";
-
-            var rows = await workersTask;
-            var qWorkers = rows.Select(r => new WorkerItem { Workid = (string)r.workid, Name = (string)r.name }).ToList();
-            txtQWorker.ItemsSource = qWorkers;
 
             var currentUsername = App.CurrentUser?.Username;
             if (!string.IsNullOrEmpty(currentUsername))
@@ -854,7 +847,13 @@ public partial class SellControl : UserControl, ITabContent
             var qEnd = dtQEnd.SelectedDate;
             if (DateTime.TryParse(dtQEnd.Text, out var pe)) qEnd = pe;
 
-            var display = await _viewModel.SearchBillsAsync(qStart, qEnd, txtQClient.SearchText);
+            if (!TryParseBillSnQuery(txtQBillSn.Text, out var snExact, out var snFrom, out var snTo, out var snError))
+            {
+                MessageBox.Show(snError, "单号格式不正确", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var display = await _viewModel.SearchBillsAsync(qStart, qEnd, txtQClient.SearchText, snExact, snFrom, snTo);
             dgBills.ItemsSource = display;
             await ApplyPrintStatusAsync(display);
         }
@@ -863,6 +862,73 @@ public partial class SellControl : UserControl, ITabContent
             MessageBox.Show($"查询失败: {ex.Message}", "错误");
         }
     }
+
+    /// <summary>
+    /// 解析查询条单号输入：留空不过滤；单个单号精确匹配；A-B 为闭区间范围（两端都包含）。
+    /// 数字单号补足 8 位前导零，与 SerialNumberService 生成 bill_sell.sn 的存储口径一致。
+    /// </summary>
+    private static bool TryParseBillSnQuery(string? input, out string? exact, out string? from, out string? to, out string? error)
+    {
+        exact = null;
+        from = null;
+        to = null;
+        error = null;
+
+        var text = input?.Trim();
+        if (string.IsNullOrEmpty(text)) return true;
+
+        var dashIndex = text.IndexOf('-');
+        if (dashIndex > 0)
+        {
+            if (text.IndexOf('-', dashIndex + 1) >= 0)
+            {
+                error = "单号范围只能包含一个“-”，请使用 起始单号-结束单号，例如 00308349-00308351。";
+                return false;
+            }
+
+            var start = NormalizeBillSn(text[..dashIndex].Trim());
+            var end = NormalizeBillSn(text[(dashIndex + 1)..].Trim());
+            if (start.Length == 0 || end.Length == 0)
+            {
+                error = "单号范围两端不能为空，请使用 起始单号-结束单号，例如 00308349-00308351。";
+                return false;
+            }
+            if (start.Any(char.IsWhiteSpace) || end.Any(char.IsWhiteSpace))
+            {
+                error = "单号不能包含空格，请检查输入。";
+                return false;
+            }
+            if (string.CompareOrdinal(start, end) > 0)
+            {
+                error = "起始单号不能大于结束单号，请检查输入。";
+                return false;
+            }
+
+            from = start;
+            to = end;
+            return true;
+        }
+
+        if (dashIndex == 0)
+        {
+            error = "单号范围缺少起始单号，请使用 起始单号-结束单号，例如 00308349-00308351。";
+            return false;
+        }
+
+        exact = NormalizeBillSn(text);
+        if (exact.Any(char.IsWhiteSpace))
+        {
+            exact = null;
+            error = "单号不能包含空格，请检查输入。";
+            return false;
+        }
+        return true;
+    }
+
+    /// <summary>数字单号不足 8 位时补足前导零；非数字单号（如历史 MIS 单号）保持原样。</summary>
+    private static string NormalizeBillSn(string sn) =>
+        sn.Length < 8 && sn.All(c => c is >= '0' and <= '9') ? sn.PadLeft(8, '0') : sn;
+
 
     /// <summary>填充单据的打印状态（仅销售单/退货单参与跟踪）</summary>
     private static async Task ApplyPrintStatusAsync(IEnumerable<BillSellDisplay> bills)

@@ -77,7 +77,9 @@ public partial class BuyReturnWindow : UserControl, ITabContent
         _supplierRepo = supplierRepo;
         InitializeComponent();
         dgDetails.ItemsSource = _details;
-        dtReturnDate.SelectedDate = DateTime.Now;
+        // 默认日期区间与采购单据查询页（BuyQueryControl）保持一致：近30天
+        dtStart.SelectedDate = DateTime.Today.AddDays(-30);
+        dtEnd.SelectedDate = DateTime.Today;
         Loaded += BuyReturnWindow_Loaded;
         _details.CollectionChanged += (_, _) => UpdateSummary();
     }
@@ -116,17 +118,7 @@ public partial class BuyReturnWindow : UserControl, ITabContent
 
         try
         {
-            var dbFactory = App.ServiceProvider.GetRequiredService<IDbConnectionFactory>();
-            using var db = await dbFactory.CreateAsync();
-            var sql = @"
-                SELECT b.sn, b.datetime, b.total, b.flag,
-                       CASE b.flag WHEN 1 THEN '正常' WHEN 2 THEN '已退' ELSE CONVERT(varchar,b.flag) END AS FlagText
-                FROM bill_buy b
-                WHERE b.supplier = @Sid
-                  AND ISNULL(b.flag, 0) <> 3
-                ORDER BY b.datetime DESC";
-            var bills = await db.QueryAsync<BuyBillListItem>(sql, new { Sid = sid });
-            dgBills.ItemsSource = bills.ToList();
+            dgBills.ItemsSource = await QueryBillListAsync(sid);
 
             _details.Clear();
             _currentBillSn = null;
@@ -136,6 +128,37 @@ public partial class BuyReturnWindow : UserControl, ITabContent
         {
             MessageBox.Show($"查询进货单据失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
         }
+    }
+
+    /// <summary>
+    /// 构造进货单据查询 SQL：日期区间与项目其它查询页一致，
+    /// 开始日期含当天 00:00，结束日期取次日 00:00（含结束日期全天）
+    /// </summary>
+    private static string BuildBillListSql(DateTime? start, DateTime? end)
+    {
+        var sql = @"
+                SELECT b.sn, b.datetime, b.total, b.flag,
+                       CASE b.flag WHEN 1 THEN '正常' WHEN 2 THEN '已退' ELSE CONVERT(varchar,b.flag) END AS FlagText
+                FROM bill_buy b
+                WHERE b.supplier = @Sid
+                  AND ISNULL(b.flag, 0) <> 3";
+        if (start.HasValue) sql += " AND b.datetime >= @Start";
+        if (end.HasValue) sql += " AND b.datetime < DATEADD(day, 1, @End)";
+        sql += " ORDER BY b.datetime DESC";
+        return sql;
+    }
+
+    /// <summary>
+    /// 按当前供应商与日期区间查询进货单据列表
+    /// </summary>
+    private async Task<List<BuyBillListItem>> QueryBillListAsync(string sid)
+    {
+        var dbFactory = App.ServiceProvider.GetRequiredService<IDbConnectionFactory>();
+        using var db = await dbFactory.CreateAsync();
+        var bills = await db.QueryAsync<BuyBillListItem>(
+            BuildBillListSql(dtStart.SelectedDate, dtEnd.SelectedDate),
+            new { Sid = sid, Start = dtStart.SelectedDate, End = dtEnd.SelectedDate });
+        return bills.ToList();
     }
 
     /// <summary>
@@ -271,17 +294,7 @@ public partial class BuyReturnWindow : UserControl, ITabContent
 
         try
         {
-            var dbFactory = App.ServiceProvider.GetRequiredService<IDbConnectionFactory>();
-            using var db = await dbFactory.CreateAsync();
-            var sql = @"
-                SELECT b.sn, b.datetime, b.total, b.flag,
-                       CASE b.flag WHEN 1 THEN '正常' WHEN 2 THEN '已退' ELSE CONVERT(varchar,b.flag) END AS FlagText
-                FROM bill_buy b
-                WHERE b.supplier = @Sid
-                  AND ISNULL(b.flag, 0) <> 3
-                ORDER BY b.datetime DESC";
-            var bills = await db.QueryAsync<BuyBillListItem>(sql, new { Sid = sid });
-            dgBills.ItemsSource = bills.ToList();
+            dgBills.ItemsSource = await QueryBillListAsync(sid);
         }
         catch (Exception ex)
         {

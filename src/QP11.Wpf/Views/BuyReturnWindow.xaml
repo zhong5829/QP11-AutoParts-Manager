@@ -22,6 +22,8 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="140"/>
                     <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="140"/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
@@ -31,10 +33,13 @@
                 <TextBlock Grid.Column="2" Text="退货单号:" VerticalAlignment="Center" Margin="10,2,2,2"/>
                 <TextBox Grid.Column="3" x:Name="txtReturnSn" IsReadOnly="True" Background="LightGray" Margin="2" VerticalAlignment="Center"/>
 
-                <TextBlock Grid.Column="4" Text="日期:" VerticalAlignment="Center" Margin="10,2,2,2"/>
-                <DatePicker Grid.Column="5" x:Name="dtReturnDate" Margin="2" VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="4" Text="开始日期:" VerticalAlignment="Center" Margin="10,2,2,2"/>
+                <DatePicker Grid.Column="5" x:Name="dtStart" Margin="2" VerticalAlignment="Center"/>
 
-                <Button Grid.Column="6" Content="查询" Width="60" Margin="10,2,2,2" Click="BtnQuery_Click" VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="6" Text="结束日期:" VerticalAlignment="Center" Margin="10,2,2,2"/>
+                <DatePicker Grid.Column="7" x:Name="dtEnd" Margin="2" VerticalAlignment="Center"/>
+
+                <Button Grid.Column="8" Content="查询" Width="60" Margin="10,2,2,2" Click="BtnQuery_Click" VerticalAlignment="Center"/>
             </Grid>
         </GroupBox>
 

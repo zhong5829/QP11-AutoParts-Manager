@@ -129,7 +129,8 @@
                 <DataGrid Grid.Row="1" x:Name="dgDetails" AutoGenerateColumns="False" CanUserAddRows="False"
                           VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
                           GridLinesVisibility="All" HorizontalGridLinesBrush="#E0E0E0" VerticalGridLinesBrush="#E0E0E0"
-                          RowHeight="28" CellEditEnding="DgDetails_CellEditEnding">
+                          RowHeight="28" CellEditEnding="DgDetails_CellEditEnding"
+                          SelectionChanged="DgDetails_SelectionChanged">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="编号" Width="80" Binding="{Binding PartNo, Converter={StaticResource SingleLineConverter}}" IsReadOnly="True" ElementStyle="{StaticResource SingleLineCell}"/>
                         <DataGridTextColumn Header="名称" Width="100" Binding="{Binding PartName, Converter={StaticResource SingleLineConverter}}" IsReadOnly="True" ElementStyle="{StaticResource SingleLineCell}"/>
@@ -145,19 +146,46 @@
                 </DataGrid>
             </Grid>
 
-            <!-- Right Panel: Bill List -->
-            <DataGrid Grid.Column="1" x:Name="dgBills" AutoGenerateColumns="False" IsReadOnly="True"
-                      VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
-                      SelectionMode="Single" SelectionChanged="DgBills_SelectionChanged">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="单号" Width="120" Binding="{Binding Sn, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}"/>
-                    <DataGridTextColumn Header="日期" Width="90" Binding="{Binding Datetime, StringFormat=yyyy-MM-dd}" ElementStyle="{StaticResource SingleLineCell}"/>
-                    <DataGridTextColumn Header="供应商" Width="90" Binding="{Binding SupplierName, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}"/>
-                    <DataGridTextColumn Header="业务员" Width="70" Binding="{Binding WorkerName, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}"/>
-                    <DataGridTextColumn Header="总额" Width="80" Binding="{Binding Total, StringFormat=N2}" ElementStyle="{StaticResource SingleLineCell}"/>
-                    <DataGridTextColumn Header="状态" Width="60" Binding="{Binding FlagText, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}"/>
-                </DataGrid.Columns>
-            </DataGrid>
+            <!-- Right Panel: Bill List + Selected Part Buy History -->
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <DataGrid Grid.Row="0" x:Name="dgBills" AutoGenerateColumns="False" IsReadOnly="True"
+                          VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
+                          SelectionMode="Single" SelectionChanged="DgBills_SelectionChanged">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="单号" Width="120" Binding="{Binding Sn, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}"/>
+                        <DataGridTextColumn Header="日期" Width="90" Binding="{Binding Datetime, StringFormat=yyyy-MM-dd}" ElementStyle="{StaticResource SingleLineCell}"/>
+                        <DataGridTextColumn Header="供应商" Width="90" Binding="{Binding SupplierName, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}"/>
+                        <DataGridTextColumn Header="业务员" Width="70" Binding="{Binding WorkerName, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}"/>
+                        <DataGridTextColumn Header="总额" Width="80" Binding="{Binding Total, StringFormat=N2}" ElementStyle="{StaticResource SingleLineCell}"/>
+                        <DataGridTextColumn Header="状态" Width="60" Binding="{Binding FlagText, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <!-- 选中配件的进货历史 -->
+                <GroupBox Grid.Row="1" Header="进货历史" Margin="0,4,0,0" Padding="2">
+                    <Grid>
+                        <DataGrid x:Name="dgPartHistory" AutoGenerateColumns="False" IsReadOnly="True"
+                                  VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
+                                  SelectionMode="Single">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="单号" Width="120" Binding="{Binding Sn, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}"/>
+                                <DataGridTextColumn Header="日期" Width="90" Binding="{Binding Datetime, StringFormat=yyyy-MM-dd}" ElementStyle="{StaticResource SingleLineCell}"/>
+                                <DataGridTextColumn Header="供应商" Width="*" Binding="{Binding SupplierName, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}"/>
+                                <DataGridTextColumn Header="数量" Width="60" Binding="{Binding Amount}" ElementStyle="{StaticResource SingleLineCell}"/>
+                                <DataGridTextColumn Header="进价" Width="70" Binding="{Binding Inprice, StringFormat=N2}" ElementStyle="{StaticResource SingleLineCell}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <TextBlock x:Name="txtPartHistoryEmpty" Text="在左侧明细中选择配件查看进货历史"
+                                   Foreground="Gray" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                   IsHitTestVisible="False"/>
+                    </Grid>
+                </GroupBox>
+            </Grid>
         </Grid>
     </Grid>
 </UserControl>

@@ -613,12 +613,18 @@ public partial class MainWindow : Window
         win.ShowDialog();
     }
 
-    private void MenuExit_Click(object sender, RoutedEventArgs e)
+    private void MenuExit_Click(object sender, RoutedEventArgs e) => Close();
+
+    /// <summary>
+    /// 统一退出确认入口：菜单「退出系统」、窗口右上角关闭按钮、Alt+F4 均经此确认，
+    /// 选择「否」时取消关闭；程序内部退出（如更新重启）由 App.IsProgrammaticExit 跳过确认。
+    /// </summary>
+    private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
     {
-        if (MessageBox.Show("确定退出系统?", "确认", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
-        {
-            Application.Current.Shutdown();
-        }
+        if (App.IsProgrammaticExit) return;
+
+        if (MessageBox.Show("确定退出系统?", "确认", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+            e.Cancel = true;
     }
 
     /// <summary>

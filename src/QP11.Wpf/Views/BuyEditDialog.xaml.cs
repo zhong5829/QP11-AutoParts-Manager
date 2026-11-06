@@ -23,6 +23,12 @@ public partial class BuyEditDialog : Window
     /// <summary>配件确认事件：确认后不关闭窗口，通过此事件通知调用方添加配件到明细</summary>
     public event Action<BuyEditDialog>? PartConfirmed;
 
+    /// <summary>确认后关闭窗口（供选配件窗口连续添加流程使用）；默认 false 保持原有的连续录入行为</summary>
+    public bool CloseOnConfirm { get; set; }
+
+    /// <summary>进价→数量→零售价→批发价 回车跳转链路（选配件窗口双击打开时启用）</summary>
+    public bool PriceEnterChain { get; set; }
+
     private long _partId;
     private PartData? _currentPart;
     private PartStock? _currentStock;
@@ -117,6 +123,10 @@ public partial class BuyEditDialog : Window
             await LoadPartByIdAsync(_partId);
         else if (!string.IsNullOrEmpty(cboPartNo.Text))
             await LoadPartByNoAsync(cboPartNo.Text.Trim());
+
+        // 键盘录入链路：打开后焦点落在进价并全选，便于直接输入覆盖原值
+        if (PriceEnterChain)
+            FocusAndSelect(txtInPrice);
     }
 
     private async Task LoadDddwDataAsync()
@@ -422,6 +432,10 @@ public partial class BuyEditDialog : Window
             if (_currentPart == null)
             {
                 _log.Warning("LoadPartByNoAsync: 未找到 partNo={PartNo}", partNo);
+                // 查不到即视为新配件：重置配件ID，确认时按新配件（PartId=0）处理，
+                // 避免沿用上一个配件的 ID 导致明细合并到错误的配件行
+                _partId = 0;
+                _currentStock = null;
                 return;
             }
 
@@ -523,30 +537,32 @@ public partial class BuyEditDialog : Window
         DisplayImage(picture);
     }
 
-    private async void BtnSelect_Click(object sender, RoutedEventArgs e)
+    /// <summary>
+    /// 金额录入链路的回车跳转：进价 → 数量 → 零售价 → 批发价 → 确定。
+    /// 用 PreviewKeyDown 拦截，避免窗口默认按钮(IsDefault)抢先触发确定。
+    /// 未启用链路时保持原有回车行为。
+    /// </summary>
+    private void PriceBox_PreviewKeyDown(object sender, KeyEventArgs e)
     {
-        var selector = new PartSelectorWindow(App.ServiceProvider.GetRequiredService<IPartRepository>(), App.ServiceProvider.GetRequiredService<IPartQueryService>()) { Owner = Window.GetWindow(this) };
-        if (selector.ShowDialog() != true || selector.SelectedParts.Count == 0) return;
+        if (!PriceEnterChain || e.Key != Key.Enter) return;
 
-        var part = selector.SelectedParts[0];
-        _partId = part.Partid;
-        _currentPart = part;
-        try
-        {
-            var dbFactory = App.ServiceProvider.GetRequiredService<IDbConnectionFactory>();
-            using var db = await dbFactory.CreateAsync();
-            _currentStock = db.QueryFirstOrDefault<PartStock>(
-                "SELECT * FROM part_stock WHERE partid=@Id", new { Id = part.Partid });
-        }
-        catch (Exception ex)
-        {
-            _log.Warning(ex, "BtnSelect_Click: 加载库存数据失败");
-            _currentStock = null;
-        }
+        e.Handled = true;
 
-        AutoFillFields();
-        await LoadBuyHistoryAsync(part.Partid);
-        DisplayImage(part.Picture);
+        if (sender == txtInPrice)
+            FocusAndSelect(txtAmount);
+        else if (sender == txtAmount)
+            FocusAndSelect(txtLsPrice);
+        else if (sender == txtLsPrice)
+            FocusAndSelect(txtPfPrice);
+        else
+            BtnConfirm_Click(this, new RoutedEventArgs());
+    }
+
+    /// <summary>聚焦输入框并全选内容，便于直接输入覆盖</summary>
+    private static void FocusAndSelect(TextBox box)
+    {
+        box.Focus();
+        box.SelectAll();
     }
 
     private void BtnConfirm_Click(object sender, RoutedEventArgs e)
@@ -586,6 +602,13 @@ public partial class BuyEditDialog : Window
 
         // 触发事件，通知调用方将配件添加到明细
         PartConfirmed?.Invoke(this);
+
+        // 单次录入模式：确认后直接关闭，由调用方读取结果
+        if (CloseOnConfirm)
+        {
+            Close();
+            return;
+        }
 
         // 重置窗口为新增状态，继续输入下一个配件
         _isAutoFilling = true;

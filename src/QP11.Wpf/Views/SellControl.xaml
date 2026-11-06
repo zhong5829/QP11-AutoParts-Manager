@@ -264,7 +264,7 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="100"/>
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="140"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
@@ -274,8 +274,8 @@
                 <DatePicker Grid.Column="3" x:Name="dtQEnd" Margin="2" helpers:DatePickerHelper.EnableSmartEdit="True"/>
                 <TextBlock Grid.Column="4" Text="客户:" VerticalAlignment="Center" Margin="8,2,2,2"/>
                 <controls:ClientSearchBox Grid.Column="5" x:Name="txtQClient" Margin="2"/>
-                <TextBlock Grid.Column="6" Text="业务员:" VerticalAlignment="Center" Margin="8,2,2,2"/>
-                <ComboBox Grid.Column="7" x:Name="txtQWorker" IsEditable="True" Margin="2" DisplayMemberPath="Name" SelectedValuePath="Workid"/>
+                <TextBlock Grid.Column="6" Text="单号:" VerticalAlignment="Center" Margin="8,2,2,2"/>
+                <TextBox Grid.Column="7" x:Name="txtQBillSn" Margin="2" ToolTip="支持单个单号或单号范围，如 00308349-00308351"/>
                 <Button Grid.Column="8" Content="查询" Width="60" Margin="4,2" Click="BtnSearchBills_Click"/>
                 <Button Grid.Column="9" Content="打印" Width="60" HorizontalAlignment="Left" Margin="4,2" Click="BtnPrintBill_Click"/>
                 <Button Grid.Column="9" Content="切换开单模式(F3)" HorizontalAlignment="Right" Padding="8,2" Margin="70,2,4,2" Click="BtnSwitchMode_Click"/>

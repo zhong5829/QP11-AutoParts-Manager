@@ -30,6 +30,9 @@ public class PartSelectResult
     public decimal PfPrice { get; set; }
     public decimal Amount { get; set; }
     public string Unit { get; set; } = "";
+    public string? Class { get; set; }
+    public string? Place { get; set; }
+    public string? Memo { get; set; }
 }
 
 public partial class PartSelectorWindow : Window
@@ -55,6 +58,9 @@ public partial class PartSelectorWindow : Window
 
     /// <summary>借货模式：双击复用销售开单配件历史窗口(SellEditDialog)，确认后通过 ItemAdded 实时加入借货明细</summary>
     public bool BorrowMode { get; set; }
+
+    /// <summary>采购进货模式：双击/回车打开采购编辑窗口(BuyEditDialog)，确认后通过 ItemAdded 实时加入进货明细</summary>
+    public bool BuyEditMode { get; set; }
 
     private readonly TextBox[] _queryTextBoxes;
     private bool _hideWaste = true; // 默认隐藏废品仓
@@ -197,7 +203,12 @@ public partial class PartSelectorWindow : Window
 
         if (dgParts.SelectedItem is not PartData part) return;
 
-        if (PurchaseMode)
+        if (BuyEditMode)
+        {
+            // 采购进货模式：打开采购编辑窗口，确认后实时加入进货明细
+            OpenBuyEditWindow(part);
+        }
+        else if (PurchaseMode)
         {
             // 采购模式：弹出编辑窗口设置数量和金额
             OpenBuyEditDialog(part);
@@ -301,6 +312,41 @@ public partial class PartSelectorWindow : Window
         }
     }
 
+    /// <summary>
+    /// 采购进货模式：打开采购编辑窗口(BuyEditDialog)，确认后通过 ItemAdded 实时加入进货明细。
+    /// 编辑窗口确认后即关闭，选配件窗口保持打开，可继续选择下一个配件。
+    /// </summary>
+    private void OpenBuyEditWindow(PartData part)
+    {
+        var dlg = new BuyEditDialog(part.Partid, part.Partno ?? "")
+        {
+            Owner = this,
+            CloseOnConfirm = true,
+            PriceEnterChain = true
+        };
+
+        // 确认后窗口以 Close() 关闭，DialogResult 为 false，需用 IsConfirmed 判断
+        dlg.ShowDialog();
+        if (!dlg.IsConfirmed) return;
+
+        ItemAdded?.Invoke(new PartSelectResult
+        {
+            PartId = dlg.ResultPartId,
+            PartNo = dlg.ResultPartNo,
+            PartName = dlg.ResultName,
+            CarName = dlg.ResultCarName,
+            Cartype = dlg.ResultCarType,
+            InPrice = dlg.ResultInPrice,
+            LsPrice = dlg.ResultLsPrice,
+            PfPrice = dlg.ResultPfPrice,
+            Amount = dlg.ResultAmount,
+            Unit = dlg.ResultUnit ?? "",
+            Class = dlg.ResultClass,
+            Place = dlg.ResultPlace,
+            Memo = dlg.ResultMemo
+        });
+    }
+
     private void OpenBuyEditDialog(PartData part)
     {
         // 计算配件总下单数量 = 已有明细数量 + 本次窗口内添加数量
@@ -375,7 +421,15 @@ public partial class PartSelectorWindow : Window
             return;
         }
 
-        if (PurchaseMode)
+        if (BuyEditMode)
+        {
+            // 采购进货模式：对选中项逐个打开采购编辑窗口
+            foreach (PartData part in dgParts.SelectedItems)
+            {
+                OpenBuyEditWindow(part);
+            }
+        }
+        else if (PurchaseMode)
         {
             // 采购模式：对选中项逐个弹窗设置数量/金额
             foreach (PartData part in dgParts.SelectedItems)

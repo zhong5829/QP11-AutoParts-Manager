@@ -13,10 +13,10 @@
         <StackPanel Grid.Column="0" Margin="0,0,8,0">
             <GroupBox Header="配件信息" Padding="6">
                 <StackPanel>
-                    <TextBlock Text="零件编码:" Margin="0,0,0,2"/>
-                    <TextBox x:Name="txtPartNo" IsReadOnly="True" Margin="0,0,0,6" Padding="4,2" Background="{x:Null}" BorderThickness="0" FontWeight="Bold"/>
-                    <TextBlock Text="配件名称:" Margin="0,0,0,2"/>
-                    <TextBox x:Name="txtName" IsReadOnly="True" Margin="0,0,0,6" Padding="4,2" Background="{x:Null}" BorderThickness="0"/>
+                    <TextBlock Text="零件编码（可编辑，仅本次打印）:" Margin="0,0,0,2"/>
+                    <TextBox x:Name="txtPartNo" Margin="0,0,0,6" Padding="4,2" FontWeight="Bold" TextChanged="PartNo_Changed"/>
+                    <TextBlock Text="配件名称（可编辑，仅本次打印）:" Margin="0,0,0,2"/>
+                    <TextBox x:Name="txtName" Margin="0,0,0,6" Padding="4,2" TextChanged="Name_Changed"/>
                     <TextBlock Text="车型（可编辑，仅本次打印）:" Margin="0,0,0,2"/>
                     <TextBox x:Name="txtCarType" Margin="0,0,0,2" Padding="4,2" TextChanged="CarType_Changed"/>
                 </StackPanel>

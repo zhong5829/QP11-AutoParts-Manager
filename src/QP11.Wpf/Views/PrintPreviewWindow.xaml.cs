@@ -4,8 +4,11 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Documents;
+using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading;
 using Dapper;
 using Microsoft.Extensions.DependencyInjection;
 using QP11.Core.Interfaces;
@@ -84,12 +87,19 @@ public partial class PrintPreviewWindow : Window
     private readonly DataTable? _tableData;
     private readonly string _title;
 
+    /// <summary>明细行零件编码/零件名原始值快照，打印结束或关闭预览时还原（改动不写库）</summary>
+    private readonly List<(BillPrintItem Item, string? PartNo, string? PartName)> _originalValues = new();
+
+    /// <summary>当前正在编辑的单元格状态（同一时间只允许一处编辑）</summary>
+    private CellEditState? _editState;
+
     public PrintPreviewWindow(BillPrintData billData, string title = "打印预览")
     {
         InitializeComponent();
         _billData = billData;
         _title = title;
         Title = title;
+        CaptureOriginalValues();
         LoadPrinters();
         LoadPrintSettings();
         BuildBillDocument();
@@ -181,6 +191,9 @@ public partial class PrintPreviewWindow : Window
     {
         if (_billData == null) return;
 
+        // 重建文档前先提交正在编辑的单元格，避免输入丢失
+        FinishCellEdit(true);
+
         // 应用高度到设置
         var settings = PrintSettingsService.Load();
         if (double.TryParse(txtHeight.Text, out var h) && h >= 0 && h <= 999)
@@ -200,7 +213,177 @@ public partial class PrintPreviewWindow : Window
 
         var doc = BillDocumentBuilder.Build(_billData, columns, settings);
         docReader.Document = doc;
+
+        // 为明细表零件编码/零件名单元格挂接双击就地编辑
+        AttachCellEditors(doc, columns);
     }
+
+    #region 零件编码/零件名就地编辑（仅本次打印生效，不写库）
+
+    /// <summary>编辑单元格状态</summary>
+    private sealed class CellEditState
+    {
+        public TextBox Editor = null!;
+        public TableCell Cell = null!;
+        public BlockUIContainer Container = null!;
+        public TextBlock Text = null!;
+        public BillPrintItem Item = null!;
+        public bool IsPartNo;
+    }
+
+    private void CaptureOriginalValues()
+    {
+        _originalValues.Clear();
+        if (_billData == null) return;
+        foreach (var item in _billData.Items)
+            _originalValues.Add((item, item.PartNo, item.PartName));
+    }
+
+    private void RestoreOriginalValues()
+    {
+        foreach (var (item, partNo, partName) in _originalValues)
+        {
+            item.PartNo = partNo;
+            item.PartName = partName;
+        }
+    }
+
+    /// <summary>给明细表的零件编码/零件名单元格挂接双击编辑（其余列保持原样）</summary>
+    private void AttachCellEditors(FlowDocument doc, List<PrintColumnConfig> columns)
+    {
+        if (_billData == null) return;
+
+        var visibleColumns = columns.Where(c => c.Visible).OrderBy(c => c.Order).ToList();
+        var table = doc.Blocks.OfType<Table>().FirstOrDefault();
+        var rows = table?.RowGroups.FirstOrDefault()?.Rows;
+        if (rows == null || rows.Count < 2) return;
+
+        // 数据行按构建顺序与 _billData.Items 一一对应（首行为表头）
+        var dataRowCount = Math.Min(_billData.Items.Count, rows.Count - 1);
+        for (var itemIndex = 0; itemIndex < dataRowCount; itemIndex++)
+        {
+            var item = _billData.Items[itemIndex];
+            var row = rows[itemIndex + 1];
+            for (var colIndex = 0; colIndex < visibleColumns.Count && colIndex < row.Cells.Count; colIndex++)
+            {
+                var field = visibleColumns[colIndex].DataField ?? visibleColumns[colIndex].Key;
+                var isPartNo = field is "PartNo" or "partno";
+                var isPartName = field is "PartName" or "name";
+                if (!isPartNo && !isPartName) continue;
+
+                if (row.Cells[colIndex].Blocks.FirstBlock is not BlockUIContainer { Child: TextBlock tb }) continue;
+
+                tb.Cursor = Cursors.IBeam;
+                tb.ToolTip = "双击修改（仅本次打印生效）";
+                tb.MouseLeftButtonDown += (s, e) => OnCellMouseLeftButtonDown(e, tb, item, isPartNo);
+            }
+        }
+    }
+
+    private void OnCellMouseLeftButtonDown(MouseButtonEventArgs e, TextBlock source, BillPrintItem item, bool isPartNo)
+    {
+        if (e.ClickCount != 2) return;
+        e.Handled = true;
+        BeginCellEdit(source, item, isPartNo);
+    }
+
+    private void BeginCellEdit(TextBlock source, BillPrintItem item, bool isPartNo)
+    {
+        // 同一时间只允许一处编辑，先放弃上一处未提交的输入
+        FinishCellEdit(false);
+
+        if (source.Parent is not BlockUIContainer container || container.Parent is not TableCell cell) return;
+
+        var editor = new TextBox
+        {
+            Text = (isPartNo ? item.PartNo : item.PartName) ?? "",
+            FontFamily = source.FontFamily,
+            FontSize = source.FontSize,
+            Height = source.Height,
+            Padding = source.Padding,
+            BorderThickness = new Thickness(0),
+            Background = Brushes.White,
+            VerticalContentAlignment = VerticalAlignment.Center,
+            TextAlignment = source.TextAlignment
+        };
+
+        _editState = new CellEditState
+        {
+            Editor = editor,
+            Cell = cell,
+            Container = container,
+            Text = source,
+            Item = item,
+            IsPartNo = isPartNo
+        };
+
+        editor.PreviewKeyDown += Editor_PreviewKeyDown;
+        editor.LostKeyboardFocus += Editor_LostKeyboardFocus;
+
+        cell.Blocks.Clear();
+        cell.Blocks.Add(new BlockUIContainer(editor));
+
+        // 进入编辑即全选，便于直接覆盖输入
+        editor.Dispatcher.BeginInvoke(new Action(() =>
+        {
+            editor.Focus();
+            editor.SelectAll();
+        }), DispatcherPriority.Input);
+    }
+
+    private void Editor_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        if (sender != _editState?.Editor) return;
+
+        if (e.Key == Key.Enter)
+        {
+            // 回车提交；标记 Handled 避免冒泡触发窗口按钮
+            e.Handled = true;
+            FinishCellEdit(true);
+        }
+        else if (e.Key == Key.Escape)
+        {
+            e.Handled = true;
+            FinishCellEdit(false);
+        }
+    }
+
+    private void Editor_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+    {
+        if (sender == _editState?.Editor) FinishCellEdit(true);
+    }
+
+    /// <summary>结束编辑：提交则写回内存数据并保留新值，否则还原原显示值</summary>
+    private void FinishCellEdit(bool commit)
+    {
+        var state = _editState;
+        if (state == null) return;
+        _editState = null;
+
+        state.Editor.PreviewKeyDown -= Editor_PreviewKeyDown;
+        state.Editor.LostKeyboardFocus -= Editor_LostKeyboardFocus;
+
+        if (commit)
+        {
+            var value = state.Editor.Text;
+            if (state.IsPartNo) state.Item.PartNo = value;
+            else state.Item.PartName = value;
+            state.Text.Text = value;
+        }
+
+        state.Cell.Blocks.Clear();
+        state.Cell.Blocks.Add(state.Container);
+    }
+
+    /// <summary>关闭预览时放弃未提交的编辑并还原原值</summary>
+    protected override void OnClosed(EventArgs e)
+    {
+        FinishCellEdit(false);
+        RestoreOriginalValues();
+        base.OnClosed(e);
+    }
+
+    #endregion
 
     private void BuildTableDocument()
     {
@@ -276,6 +459,9 @@ public partial class PrintPreviewWindow : Window
 
     private async void BtnPrint_Click(object sender, RoutedEventArgs e)
     {
+        // 提交正在编辑的单元格，确保本次打印使用最新值
+        FinishCellEdit(true);
+
         var printerName = cmbPrinter.SelectedItem?.ToString();
         if (string.IsNullOrEmpty(printerName))
         {
@@ -318,9 +504,18 @@ public partial class PrintPreviewWindow : Window
             // 打印成功后登记打印状态（仅销售单/退货单；失败不登记，避免漏提醒）
             await MarkPrintedAsync();
 
-            // 打印后重新赋值文档，防止预览变空白
-            docReader.Document = null;
-            docReader.Document = doc;
+            if (_billData != null)
+            {
+                // 本次打印已完成：还原零件编码/零件名原值，预览同步恢复为原始内容
+                RestoreOriginalValues();
+                BuildBillDocument();
+            }
+            else
+            {
+                // 打印后重新赋值文档，防止预览变空白
+                docReader.Document = null;
+                docReader.Document = doc;
+            }
         }
         catch (Exception ex)
         {

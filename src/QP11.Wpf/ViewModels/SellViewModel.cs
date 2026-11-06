@@ -434,7 +434,8 @@ public class SellViewModel : BaseViewModel
     /// <summary>
     /// 查询单据列表
     /// </summary>
-    public async Task<IEnumerable<BillSellDisplay>> SearchBillsAsync(DateTime? startDate, DateTime? endDate, string? clientKeyword)
+    public async Task<IEnumerable<BillSellDisplay>> SearchBillsAsync(DateTime? startDate, DateTime? endDate, string? clientKeyword,
+        string? snExact = null, string? snFrom = null, string? snTo = null)
     {
         using var db = await _dbFactory.CreateAsync();
         var sql = @"SELECT bill_sell.sn AS Sn, bill_sell.datetime AS Datetime,
@@ -451,13 +452,20 @@ public class SellViewModel : BaseViewModel
         if (endDate.HasValue) sql += " AND bill_sell.datetime < DATEADD(day, 1, @End)";
         if (!string.IsNullOrWhiteSpace(clientKeyword))
             sql += " AND (client_infor.name LIKE @Client OR bill_sell.client LIKE @Client)";
+        if (!string.IsNullOrWhiteSpace(snExact))
+            sql += " AND bill_sell.sn = @SnExact";
+        else if (!string.IsNullOrWhiteSpace(snFrom) && !string.IsNullOrWhiteSpace(snTo))
+            sql += " AND bill_sell.sn >= @SnFrom AND bill_sell.sn <= @SnTo";
         sql += " ORDER BY bill_sell.sn DESC";
 
         var data = (await Dapper.SqlMapper.QueryAsync(db, sql, new
         {
             Start = startDate,
             End = endDate,
-            Client = $"%{clientKeyword?.Trim()}%"
+            Client = $"%{clientKeyword?.Trim()}%",
+            SnExact = snExact,
+            SnFrom = snFrom,
+            SnTo = snTo
         })).ToList();
 
         return data.Select(b => new BillSellDisplay

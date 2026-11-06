@@ -154,9 +154,9 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="进价:" VerticalAlignment="Center"/>
-                        <TextBox Grid.Column="1" x:Name="txtInPrice" Margin="1,2"/>
+                        <TextBox Grid.Column="1" x:Name="txtInPrice" Margin="1,2" PreviewKeyDown="PriceBox_PreviewKeyDown"/>
                         <TextBlock Grid.Column="2" Text="数量:" VerticalAlignment="Center" Margin="4,0,0,0"/>
-                        <TextBox Grid.Column="3" x:Name="txtAmount" Text="1" Margin="1,2"/>
+                        <TextBox Grid.Column="3" x:Name="txtAmount" Text="1" Margin="1,2" PreviewKeyDown="PriceBox_PreviewKeyDown"/>
                     </Grid>
 
                     <Grid Grid.Row="13" Grid.ColumnSpan="2" Margin="0,0">
@@ -167,16 +167,15 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="零售价:" VerticalAlignment="Center"/>
-                        <TextBox Grid.Column="1" x:Name="txtLsPrice" Margin="1,2"/>
+                        <TextBox Grid.Column="1" x:Name="txtLsPrice" Margin="1,2" PreviewKeyDown="PriceBox_PreviewKeyDown"/>
                         <TextBlock Grid.Column="2" Text="批发价:" VerticalAlignment="Center" Margin="4,0,0,0"/>
-                        <TextBox Grid.Column="3" x:Name="txtPfPrice" Margin="1,2"/>
+                        <TextBox Grid.Column="3" x:Name="txtPfPrice" Margin="1,2" PreviewKeyDown="PriceBox_PreviewKeyDown"/>
                     </Grid>
 
                     <TextBlock Grid.Row="14" Text="备注:" VerticalAlignment="Center" Margin="0,2"/>
                     <TextBox Grid.Row="14" Grid.Column="1" x:Name="txtMemo" Margin="1,2"/>
 
                     <StackPanel Grid.Row="15" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,6,0,0">
-                        <Button Content="选择" Width="70" Height="26" Margin="0,0,6,0" Click="BtnSelect_Click"/>
                         <Button Content="确认(&amp;O)" Width="70" Height="26" Margin="0,0,6,0" Click="BtnConfirm_Click" IsDefault="True"/>
                         <Button Content="取消(&amp;C)" Width="70" Height="26" Click="BtnCancel_Click" IsCancel="True"/>
                     </StackPanel>
