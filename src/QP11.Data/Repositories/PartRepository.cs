@@ -238,7 +238,7 @@ public class PartRepository : IPartRepository
         return await db.QueryFirstOrDefaultAsync<PartStock>(sql, new { PartId = partId }, transaction);
     }
 
-    public async Task<IEnumerable<PartStockDisplay>> GetStockListAsync(string? keyword = null, int top = 0)
+    public async Task<IEnumerable<PartStockDisplay>> GetStockListAsync(string? keyword = null, int top = 0, bool includeNoStockParts = false)
     {
         using var db = await CreateConnectionAsync();
         // SQL Server 2000 在多列+ORDER BY 时会生成低效执行计划（9秒）。
@@ -249,6 +249,21 @@ public class PartRepository : IPartRepository
         var innerWhere = "WHERE ISNULL(part_data.DEL, '0') = '0'";
         if (!string.IsNullOrEmpty(keyword))
             innerWhere += " AND (part_data.name LIKE @Kw OR part_data.partno LIKE @Kw OR part_data.name_py LIKE @Kw OR part_data.carname LIKE @Kw OR part_data.cartype LIKE @Kw OR part_data.cartype_py LIKE @Kw OR part_data.[class] LIKE @Kw OR part_data.memo LIKE @Kw)";
+        // includeNoStockParts=true（采购进货/借货/采购订货配件选择窗口）：part_data 为主表 LEFT JOIN，仅存在于档案、无库存行的新配件也可查到；
+        // 默认（销售开单/库存查询/报损）：保持原 part_stock 驱动 INNER JOIN，仅显示有库存行的配件
+        var fromClause = includeNoStockParts
+            ? $@"FROM (SELECT {topClause} part_data.partid, part_data.partno FROM part_data
+                      LEFT JOIN part_stock ON part_stock.partid = part_data.partid
+                      {innerWhere}
+                      ORDER BY part_data.partno ASC) AS t
+                INNER JOIN part_data ON part_data.partid = t.partid
+                LEFT JOIN part_stock ON part_stock.partid = t.partid"
+            : $@"FROM (SELECT {topClause} part_stock.partid, part_data.partno FROM part_stock
+                      LEFT JOIN part_data ON part_data.partid = part_stock.partid
+                      {innerWhere}
+                      ORDER BY part_data.partno ASC) AS t
+                INNER JOIN part_data ON part_data.partid = t.partid
+                INNER JOIN part_stock ON part_stock.partid = t.partid";
         var sql = $@"SELECT part_data.partid AS PartId, part_data.partno AS PartNo, part_data.name AS Name, part_data.cartype AS CarType,
                     part_data.carname AS CarName, part_stock.place AS Place, part_data.unit AS Unit, part_data.[class] AS Class,
                     part_data.area AS Area, part_data.inprice AS InPrice, part_stock.amount AS Amount,
@@ -257,12 +272,7 @@ public class PartRepository : IPartRepository
                     part_data.part_th AS PartTh, part_data.part_gg AS PartGg,
                     part_data.part_cclb AS PartCclb, part_data.name_py AS NamePy, part_data.cartype_py AS CartypePy,
                     part_data.part_bzq AS PartBzq, part_data.part_bzrq AS PartBzrq
-                    FROM (SELECT {topClause} part_stock.partid, part_data.partno FROM part_stock
-                          LEFT JOIN part_data ON part_data.partid = part_stock.partid
-                          {innerWhere}
-                          ORDER BY part_data.partno ASC) AS t
-                    INNER JOIN part_data ON part_data.partid = t.partid
-                    INNER JOIN part_stock ON part_stock.partid = t.partid";
+                    {fromClause}";
         var result = await db.QueryAsync<PartStockDisplay>(sql, new { Kw = $"%{keyword}%" });
         return result;
     }
@@ -270,11 +280,14 @@ public class PartRepository : IPartRepository
     public async Task<IEnumerable<PartStockDisplay>> GetStockListAdvancedAsync(
         string? partNo = null, string? partName = null, string? partNamePy = null,
         string? cartype = null, string? cartypePy = null,
-        string? className = null, string? classPy = null, int queryMode = 3)
+        string? className = null, string? classPy = null, int queryMode = 3,
+        bool includeNoStockParts = false)
     {
         using var db = await CreateConnectionAsync();
         // SQL Server 2000 在多列+ORDER BY 时会生成低效执行计划（9秒）。
         // 方案：子查询先取 partid（轻量排序），外层再 JOIN 取所有列（走主键，快）。
+        // includeNoStockParts=true（采购进货/借货/采购订货配件选择窗口）：part_data 为主表 LEFT JOIN，无库存行的新配件也可查到；
+        // 默认（销售开单/库存查询/报损）：保持原 part_stock 驱动 INNER JOIN，仅显示有库存行的配件。
         var innerWhere = "WHERE ISNULL(part_data.DEL, '0') = '0'";
 
         var parameters = new DynamicParameters();
@@ -363,6 +376,19 @@ public class PartRepository : IPartRepository
             parameters.Add("ClassKw", value);
         }
 
+        var fromClause = includeNoStockParts
+            ? $@"FROM (SELECT TOP 999999999 part_data.partid, part_data.partno FROM part_data
+                      LEFT JOIN part_stock ON part_stock.partid = part_data.partid
+                      {innerWhere}
+                      ORDER BY part_data.partno ASC) AS t
+                INNER JOIN part_data ON part_data.partid = t.partid
+                LEFT JOIN part_stock ON part_stock.partid = t.partid"
+            : $@"FROM (SELECT TOP 999999999 part_stock.partid, part_data.partno FROM part_stock
+                      LEFT JOIN part_data ON part_data.partid = part_stock.partid
+                      {innerWhere}
+                      ORDER BY part_data.partno ASC) AS t
+                INNER JOIN part_data ON part_data.partid = t.partid
+                INNER JOIN part_stock ON part_stock.partid = t.partid";
         var sql = $@"SELECT part_data.partid AS PartId, part_data.partno AS PartNo, part_data.name AS Name, part_data.cartype AS CarType,
                     part_data.carname AS CarName, part_stock.place AS Place, part_data.unit AS Unit, part_data.[class] AS Class,
                     part_data.area AS Area, part_data.inprice AS InPrice, part_stock.amount AS Amount,
@@ -371,12 +397,7 @@ public class PartRepository : IPartRepository
                     part_data.part_th AS PartTh, part_data.part_gg AS PartGg,
                     part_data.part_cclb AS PartCclb, part_data.name_py AS NamePy, part_data.cartype_py AS CartypePy,
                     part_data.part_bzq AS PartBzq, part_data.part_bzrq AS PartBzrq
-                    FROM (SELECT TOP 999999999 part_stock.partid, part_data.partno FROM part_stock
-                          LEFT JOIN part_data ON part_data.partid = part_stock.partid
-                          {innerWhere}
-                          ORDER BY part_data.partno ASC) AS t
-                    INNER JOIN part_data ON part_data.partid = t.partid
-                    INNER JOIN part_stock ON part_stock.partid = t.partid";
+                    {fromClause}";
         var result = await db.QueryAsync<PartStockDisplay>(sql, parameters);
         return result;
     }

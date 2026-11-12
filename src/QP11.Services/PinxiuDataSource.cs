@@ -22,6 +22,8 @@ public class PinxiuDataSource : IVinDataSource
     private string? _accessToken;
     private string? _savedPhone;
     private string[]? _cachedMjsids;
+    /// <summary>缓存mjsid所属的VIN，防止新VIN解码失败时误用上一个VIN的mjsid取到错误配件数据</summary>
+    private string? _cachedMjsidVin;
 
     private static readonly string TokenFilePath = Path.Combine(
         AppDomain.CurrentDomain.BaseDirectory, "Data", "vin_token_pinxiu.json");
@@ -318,6 +320,10 @@ public class PinxiuDataSource : IVinDataSource
     {
         try
         {
+            // 解码前先重置mjsid缓存：新VIN解码失败时不得残留上一个VIN的mjsid，否则会取到错误配件数据
+            _cachedMjsids = null;
+            _cachedMjsidVin = null;
+
             var url = $"{ApiBase}/pdmPro/aisearch/getAlphaRecommendVehicleList";
             var request = CreateRequest(HttpMethod.Post, url);
 
@@ -346,15 +352,15 @@ public class PinxiuDataSource : IVinDataSource
 
             if (!root.Value.TryGetProperty("data", out var data)) return null;
 
-            // 缓存mjsid用于后续GetPartCards查询
+            // 缓存mjsid用于后续GetPartCards查询，并绑定所属VIN
             var mjsidRaw = data.TryGetProperty("list", out var list) && list.GetArrayLength() > 0
                 ? list[0].TryGetProperty("mjsid", out var mid) ? mid.GetString() : null
                 : null;
 
-            if (!string.IsNullOrEmpty(mjsidRaw))
-            {
-                _cachedMjsids = mjsidRaw.Split(',', StringSplitOptions.RemoveEmptyEntries);
-            }
+            _cachedMjsidVin = vin;
+            _cachedMjsids = string.IsNullOrEmpty(mjsidRaw)
+                ? Array.Empty<string>()
+                : mjsidRaw.Split(',', StringSplitOptions.RemoveEmptyEntries);
 
             // 从 list[0] 解析车辆信息
             if (list.ValueKind != JsonValueKind.Array || list.GetArrayLength() == 0)
@@ -387,9 +393,9 @@ public class PinxiuDataSource : IVinDataSource
             // 品秀API无分页，第1页已返回全部数据，后续页返回空结果避免重复
             if (page > 1)
                 return new VinPartPageResult { Current = page, Pages = 1, Total = 0 };
-            if (_cachedMjsids == null || _cachedMjsids.Length == 0)
+            if (_cachedMjsids == null || _cachedMjsids.Length == 0 || !string.Equals(_cachedMjsidVin, vin, StringComparison.OrdinalIgnoreCase))
             {
-                Log.Warning("品秀GetPartCards: 无缓存mjsid，需先调用DecodeVinAsync");
+                Log.Warning("品秀GetPartCards: 缓存mjsid缺失或不属于当前VIN({Vin})，拒绝使用其他VIN的mjsid", vin);
                 return null;
             }
 

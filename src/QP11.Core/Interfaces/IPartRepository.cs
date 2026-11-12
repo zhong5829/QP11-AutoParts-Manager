@@ -23,8 +23,9 @@ public interface IPartRepository : IRepository<PartData>
     /// <summary>更新配件分类（part_data.[class]，空值不更新，避免覆盖档案原有分类）</summary>
     Task<int> UpdateClassAsync(long partid, string? className, IDbTransaction? transaction = null, IDbConnection? conn = null);
     Task<PartStock?> GetStockByIdAsync(long partId, IDbTransaction? transaction = null, IDbConnection? conn = null);
-    Task<IEnumerable<PartStockDisplay>> GetStockListAsync(string? keyword = null, int top = 0);
-    Task<IEnumerable<PartStockDisplay>> GetStockListAdvancedAsync(string? partNo = null, string? partName = null, string? partNamePy = null, string? cartype = null, string? cartypePy = null, string? className = null, string? classPy = null, int queryMode = 3);
+    /// <summary>库存配件列表。includeNoStockParts=true 时（采购/借货选配件）同时返回仅存在于档案、无库存行的新配件</summary>
+    Task<IEnumerable<PartStockDisplay>> GetStockListAsync(string? keyword = null, int top = 0, bool includeNoStockParts = false);
+    Task<IEnumerable<PartStockDisplay>> GetStockListAdvancedAsync(string? partNo = null, string? partName = null, string? partNamePy = null, string? cartype = null, string? cartypePy = null, string? className = null, string? classPy = null, int queryMode = 3, bool includeNoStockParts = false);
     /// <summary>标签打印数据查询：三条件（编码/名称/车型），按仓位、零件编码排序</summary>
     Task<IEnumerable<PartStockDisplay>> GetLabelItemsAsync(string? partNo = null, string? partName = null, string? cartype = null, int top = 0);
     /// <summary>按多个配件编号精确查询（用于多条件查询弹窗）</summary>

@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:QP11.Wpf.Views"
         xmlns:cvt="clr-namespace:QP11.Wpf.Converters"
+        xmlns:controls="clr-namespace:QP11.Wpf.Controls"
         Title="VIN查询" Width="520" Height="700"
         WindowStartupLocation="CenterScreen"
         ResizeMode="CanResize"
@@ -22,7 +23,7 @@
         <DataTemplate x:Key="UserMsgTpl">
             <StackPanel HorizontalAlignment="Right" Margin="40,4,8,4">
                 <Border Background="#2196F3" CornerRadius="8" Padding="10,8">
-                    <TextBox Text="{Binding Text}" Foreground="White" FontSize="14"
+                    <controls:FastCopyTextBox Text="{Binding Text}" Foreground="White" FontSize="14"
                              TextWrapping="Wrap" MaxWidth="360"
                              IsReadOnly="True" BorderThickness="0" Background="Transparent"
                              Cursor="IBeam" CaretBrush="White" SelectionBrush="#64B5F6"/>
@@ -36,7 +37,7 @@
                 <!-- 纯文本消息 -->
                 <Border Background="#F0F0F0" CornerRadius="8" Padding="10,8"
                         Visibility="{Binding Text, Converter={StaticResource NullToCollapsed}}">
-                    <TextBox Text="{Binding Text}" Foreground="#333333" FontSize="14"
+                    <controls:FastCopyTextBox Text="{Binding Text}" Foreground="#333333" FontSize="14"
                              TextWrapping="Wrap" MaxWidth="420"
                              IsReadOnly="True" BorderThickness="0" Background="Transparent"
                              Cursor="IBeam"/>

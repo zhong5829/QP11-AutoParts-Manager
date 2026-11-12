@@ -1,8 +1,9 @@
 <UserControl x:Class="QP11.Wpf.Controls.ClientSearchBox"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:QP11.Wpf.Controls">
     <Grid>
-        <TextBox x:Name="txtInput"
+        <controls:FastCopyTextBox x:Name="txtInput"
                  VerticalContentAlignment="Center"
                  Padding="2,0"
                  TextChanged="TxtInput_TextChanged"

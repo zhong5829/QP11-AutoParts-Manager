@@ -92,8 +92,8 @@ public partial class PartSelectorWindow : Window
             List<PartData> results;
             if (string.IsNullOrEmpty(partNo) && string.IsNullOrEmpty(partName) && string.IsNullOrEmpty(cartype))
             {
-                // 无条件时加载前200条
-                var data = await _partRepo.GetStockListAsync(null, 200);
+                // 无条件时加载前200条（includeNoStockParts：采购/借货选配件需看到未入库的新档案配件）
+                var data = await _partRepo.GetStockListAsync(null, 200, includeNoStockParts: true);
                 results = data.Select(p => new PartData { Partid = p.PartId, Partno = p.PartNo, Name = p.Name,
                     Cartype = p.CarType, Carname = p.CarName, Unit = p.Unit, Place = p.Place,
                     Inprice = p.InPrice, Lsprice = p.LsPrice, Pfprice = p.PfPrice, Memo = p.Memo,
@@ -102,7 +102,7 @@ public partial class PartSelectorWindow : Window
             else
             {
                 // 有条件时使用高级查询（含完整拼音匹配，包含模式）
-                var data = await _partRepo.GetStockListAdvancedAsync(partNo, partName, partNamePy, cartype, cartypePy, null, null, 3);
+                var data = await _partRepo.GetStockListAdvancedAsync(partNo, partName, partNamePy, cartype, cartypePy, null, null, 3, includeNoStockParts: true);
                 results = data.Select(p => new PartData { Partid = p.PartId, Partno = p.PartNo, Name = p.Name,
                     Cartype = p.CarType, Carname = p.CarName, Unit = p.Unit, Place = p.Place,
                     Inprice = p.InPrice, Lsprice = p.LsPrice, Pfprice = p.PfPrice, Memo = p.Memo,
