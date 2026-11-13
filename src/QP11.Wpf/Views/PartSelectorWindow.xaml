@@ -50,16 +50,8 @@
                   PreviewKeyDown="DgParts_PreviewKeyDown"
                   ContextMenuOpening="DgParts_ContextMenuOpening"
                   CellEditEnding="DgParts_CellEditEnding"
-                  PreparingCellForEdit="DgParts_PreparingCellForEdit">
-            <DataGrid.RowStyle>
-                <Style TargetType="DataGridRow">
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding IsLowStock}" Value="True">
-                            <Setter Property="Foreground" Value="Red"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </DataGrid.RowStyle>
+                  PreparingCellForEdit="DgParts_PreparingCellForEdit"
+                  LoadingRow="DgParts_LoadingRow">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="件号" Width="100" Binding="{Binding Partno, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}" IsReadOnly="True"/>
                 <DataGridTextColumn Header="名称" Width="180" Binding="{Binding Name, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}" IsReadOnly="True"/>

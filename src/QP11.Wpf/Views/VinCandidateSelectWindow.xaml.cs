@@ -29,4 +29,10 @@ public partial class VinCandidateSelectWindow : Window
             MessageBox.Show("请选择一条配件记录", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
+
+    private void DgCandidates_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        // 双击行等同点确定，直接确认返回
+        BtnOk_Click(sender, e);
+    }
 }

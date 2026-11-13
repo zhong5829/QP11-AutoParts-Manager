@@ -503,11 +503,10 @@ public partial class PartSelectorWindow : Window
         {
             await _partRepo.UpdateWarningAsync(part.Partid, newWarning);
             part.StockWarning = newWarning;
-            // 直接更新当前行前景色
+            // 即时上色：仅当行容器仍显示该配件时才设置（行可能已被虚拟化回收复用给其他配件）
             _ = Dispatcher.BeginInvoke(() =>
             {
-                var row = e.Row;
-                if (row != null)
+                if (dgParts.ItemContainerGenerator.ContainerFromItem(part) is DataGridRow row && row.Item == part)
                     row.Foreground = part.IsLowStock ? Brushes.Red : Brushes.Black;
             }, System.Windows.Threading.DispatcherPriority.Background);
         }
@@ -515,6 +514,12 @@ public partial class PartSelectorWindow : Window
         {
             MessageBox.Show($"更新预警值失败: {ex.Message}", "错误");
         }
+    }
+
+    private void DgParts_LoadingRow(object sender, DataGridRowEventArgs e)
+    {
+        // 行颜色统一在装载时按当前数据重算（行启用回收复用，样式触发器/残留本地值会导致预警色错乱）
+        e.Row.Foreground = e.Row.Item is PartData p && p.IsLowStock ? Brushes.Red : Brushes.Black;
     }
 
     private static T? FindAncestor<T>(DependencyObject current) where T : DependencyObject

@@ -116,6 +116,7 @@ public partial class SellEditDialog : Window
 
         _ = LoadSellHistoryAsync(CancellationToken.None);
         LoadBuyHistoryAsync();
+        _ = LoadPartInfoAsync();
 
         // 只读模式：禁用所有输入控件，确认按钮置灰
         if (_readOnly)
@@ -233,6 +234,33 @@ public partial class SellEditDialog : Window
         catch (Exception ex)
         {
             Serilog.Log.Warning(ex, "加载销售历史失败");
+        }
+    }
+
+    /// <summary>配件信息行（分类/备注）</summary>
+    private sealed class PartInfoRow
+    {
+        public string? Class { get; set; }
+        public string? Memo { get; set; }
+    }
+
+    /// <summary>加载配件档案中的分类和备注，显示在左栏下方</summary>
+    private async Task LoadPartInfoAsync()
+    {
+        try
+        {
+            using var db = await _dbFactory.CreateAsync();
+            var part = await db.QueryFirstOrDefaultAsync<PartInfoRow>(
+                "SELECT class AS Class, memo AS Memo FROM part_data WHERE partid = @PartId",
+                new { PartId = _partId });
+            if (part == null) return;
+
+            txtPartClass.Text = (part.Class ?? "").Trim();
+            txtPartMemo.Text = (part.Memo ?? "").Trim();
+        }
+        catch (Exception ex)
+        {
+            Serilog.Log.Warning(ex, "加载配件分类/备注失败 PartId={PartId}", _partId);
         }
     }
 

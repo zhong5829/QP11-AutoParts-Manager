@@ -110,6 +110,23 @@
                           IsChecked="True"
                           Checked="ChkAutoMatch_Changed" Unchecked="ChkAutoMatch_Changed"/>
                 <TextBlock Text="提示:自动匹配客户最后一次价格提醒" Foreground="Gray" FontSize="11" Margin="0,0,0,4"/>
+
+                <Grid Margin="0,4,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="分类: " VerticalAlignment="Center"/>
+                    <TextBlock x:Name="txtPartClass" Grid.Column="1" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                </Grid>
+                <Grid Margin="0,2,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="备注: " VerticalAlignment="Center"/>
+                    <TextBlock x:Name="txtPartMemo" Grid.Column="1" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                </Grid>
             </StackPanel>
         </GroupBox>
 
