@@ -21,6 +21,11 @@ public partial class PartEditWindow : Window
     private byte[]? _pendingPicture;
     private bool _pictureChanged;
 
+    /// <summary>拼音码是否被用户手动编辑过：手动改过后名称变化不再自动覆盖</summary>
+    private bool _pyEditedByUser;
+    /// <summary>程序写入拼音码时置真，避免误判为手动编辑</summary>
+    private bool _suppressPyAuto;
+
     public PartEditWindow() : this(null) { }
 
     public PartEditWindow(PartData? entity)
@@ -46,6 +51,24 @@ public partial class PartEditWindow : Window
             txtNamePy.Text = entity.NamePy;
             txtMemo.Text = entity.Memo;
         }
+
+        // 初始加载完成后再挂拼音码编辑监听，构造期间的赋值不算手动编辑
+        txtNamePy.TextChanged += TxtNamePy_TextChanged;
+    }
+
+    /// <summary>名称变化时，拼音码未被手动编辑过就自动跟随重新生成（覆盖库里拼音码与名称本就不一致的历史数据）</summary>
+    private void TxtName_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+    {
+        if (_pyEditedByUser) return;
+        _suppressPyAuto = true;
+        txtNamePy.Text = PinyinHelper.GetPinyinInitials(txtName.Text.Trim());
+        _suppressPyAuto = false;
+    }
+
+    /// <summary>用户手动编辑拼音码后，名称变化不再自动覆盖</summary>
+    private void TxtNamePy_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+    {
+        if (!_suppressPyAuto) _pyEditedByUser = true;
     }
 
     private async void LoadDictData()
@@ -181,27 +204,33 @@ public partial class PartEditWindow : Window
         }
 
         var newPartno = txtPartno.Text.Trim();
-        try
+        // 历史数据存在大量重复件号：件号未实际改动时跳过查重，避免修改其他字段被误拦；仅件号变更时校验
+        bool partnoChanged = _editEntity == null ||
+            !string.Equals(newPartno, _editEntity.Partno?.Trim(), StringComparison.OrdinalIgnoreCase);
+        if (partnoChanged)
         {
-            // 件号放开编辑后，校验不与其他配件重复（入库去重、联想匹配均依赖件号）
-            var dbFactory = App.ServiceProvider.GetRequiredService<IDbConnectionFactory>();
-            using (var db = await dbFactory.CreateAsync())
+            try
             {
-                var dupId = await db.ExecuteScalarAsync<long?>(
-                    "SELECT partid FROM part_data WHERE RTRIM(partno)=@Partno AND partid<>@Id",
-                    new { Partno = newPartno, Id = _editEntity?.Partid ?? 0 });
-                if (dupId.HasValue)
+                // 件号放开编辑后，校验不与其他配件重复（入库去重、联想匹配均依赖件号）
+                var dbFactory = App.ServiceProvider.GetRequiredService<IDbConnectionFactory>();
+                using (var db = await dbFactory.CreateAsync())
                 {
-                    MessageBox.Show($"件号 {newPartno} 已被其他配件使用，请修改", "提示");
-                    return;
+                    var dupId = await db.ExecuteScalarAsync<long?>(
+                        "SELECT partid FROM part_data WHERE RTRIM(partno)=@Partno AND partid<>@Id",
+                        new { Partno = newPartno, Id = _editEntity?.Partid ?? 0 });
+                    if (dupId.HasValue)
+                    {
+                        MessageBox.Show($"件号 {newPartno} 已被其他配件使用，请修改", "提示");
+                        return;
+                    }
                 }
             }
-        }
-        catch (Exception ex)
-        {
-            Serilog.Log.Warning(ex, "校验配件件号重复失败");
-            MessageBox.Show($"校验件号失败: {ex.Message}", "错误");
-            return;
+            catch (Exception ex)
+            {
+                Serilog.Log.Warning(ex, "校验配件件号重复失败");
+                MessageBox.Show($"校验件号失败: {ex.Message}", "错误");
+                return;
+            }
         }
 
         var entity = new PartData

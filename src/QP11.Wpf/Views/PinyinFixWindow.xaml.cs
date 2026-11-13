@@ -41,13 +41,13 @@ public partial class PinyinFixWindow : Window
         try
         {
             var rows = await _partRepo.GetMissingPinyinAsync();
-            // 全量校正：对每条记录重新生成拼音，与原值不一致（忽略大小写）即纳入修复列表
+            // 全量校正：对每条记录重新生成拼音，与原值不一致（区分大小写，统一输出大写）即纳入修复列表
             _fixItems = rows.Select(r =>
             {
                 var namePyNew = PinyinHelper.GetPinyinInitials(r.Name ?? "");
                 var cartypePyNew = PinyinHelper.GetPinyinInitials(r.Cartype ?? "");
-                var nameNeedsFix = !string.Equals(r.NamePy ?? "", namePyNew, StringComparison.OrdinalIgnoreCase);
-                var cartypeNeedsFix = !string.Equals(r.CartypePy ?? "", cartypePyNew, StringComparison.OrdinalIgnoreCase);
+                var nameNeedsFix = !string.Equals(r.NamePy ?? "", namePyNew, StringComparison.Ordinal);
+                var cartypeNeedsFix = !string.Equals(r.CartypePy ?? "", cartypePyNew, StringComparison.Ordinal);
                 if (!nameNeedsFix && !cartypeNeedsFix) return null;
                 return new PinyinFixDisplay
                 {
@@ -65,8 +65,8 @@ public partial class PinyinFixWindow : Window
             dgResult.ItemsSource = new ObservableCollection<PinyinFixDisplay>(_fixItems);
             btnFixAll.IsEnabled = _fixItems.Count > 0;
 
-            var nameMissing = _fixItems.Count(i => !string.IsNullOrEmpty(i.Name) && !string.Equals(i.NamePyOld, i.NamePyNew, StringComparison.OrdinalIgnoreCase));
-            var cartypeMissing = _fixItems.Count(i => !string.IsNullOrEmpty(i.Cartype) && !string.Equals(i.CartypePyOld, i.CartypePyNew, StringComparison.OrdinalIgnoreCase));
+            var nameMissing = _fixItems.Count(i => !string.IsNullOrEmpty(i.Name) && !string.Equals(i.NamePyOld, i.NamePyNew, StringComparison.Ordinal));
+            var cartypeMissing = _fixItems.Count(i => !string.IsNullOrEmpty(i.Cartype) && !string.Equals(i.CartypePyOld, i.CartypePyNew, StringComparison.Ordinal));
             txtStatus.Text = $"扫描完成，发现 {_fixItems.Count} 条需修复记录";
             txtInfo.Text = _fixItems.Count > 0
                 ? $"名称拼音不一致: {nameMissing} 条，车型拼音不一致: {cartypeMissing} 条"

@@ -105,6 +105,16 @@ public partial class PrintPreviewWindow : Window
         BuildBillDocument();
     }
 
+    /// <summary>Esc 键关闭预览窗口</summary>
+    private void Window_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        if (e.Key == System.Windows.Input.Key.Escape)
+        {
+            Close();
+            e.Handled = true;
+        }
+    }
+
     public PrintPreviewWindow(DataTable data, string title = "打印预览")
     {
         InitializeComponent();

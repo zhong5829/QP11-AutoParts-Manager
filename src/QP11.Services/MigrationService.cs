@@ -1342,6 +1342,11 @@ public class MigrationService
                 // 保留数字（如车型 W164 中的 164），否则拼音码会丢失关键信息
                 result += c;
             }
+            else
+            {
+                // 空格、*、/ 等符号保留原样（与 PinyinHelper 同源约定一致）
+                result += c;
+            }
         }
         return result.Length > 30 ? result[..30] : result;
     }

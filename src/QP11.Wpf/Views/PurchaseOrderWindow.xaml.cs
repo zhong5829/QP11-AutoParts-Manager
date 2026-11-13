@@ -317,12 +317,22 @@ public partial class PurchaseOrderWindow : Window
         cboSupplier.Focus();
     }
 
+    private Views.PartSelectorWindow? _partSelector;
+
     private void BtnAdd_Click(object sender, RoutedEventArgs e)
     {
         if (string.IsNullOrWhiteSpace(cboSupplier.SearchText.Trim()))
         {
             MessageBox.Show("请先选择供应商", "提示");
             cboSupplier.Focus();
+            return;
+        }
+
+        // 已有选择窗口打开时：刷新已有明细数量后激活原窗口，避免重复开窗
+        if (_partSelector != null && _partSelector.IsLoaded)
+        {
+            _partSelector.ExistingPartAmounts = Details.Where(d => d.PartId > 0).ToDictionary(d => d.PartId, d => d.Amount);
+            _partSelector.Activate();
             return;
         }
 
@@ -359,12 +369,20 @@ public partial class PurchaseOrderWindow : Window
             UpdateTotal();
         };
 
-        var owner = Window.GetWindow(this);
-        if (owner != null && owner.IsLoaded)
-            selector.Owner = owner;
+        selector.Closed += (_, _) => _partSelector = null;
+        _partSelector = selector;
 
-        // PurchaseMode 下用 Show() 保持窗口打开，用户可连续选择多个配件
-        selector.ShowDialog();
+        // 计划订货用 Show() 非模态显示：订货期间可自由切换到销售开单等其他页面，无需先关闭选择窗口。
+        // 不设置 Owner（Owner 窗口会始终浮在主窗口上方形成"置顶"效果），并显示任务栏图标避免窗口被遮挡后丢失
+        selector.ShowInTaskbar = true;
+        selector.Show();
+    }
+
+    /// <summary>订货窗口关闭时联动关闭非模态的配件选择窗口，避免残留孤儿窗口</summary>
+    protected override void OnClosed(EventArgs e)
+    {
+        _partSelector?.Close();
+        base.OnClosed(e);
     }
 
     private async void BtnSave_Click(object sender, RoutedEventArgs e)

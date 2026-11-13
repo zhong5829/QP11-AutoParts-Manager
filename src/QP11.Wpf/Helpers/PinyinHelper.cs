@@ -57,14 +57,15 @@ namespace QP11.Wpf.Helpers
             var result = new StringBuilder(text.Length);
             foreach (char c in text)
             {
-                if (c >= 'a' && c <= 'z') result.Append(c);
-                else if (c >= 'A' && c <= 'Z') result.Append(char.ToLower(c));
+                if (c >= 'a' && c <= 'z') result.Append(char.ToUpper(c));
+                else if (c >= 'A' && c <= 'Z') result.Append(c);
                 else if (c >= '0' && c <= '9') result.Append(c);
                 else if (c >= 0x4e00 && c <= 0x9fff)
                 {
                     var initial = GetChinesePinyinInitial(c);
-                    if (initial.HasValue) result.Append(char.ToLower(initial.Value));
+                    if (initial.HasValue) result.Append(initial.Value); // 已是大写
                 }
+                else result.Append(c); // 空格、*、/ 等符号保留原样（与库内既有拼音码约定一致）
             }
             return result.ToString();
         }

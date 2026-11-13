@@ -720,8 +720,9 @@ public class PartRepository : IPartRepository
         using var db = await CreateConnectionAsync();
         // 全量校正：返回所有未删除且有 name/cartype 的记录，由 C# 端重新生成拼音并与原值比较
         // 这样可覆盖所有不一致情况（问号、空、数字丢失、以及其他编码错误）
-        var sql = @"SELECT partid AS PartId, partno AS Partno, name AS Name, name_py AS NamePy,
-                    cartype AS Cartype, cartype_py AS CartypePy
+        // name/name_py/cartype/cartype_py 用 RTRIM 去除 char 定长字段的尾部空格，否则比较不等导致大量记录被误判需修复
+        var sql = @"SELECT partid AS PartId, partno AS Partno, RTRIM(name) AS Name, RTRIM(name_py) AS NamePy,
+                    RTRIM(cartype) AS Cartype, RTRIM(cartype_py) AS CartypePy
                     FROM part_data
                     WHERE (DEL IS NULL OR DEL = '0')
                       AND (

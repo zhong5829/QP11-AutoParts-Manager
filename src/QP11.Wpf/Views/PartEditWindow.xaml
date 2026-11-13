@@ -30,7 +30,7 @@
             <TextBlock Text="件号:" VerticalAlignment="Center"/>
             <TextBox Grid.Column="1" x:Name="txtPartno" Margin="2" TabIndex="1"/>
             <TextBlock Grid.Row="1" Text="名称:" VerticalAlignment="Center" Margin="0,5,0,0"/>
-            <TextBox Grid.Row="1" Grid.Column="1" x:Name="txtName" Margin="2,5" TabIndex="2"/>
+            <TextBox Grid.Row="1" Grid.Column="1" x:Name="txtName" Margin="2,5" TabIndex="2" TextChanged="TxtName_TextChanged"/>
             <TextBlock Grid.Row="2" Text="适用车名:" VerticalAlignment="Center" Margin="0,5,0,0"/>
             <ComboBox Grid.Row="2" Grid.Column="1" x:Name="cboCarname" IsEditable="True" Margin="2,5" TabIndex="3"/>
             <TextBlock Grid.Row="3" Text="适用车型:" VerticalAlignment="Center" Margin="0,5,0,0"/>
