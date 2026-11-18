@@ -29,7 +29,7 @@ public interface IPartRepository : IRepository<PartData>
     /// <summary>标签打印数据查询：三条件（编码/名称/车型），按仓位、零件编码排序</summary>
     Task<IEnumerable<PartStockDisplay>> GetLabelItemsAsync(string? partNo = null, string? partName = null, string? cartype = null, int top = 0);
     /// <summary>按多个配件编号精确查询（用于多条件查询弹窗）</summary>
-    Task<IEnumerable<PartStockDisplay>> GetStockListByCodesAsync(IEnumerable<string> partNos);
+    Task<IEnumerable<PartStockDisplay>> GetStockListByCodesAsync(IEnumerable<string> partNos, bool includeNoStockParts = false);
     Task<long> GetOrCreateWasteStockAsync(long originalPartId, int quantity, IDbTransaction? transaction = null, IDbConnection? conn = null);
     Task DecreaseWasteStockAsync(long originalPartId, int quantity, IDbTransaction? transaction = null, IDbConnection? conn = null);
     Task<Dictionary<long, PartData>> GetByIdsAsync(IEnumerable<long> partIds);

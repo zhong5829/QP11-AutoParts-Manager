@@ -30,6 +30,7 @@
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="140"/>
                 <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <TextBlock Text="编码:" VerticalAlignment="Center" Margin="0,0,4,0"/>
@@ -38,6 +39,9 @@
             <TextBox Grid.Column="3" x:Name="txtPartName" Margin="2" TextChanged="TxtSearch_TextChanged" PreviewKeyDown="QueryTextBox_PreviewKeyDown"/>
             <TextBlock Grid.Column="4" Text="车型:" VerticalAlignment="Center" Margin="8,0,4,0"/>
             <TextBox Grid.Column="5" x:Name="txtCartype" Margin="2" TextChanged="TxtSearch_TextChanged" PreviewKeyDown="QueryTextBox_PreviewKeyDown"/>
+            <Button Grid.Column="6" Content="多条件查询" Padding="6,2" Margin="8,2,0,2" VerticalAlignment="Center" Click="BtnMultiCodeQuery_Click"/>
+            <Button Grid.Column="7" x:Name="btnAddNewPart" Content="新增配件" Padding="6,2" Margin="8,2,0,2" VerticalAlignment="Center"
+                    Visibility="Collapsed" Click="BtnAddNewPart_Click"/>
 
         </Grid>
 

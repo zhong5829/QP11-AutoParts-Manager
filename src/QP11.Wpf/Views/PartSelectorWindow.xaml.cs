@@ -74,6 +74,8 @@ public partial class PartSelectorWindow : Window
         dgParts.ItemsSource = Parts;
         _queryTextBoxes = new[] { txtPartNo, txtPartName, txtCartype };
         _searchTimer.Tick += (s, e) => { _searchTimer.Stop(); LoadPartsAsync(); };
+        // 「新增配件」按钮仅采购进货模式显示（调用方在 Show 前设置 BuyEditMode，故在 Loaded 时判定）
+        Loaded += (_, _) => btnAddNewPart.Visibility = BuyEditMode ? Visibility.Visible : Visibility.Collapsed;
         LoadPartsAsync();
     }
 
@@ -131,6 +133,28 @@ public partial class PartSelectorWindow : Window
     private static bool ContainsChinese(string text)
     {
         return text.Any(c => c >= 0x4e00 && c <= 0x9fff);
+    }
+
+    /// <summary>多条件查询：弹窗输入多个配件编号（每行一个），按编号模糊匹配刷新配件列表</summary>
+    private async void BtnMultiCodeQuery_Click(object sender, RoutedEventArgs e)
+    {
+        var dlg = new MultiCodeQueryDialog { Owner = this };
+        if (dlg.ShowDialog() != true) return;
+
+        try
+        {
+            var data = await _partRepo.GetStockListByCodesAsync(dlg.Codes, includeNoStockParts: true);
+            _allParts = data.Select(p => new PartData { Partid = p.PartId, Partno = p.PartNo, Name = p.Name,
+                Cartype = p.CarType, Carname = p.CarName, Unit = p.Unit, Place = p.Place,
+                Inprice = p.InPrice, Lsprice = p.LsPrice, Pfprice = p.PfPrice, Memo = p.Memo,
+                StockAmount = p.Amount, Isck = p.Isck, StockWarning = p.Warning }).ToList();
+            ApplyWasteFilter();
+        }
+        catch (Exception ex)
+        {
+            Serilog.Log.Warning(ex, "多条件查询失败");
+            MessageBox.Show($"多条件查询失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 
     private void TxtSearch_TextChanged(object sender, TextChangedEventArgs e)
@@ -316,9 +340,14 @@ public partial class PartSelectorWindow : Window
     /// 采购进货模式：打开采购编辑窗口(BuyEditDialog)，确认后通过 ItemAdded 实时加入进货明细。
     /// 编辑窗口确认后即关闭，选配件窗口保持打开，可继续选择下一个配件。
     /// </summary>
-    private void OpenBuyEditWindow(PartData part)
+    private void OpenBuyEditWindow(PartData part) => OpenBuyEditWindowCore(part.Partid, part.Partno ?? "");
+
+    /// <summary>新增配件按钮：直接打开空的采购编辑窗口（新增模式），确认后加入进货明细</summary>
+    private void BtnAddNewPart_Click(object sender, RoutedEventArgs e) => OpenBuyEditWindowCore(0, null);
+
+    private void OpenBuyEditWindowCore(long partId, string? partNo)
     {
-        var dlg = new BuyEditDialog(part.Partid, part.Partno ?? "")
+        var dlg = new BuyEditDialog(partId, partNo)
         {
             Owner = this,
             CloseOnConfirm = true,

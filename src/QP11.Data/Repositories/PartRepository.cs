@@ -443,7 +443,7 @@ public class PartRepository : IPartRepository
     /// 只搜 part_data.partno，不跨字段（坑 #18）。
     /// 按 500 个/批分片查询合并，规避 SQL Server 单条语句 2100 参数上限。
     /// </summary>
-    public async Task<IEnumerable<PartStockDisplay>> GetStockListByCodesAsync(IEnumerable<string> partNos)
+    public async Task<IEnumerable<PartStockDisplay>> GetStockListByCodesAsync(IEnumerable<string> partNos, bool includeNoStockParts = false)
     {
         var codeList = partNos?.Where(c => !string.IsNullOrWhiteSpace(c))
                                .Select(c => c.Trim())
@@ -477,13 +477,23 @@ public class PartRepository : IPartRepository
                 parameters.Add($"Code{j}", $"%{batch[j]}%");
             }
             // 子查询先取 partid（轻量排序），外层 JOIN 取全列；TOP 999999999 满足 SQL Server 2000 子查询 ORDER BY 必须配 TOP（坑 #5）
-            var sql = $@"{selectColumns}
-                    FROM (SELECT TOP 999999999 part_stock.partid, part_data.partno FROM part_stock
+            // includeNoStockParts=true（配件选择窗口）：part_data 为主表 LEFT JOIN，未入库的新配件也可查到；
+            // 默认保持 part_stock 驱动 INNER JOIN（销售开单多条件查询行为不变）
+            var fromClause = includeNoStockParts
+                ? $@"FROM (SELECT TOP 999999999 part_data.partid, part_data.partno FROM part_data
+                          LEFT JOIN part_stock ON part_stock.partid = part_data.partid
+                          WHERE ISNULL(part_data.DEL, '0') = '0' AND ({likeClauses})
+                          ORDER BY part_data.partno ASC) AS t
+                    INNER JOIN part_data ON part_data.partid = t.partid
+                    LEFT JOIN part_stock ON part_stock.partid = t.partid"
+                : $@"FROM (SELECT TOP 999999999 part_stock.partid, part_data.partno FROM part_stock
                           LEFT JOIN part_data ON part_data.partid = part_stock.partid
                           WHERE ISNULL(part_data.DEL, '0') = '0' AND ({likeClauses})
                           ORDER BY part_data.partno ASC) AS t
                     INNER JOIN part_data ON part_data.partid = t.partid
                     INNER JOIN part_stock ON part_stock.partid = t.partid";
+            var sql = $@"{selectColumns}
+                    {fromClause}";
             var batchResult = await db.QueryAsync<PartStockDisplay>(sql, parameters);
             allResults.AddRange(batchResult);
         }
