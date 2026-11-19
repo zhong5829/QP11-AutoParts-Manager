@@ -117,6 +117,20 @@ public partial class BuyControl : UserControl, ITabContent
         _currentFlag = 0;
         LoadDropdowns();
         LoadBillList();
+
+        // F1/F2 快捷键：F1 直接打开采购编辑窗口（连续入库），F2 打开配件选择窗口。
+        // 在本控件层拦截并标记已处理，防止冒泡到主窗口触发全局 F1/F2 映射
+        KeyDown += (s, e) =>
+        {
+            if (e.Key == Key.F1) { OpenStyleAddDialog(); e.Handled = true; }
+            else if (e.Key == Key.F2) { OnAdd(); e.Handled = true; }
+        };
+    }
+
+    /// <summary>双击明细行打开采购编辑窗口编辑该明细（原 F2 编辑入口迁移至此）</summary>
+    private void DgDetails_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+    {
+        OnEdit();
     }
 
     private async void LoadDropdowns()
@@ -306,6 +320,47 @@ public partial class BuyControl : UserControl, ITabContent
     private void BtnStyleAdd_Click(object sender, RoutedEventArgs e)
     {
         OnAdd();
+    }
+
+    /// <summary>式样新增F1按钮：直接打开采购编辑窗口（连续入库模式，确认后不关闭）</summary>
+    private void BtnStyleAddDirect_Click(object sender, RoutedEventArgs e) => OpenStyleAddDialog();
+
+    /// <summary>
+    /// 直接打开采购编辑窗口（空表单新增模式，CloseOnConfirm 默认 false）：
+    /// 每次确认即时加入进货明细并刷新合计，窗口保持打开，可连续录入多个配件。
+    /// </summary>
+    private void OpenStyleAddDialog()
+    {
+        if (string.IsNullOrWhiteSpace(cboSupplier.SearchText))
+        {
+            MessageBox.Show("请先选择供应商", "提示");
+            cboSupplier.Focus();
+            return;
+        }
+
+        var dlg = new BuyEditDialog
+        {
+            Owner = Window.GetWindow(this),
+            PriceEnterChain = true
+        };
+        // 连续入库：每次确认读取当前录入内容加入进货明细（复用明细合并/去重逻辑）
+        dlg.PartConfirmed += d => OnSelectorItemAdded(new PartSelectResult
+        {
+            PartId = d.ResultPartId,
+            PartNo = d.ResultPartNo,
+            PartName = d.ResultName,
+            CarName = d.ResultCarName,
+            Cartype = d.ResultCarType,
+            InPrice = d.ResultInPrice,
+            Amount = d.ResultAmount,
+            LsPrice = d.ResultLsPrice,
+            PfPrice = d.ResultPfPrice,
+            Unit = d.ResultUnit ?? "",
+            Class = d.ResultClass,
+            Place = d.ResultPlace,
+            Memo = d.ResultMemo
+        });
+        dlg.ShowDialog();
     }
 
     private void BtnExcelImport_Click(object sender, RoutedEventArgs e)

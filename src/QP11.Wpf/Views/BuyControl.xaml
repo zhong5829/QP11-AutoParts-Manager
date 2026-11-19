@@ -29,6 +29,7 @@
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
             <RadioButton x:Name="rbUnsettled" Content="未结算" IsChecked="True"
@@ -41,10 +42,11 @@
                          VerticalAlignment="Center" Margin="4,2" GroupName="BuyFlag"
                          Checked="RadioButton_Checked"/>
 
-            <Button Grid.Column="4" Content="式样新增(F1)" Width="90" Margin="4,2" Click="BtnStyleAdd_Click"/>
-            <Button Grid.Column="5" Content="表格导入" Width="75" Margin="4,2" Click="BtnExcelImport_Click"/>
-            <Button Grid.Column="6" Content="采购转销售" Width="85" Margin="4,2" Click="BtnBuyToSell_Click"/>
-            <Button Grid.Column="7" Content="打印预览" Width="75" Margin="4,2" Click="BtnPrintBill_Click"/>
+            <Button Grid.Column="4" Content="式样新增F1" Width="90" Margin="4,2" Click="BtnStyleAddDirect_Click"/>
+            <Button Grid.Column="5" Content="选择配件F2" Width="90" Margin="4,2" Click="BtnStyleAdd_Click"/>
+            <Button Grid.Column="6" Content="表格导入" Width="75" Margin="4,2" Click="BtnExcelImport_Click"/>
+            <Button Grid.Column="7" Content="采购转销售" Width="85" Margin="4,2" Click="BtnBuyToSell_Click"/>
+            <Button Grid.Column="8" Content="打印预览" Width="75" Margin="4,2" Click="BtnPrintBill_Click"/>
         </Grid>
 
         <!-- Row1: Left-Right Master-Detail -->
@@ -130,7 +132,8 @@
                           VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
                           GridLinesVisibility="All" HorizontalGridLinesBrush="#E0E0E0" VerticalGridLinesBrush="#E0E0E0"
                           RowHeight="28" CellEditEnding="DgDetails_CellEditEnding"
-                          SelectionChanged="DgDetails_SelectionChanged">
+                          SelectionChanged="DgDetails_SelectionChanged"
+                          MouseDoubleClick="DgDetails_MouseDoubleClick">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="编号" Width="80" Binding="{Binding PartNo, Converter={StaticResource SingleLineConverter}}" IsReadOnly="True" ElementStyle="{StaticResource SingleLineCell}"/>
                         <DataGridTextColumn Header="名称" Width="100" Binding="{Binding PartName, Converter={StaticResource SingleLineConverter}}" IsReadOnly="True" ElementStyle="{StaticResource SingleLineCell}"/>
