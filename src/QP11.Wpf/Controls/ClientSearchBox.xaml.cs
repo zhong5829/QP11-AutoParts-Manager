@@ -37,6 +37,9 @@ public partial class ClientSearchBox : UserControl
         set { _isSelecting = true; txtInput.Text = value; _isSelecting = false; }
     }
 
+    /// <summary>候选下拉列表是否打开（供宿主页面区分「选中客户的回车」与「选中后的再次回车」）</summary>
+    public bool IsPopupOpen => popup.IsOpen;
+
     /// <summary>聚焦内部输入框并全选文本（供快捷键定位客户输入框使用）</summary>
     public void FocusInput()
     {

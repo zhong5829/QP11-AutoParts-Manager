@@ -299,6 +299,17 @@ public class BuyViewModel : BaseViewModel
                         LsPrice = item.LsPrice,
                         PfPrice = item.PfPrice
                     }, txn);
+
+                    // 回写明细表 partid：保存单据时新配件尚未建档（partid=0），
+                    // 结算建档后必须回写，否则按 partid 查询的采购历史、统计永远为空
+                    var backfillSql = @"UPDATE detail_buy SET partid = @PartId
+                                        WHERE sn = @Sn AND RTRIM(partno) = @PartNo AND partid = 0";
+                    await txn.Connection!.ExecuteAsync(backfillSql, new
+                    {
+                        PartId = entity.Partid,
+                        Sn = sn,
+                        PartNo = item.PartNo?.Trim()
+                    }, txn);
                 }
             }
 

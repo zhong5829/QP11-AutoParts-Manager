@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using QP11.Core.Constants;
 using QP11.Core.Entities;
 using QP11.Core.Interfaces;
+using QP11.Wpf.Controls;
 using QP11.Wpf.Helpers;
 using QP11.Wpf.ViewModels;
 
@@ -60,6 +61,32 @@ public partial class SellQueryControl : UserControl, ITabContent
             ToggleMode();
             e.Handled = true;
         }
+        else if (e.Key == Key.Enter && IsEnterFromClientBox())
+        {
+            // 客户框候选下拉关闭（即客户已选中）时按回车，直接触发查询；
+            // 下拉打开时的回车由 ClientSearchBox 内部处理（选中客户），不会走到这里
+            DoSearch();
+            e.Handled = true;
+        }
+    }
+
+    /// <summary>回车是否来自客户搜索框内部（焦点在其输入框上、下拉已关闭、已输入内容）</summary>
+    private bool IsEnterFromClientBox()
+    {
+        if (cmbClient.IsPopupOpen) return false;
+        if (string.IsNullOrWhiteSpace(cmbClient.SearchText)) return false;
+        return Keyboard.FocusedElement is TextBox tb && IsDescendantOfClientBox(tb);
+    }
+
+    private static bool IsDescendantOfClientBox(TextBox tb)
+    {
+        for (var parent = System.Windows.Media.VisualTreeHelper.GetParent(tb) as DependencyObject;
+             parent != null;
+             parent = System.Windows.Media.VisualTreeHelper.GetParent(parent) as DependencyObject)
+        {
+            if (parent is ClientSearchBox) return true;
+        }
+        return false;
     }
 
     private void BtnSwitchMode_Click(object sender, RoutedEventArgs e) => ToggleMode();
