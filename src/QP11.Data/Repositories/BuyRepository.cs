@@ -169,6 +169,22 @@ public class BuyRepository : IBuyRepository
             "SELECT name FROM work_infor WHERE workid=@Workid", new { Workid = workid });
     }
 
+    /// <summary>仅更新采购单头备注（明细清单窗口回车保存用，不做整单覆盖）</summary>
+    public async Task<int> UpdateBillMemoAsync(string sn, string? memo)
+    {
+        using var db = await CreateConnectionAsync();
+        return await db.ExecuteAsync(
+            "UPDATE bill_buy SET memo=@Memo WHERE sn=@Sn", new { Memo = memo, Sn = sn });
+    }
+
+    /// <summary>仅更新采购明细行备注（明细清单窗口回车保存用，不做整单覆盖）</summary>
+    public async Task<int> UpdateDetailMemoAsync(long id, string? memo)
+    {
+        using var db = await CreateConnectionAsync();
+        return await db.ExecuteAsync(
+            "UPDATE detail_buy SET memo=@Memo WHERE id=@Id", new { Memo = memo, Id = id });
+    }
+
     public async Task<string> ResolveWorkerIdAsync(string workerName)
     {
         using var db = await CreateConnectionAsync();

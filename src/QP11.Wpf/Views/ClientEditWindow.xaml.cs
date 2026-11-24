@@ -82,7 +82,8 @@ public partial class ClientEditWindow : Window
             Level = cboLevel.Text,
             Credit = decimal.TryParse(txtCredit.Text, out var cr) ? cr : 0,
             Linkman = txtLinkman.Text.Trim(),
-            Note = txtNote.Text.Trim()
+            Note = txtNote.Text.Trim(),
+            NamePy = QP11.Wpf.Helpers.PinyinHelper.GetPinyinInitials(txtName.Text.Trim())
         };
 
         try

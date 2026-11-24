@@ -34,23 +34,24 @@
             <Button Grid.Column="9" Content="导出" Width="60" HorizontalAlignment="Left" Margin="4,2" Click="BtnExport_Click"/>
         </Grid>
 
-        <DataGrid Grid.Row="1" x:Name="dgBills" AutoGenerateColumns="False" IsReadOnly="True"
+        <DataGrid Grid.Row="1" x:Name="dgBills" AutoGenerateColumns="False"
                   VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
                   SelectionMode="Single" MouseDoubleClick="DgBills_MouseDoubleClick"
+                  CellEditEnding="DgBills_CellEditEnding"
                   CanUserAddRows="False">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="单号" Width="100" Binding="{Binding sn}"/>
-                <DataGridTextColumn Header="日期" Width="100" Binding="{Binding datetime, StringFormat=yyyy-MM-dd}"/>
-                <DataGridTextColumn Header="供应商" Width="120" Binding="{Binding supplier}"/>
-                <DataGridTextColumn Header="采购员" Width="70" Binding="{Binding worker}"/>
-                <DataGridTextColumn Header="进货总额" Width="90" Binding="{Binding total, StringFormat=N2}"/>
-                <DataGridTextColumn Header="现金" Width="80" Binding="{Binding cash, StringFormat=N2}"/>
-                <DataGridTextColumn Header="支票" Width="80" Binding="{Binding checks, StringFormat=N2}"/>
-                <DataGridTextColumn Header="欠款" Width="80" Binding="{Binding arrear, StringFormat=N2}"/>
-                <DataGridTextColumn Header="支付宝" Width="80" Binding="{Binding zhifubao, StringFormat=N2}"/>
-                <DataGridTextColumn Header="微信" Width="80" Binding="{Binding weixin, StringFormat=N2}"/>
-                <DataGridTextColumn Header="运费" Width="70" Binding="{Binding yunfei, StringFormat=N2}"/>
-                <DataGridTextColumn Header="状态" Width="60" Binding="{Binding flag}"/>
+                <DataGridTextColumn Header="单号" Width="100" Binding="{Binding sn}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="日期" Width="100" Binding="{Binding datetime, StringFormat=yyyy-MM-dd}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="供应商" Width="120" Binding="{Binding supplier}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="采购员" Width="70" Binding="{Binding worker}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="进货总额" Width="90" Binding="{Binding total, StringFormat=N2}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="现金" Width="80" Binding="{Binding cash, StringFormat=N2}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="支票" Width="80" Binding="{Binding checks, StringFormat=N2}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="欠款" Width="80" Binding="{Binding arrear, StringFormat=N2}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="支付宝" Width="80" Binding="{Binding zhifubao, StringFormat=N2}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="微信" Width="80" Binding="{Binding weixin, StringFormat=N2}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="运费" Width="70" Binding="{Binding yunfei, StringFormat=N2}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="状态" Width="60" Binding="{Binding flag}" IsReadOnly="True"/>
                 <DataGridTextColumn Header="备注" Width="*" Binding="{Binding memo}"/>
             </DataGrid.Columns>
         </DataGrid>

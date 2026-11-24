@@ -2,6 +2,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
+using System.Windows.Input;
 using Dapper;
 using Microsoft.Extensions.DependencyInjection;
 using QP11.Core.Entities;
@@ -15,6 +16,9 @@ public partial class BuyEditWindow : Window
     private readonly ISupplierRepository _supplierRepo = App.ServiceProvider.GetRequiredService<ISupplierRepository>();
     public ObservableCollection<DetailBuy> Details { get; } = new();
     private BillBuy? _currentBill;
+
+    /// <summary>单据头备注保存成功后通知列表页刷新对应行（sn, memo）</summary>
+    public event Action<string, string?>? BillMemoSaved;
 
     public BuyEditWindow()
     {
@@ -161,4 +165,65 @@ public partial class BuyEditWindow : Window
     }
 
     private void BtnClose_Click(object sender, RoutedEventArgs e) => Close();
+
+    #region 备注编辑
+
+    /// <summary>进入备注单元格编辑时记录原值，用于判断是否真的修改过</summary>
+    private void DgDetails_BeginningEdit(object sender, System.Windows.Controls.DataGridBeginningEditEventArgs e)
+    {
+        _editingMemoOriginal = null;
+        if (IsMemoColumn(e.Column) && e.Row.Item is DetailBuy d)
+            _editingMemoOriginal = d.Memo;
+    }
+
+    /// <summary>备注单元格提交（回车/焦点离开）后保存到 detail_buy.memo，未变化不写库</summary>
+    private async void DgDetails_CellEditEnding(object sender, System.Windows.Controls.DataGridCellEditEndingEventArgs e)
+    {
+        if (e.EditAction != System.Windows.Controls.DataGridEditAction.Commit) return;
+        if (!IsMemoColumn(e.Column) || e.Row.Item is not DetailBuy detail) return;
+
+        var newText = (e.EditingElement as System.Windows.Controls.TextBox)?.Text;
+        if (newText == _editingMemoOriginal) return;
+
+        try
+        {
+            await _buyRepo.UpdateDetailMemoAsync(detail.Id, newText);
+            detail.Memo = newText;
+            _editingMemoOriginal = null;
+            txtStatus.Text = $"明细备注已保存: {detail.Partno}";
+        }
+        catch (Exception ex)
+        {
+            Serilog.Log.Warning(ex, "保存明细备注失败 id={Id}", detail.Id);
+            MessageBox.Show($"保存明细备注失败: {ex.Message}", "错误");
+        }
+    }
+
+    private static bool IsMemoColumn(System.Windows.Controls.DataGridColumn column)
+        => (column.Header as string) == "备注";
+
+    private string? _editingMemoOriginal;
+
+    /// <summary>单据头备注回车保存到 bill_buy.memo</summary>
+    private async void TxtMemo_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        if (e.Key != Key.Enter || _currentBill?.Sn is not string sn) return;
+        e.Handled = true;
+        var memo = txtMemo.Text;
+        if (memo == (_currentBill.Memo ?? "")) return;
+        try
+        {
+            await _buyRepo.UpdateBillMemoAsync(sn, memo);
+            _currentBill.Memo = memo;
+            txtStatus.Text = "单据备注已保存";
+            BillMemoSaved?.Invoke(sn, memo);
+        }
+        catch (Exception ex)
+        {
+            Serilog.Log.Warning(ex, "保存单据备注失败 sn={Sn}", _currentBill.Sn);
+            MessageBox.Show($"保存单据备注失败: {ex.Message}", "错误");
+        }
+    }
+
+    #endregion
 }

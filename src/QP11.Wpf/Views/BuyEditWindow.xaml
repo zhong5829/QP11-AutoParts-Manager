@@ -64,23 +64,24 @@
                 <TextBox Grid.Row="4" Grid.Column="3" x:Name="txtArrear" IsReadOnly="True" Background="LightGray" Margin="2"/>
 
                 <TextBlock Grid.Row="5" Text="备注:" VerticalAlignment="Center" Margin="5"/>
-                <TextBox Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="3" x:Name="txtMemo" IsReadOnly="True" Background="LightGray" Margin="2"/>
+                <TextBox Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="3" x:Name="txtMemo" Margin="2" PreviewKeyDown="TxtMemo_PreviewKeyDown"/>
             </Grid>
         </GroupBox>
 
         <GroupBox Grid.Row="2" Header="采购明细">
-            <DataGrid x:Name="dgDetails" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False">
+            <DataGrid x:Name="dgDetails" AutoGenerateColumns="False" CanUserAddRows="False"
+                      BeginningEdit="DgDetails_BeginningEdit" CellEditEnding="DgDetails_CellEditEnding">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="配件编号" Width="100" Binding="{Binding Partno}"/>
-                    <DataGridTextColumn Header="配件名称" Width="120" Binding="{Binding Name}"/>
-                    <DataGridTextColumn Header="车型" Width="80" Binding="{Binding Cartype}"/>
-                    <DataGridTextColumn Header="单位" Width="50" Binding="{Binding Unit}"/>
-                    <DataGridTextColumn Header="数量" Width="60" Binding="{Binding Amount}"/>
-                    <DataGridTextColumn Header="进价" Width="80" Binding="{Binding Inprice, StringFormat=N2}"/>
-                    <DataGridTextColumn Header="小计" Width="90" Binding="{Binding Stotal, StringFormat=N2}"/>
-                    <DataGridTextColumn Header="零售价" Width="80" Binding="{Binding Lsprice, StringFormat=N2}"/>
-                    <DataGridTextColumn Header="批发价" Width="80" Binding="{Binding Pfprice, StringFormat=N2}"/>
-                    <DataGridTextColumn Header="仓位" Width="70" Binding="{Binding Place}"/>
+                    <DataGridTextColumn Header="配件编号" Width="100" Binding="{Binding Partno}" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="配件名称" Width="120" Binding="{Binding Name}" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="车型" Width="80" Binding="{Binding Cartype}" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="单位" Width="50" Binding="{Binding Unit}" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="数量" Width="60" Binding="{Binding Amount}" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="进价" Width="80" Binding="{Binding Inprice, StringFormat=N2}" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="小计" Width="90" Binding="{Binding Stotal, StringFormat=N2}" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="零售价" Width="80" Binding="{Binding Lsprice, StringFormat=N2}" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="批发价" Width="80" Binding="{Binding Pfprice, StringFormat=N2}" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="仓位" Width="70" Binding="{Binding Place}" IsReadOnly="True"/>
                     <DataGridTextColumn Header="备注" Width="*" Binding="{Binding Memo}"/>
                 </DataGrid.Columns>
             </DataGrid>

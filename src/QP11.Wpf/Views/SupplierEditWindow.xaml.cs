@@ -39,7 +39,7 @@ public partial class SupplierEditWindow : Window
         }
     }
 
-    /// <summary>自动生成下一个供应商编号</summary>
+    /// <summary>自动生成下一个供应商编号：从最大编号+1起，跳过客户表已占用的编号（两表编号池历史重叠，同号会导致欠款混账）</summary>
     private async void GenerateNextSid()
     {
         try
@@ -49,7 +49,17 @@ public partial class SupplierEditWindow : Window
             var maxSid = await db.ExecuteScalarAsync<string?>(
                 "SELECT MAX(sid) FROM supplier_infor");
             if (int.TryParse(maxSid, out var num))
-                txtSid.Text = (num + 1).ToString("D5");
+            {
+                var start = (num + 1).ToString("D5");
+                var clientUsed = (await db.QueryAsync<string>(
+                        "SELECT cid FROM client_infor WHERE cid >= @Start",
+                        new { Start = start }))
+                    .Select(c => (c ?? "").Trim())
+                    .ToHashSet(StringComparer.Ordinal);
+                var next = num + 1;
+                while (clientUsed.Contains(next.ToString("D5"))) next++;
+                txtSid.Text = next.ToString("D5");
+            }
             else
                 txtSid.Text = "00001";
             txtSid.IsReadOnly = true;
@@ -76,7 +86,8 @@ public partial class SupplierEditWindow : Window
             Tel = txtTel.Text.Trim(),
             Mobile = txtMobile.Text.Trim(),
             Address = txtAddress.Text.Trim(),
-            Linkman = txtLinkman.Text.Trim()
+            Linkman = txtLinkman.Text.Trim(),
+            NamePy = QP11.Wpf.Helpers.PinyinHelper.GetPinyinInitials(txtName.Text.Trim())
         };
 
         try

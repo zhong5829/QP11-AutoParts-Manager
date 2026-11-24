@@ -18,6 +18,10 @@ public interface IBuyRepository : IRepository<BillBuy>
     Task<int> UpdateAsync(BillBuy bill);
     new Task<int> UpdateAsync(BillBuy bill, IDbTransaction? transaction);
     Task<int> UpdateBillStatusAsync(string sn, int flag, IDbTransaction? transaction = null);
+    /// <summary>仅更新采购单头备注（明细清单窗口回车保存用）</summary>
+    Task<int> UpdateBillMemoAsync(string sn, string? memo);
+    /// <summary>仅更新采购明细行备注（明细清单窗口回车保存用）</summary>
+    Task<int> UpdateDetailMemoAsync(long id, string? memo);
     Task<IEnumerable<dynamic>> GetBuyDetailsByPartIdAsync(long partid);
     Task<IEnumerable<dynamic>> GetDetailListAsync(DateTime? startDate = null, DateTime? endDate = null, string? supplier = null, string? worker = null);
     Task<IEnumerable<dynamic>> GetBillListAsync(DateTime? startDate = null, DateTime? endDate = null, string? supplier = null, string? worker = null);
