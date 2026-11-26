@@ -527,6 +527,13 @@ public partial class SellEditDialog : Window
             txtAmount.Focus();
             return;
         }
+        if (amount != Math.Floor(amount))
+        {
+            MessageBox.Show("销售数量必须为整数", "提示");
+            txtAmount.Focus();
+            txtAmount.SelectAll();
+            return;
+        }
         if (amount > _stockAmount && _stockAmount > 0)
         {
             MessageBox.Show($"库存不足！当前库存: {_stockAmount:F0}，已自动调整为1", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);

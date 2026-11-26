@@ -161,6 +161,12 @@ public class SellViewModel : BaseViewModel
         string? memo,
         string? checkno)
     {
+        // 数量必须为整数，防止下方 (long) 强转静默截断（如 0.5 截断为 0）
+        var badDetail = Details.FirstOrDefault(d => d.Amount != Math.Floor(d.Amount));
+        if (badDetail != null)
+            throw new ArgumentException(
+                $"配件「{badDetail.PartNo} {badDetail.PartName}」的销售数量必须为整数，请修正后再结算");
+
         var totalAmount = Details.Sum(d => d.Price * d.Amount);
         var billTotal = discountRate > 0 ? Math.Round(totalAmount * discountRate, 2) : totalAmount;
         var totalPaid = cash + weixin + zhifubao + checks;

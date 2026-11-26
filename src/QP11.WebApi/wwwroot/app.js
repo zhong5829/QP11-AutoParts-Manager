@@ -646,6 +646,13 @@ function onDlgPriceChange() {
 // ---- 对齐桌面端 TxtAmount_PreviewKeyDown / TxtPrice_PreviewKeyDown / TxtBillPrice_PreviewKeyDown ----
 // Enter键跳转：数量→单价→开票单价→确认
 function setupDlgKeyNav() {
+  // 数量框输入实时拦截：出现小数点立即截断为整数部分并提示（对齐桌面端整数限制）
+  $('dlgAmount').addEventListener('input', function () {
+    if (this.value.includes('.')) {
+      this.value = this.value.split('.')[0] || '';
+      showToast('销售数量必须为整数', 'error');
+    }
+  });
   $('dlgAmount').addEventListener('keydown', e => {
     if (e.key === 'Enter') { e.preventDefault(); $('dlgPrice').focus(); $('dlgPrice').select(); }
   });
@@ -807,6 +814,7 @@ function addDetailFromDialog() {
 
   const amount = parseFloat($('dlgAmount').value) || 0;
   if (amount <= 0) { showToast('请输入有效的销售数量', 'error'); $('dlgAmount').focus(); return; }
+  if (!Number.isInteger(amount)) { showToast('销售数量必须为整数', 'error'); $('dlgAmount').focus(); $('dlgAmount').select(); return; }
 
   const stockAmount = (p.Stock ?? p.Amount ?? 0) || 0;
   if (amount > stockAmount && stockAmount > 0) {

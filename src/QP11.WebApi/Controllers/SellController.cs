@@ -60,6 +60,11 @@ public class SellController : ControllerBase
             if (request.Details == null || request.Details.Count == 0)
                 return BadRequest(new { error = "销售明细不能为空" });
 
+            // 销售数量必须为整数，防止下方 (long) 强转静默截断（如 0.5 截断为 0）
+            var badDetail = request.Details.FirstOrDefault(d => d.Amount != Math.Floor(d.Amount));
+            if (badDetail != null)
+                return BadRequest(new { error = $"配件「{badDetail.PartNo} {badDetail.PartName}」的销售数量必须为整数" });
+
             // 计算合计（对齐桌面端逻辑：discountRate=0表示无折扣/原价）
             var totalAmount = request.Details.Sum(d => d.Price * d.Amount);
             var discountRate = request.DiscountRate;

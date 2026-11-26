@@ -10,6 +10,10 @@
             <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
             <Setter Property="TextWrapping" Value="NoWrap"/>
         </Style>
+        <!-- 数量列编辑框：限制只能输入整数 -->
+        <Style x:Key="IntegerEditingCell" TargetType="TextBox">
+            <Setter Property="controls:IntegerInputHelper.IsEnabled" Value="True"/>
+        </Style>
     </UserControl.Resources>
     <Grid Margin="6">
         <Grid.RowDefinitions>
@@ -212,7 +216,8 @@
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="编号" Width="90" Binding="{Binding PartNo, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}"/>
                     <DataGridTextColumn Header="名称" Width="130" Binding="{Binding PartName, Converter={StaticResource SingleLineConverter}}" ElementStyle="{StaticResource SingleLineCell}" IsReadOnly="True"/>
-                    <DataGridTextColumn Header="数量" Width="55" Binding="{Binding Amount}" ElementStyle="{StaticResource SingleLineCell}"/>
+                    <DataGridTextColumn Header="数量" Width="55" Binding="{Binding Amount}" ElementStyle="{StaticResource SingleLineCell}"
+                                        EditingElementStyle="{StaticResource IntegerEditingCell}"/>
                     <DataGridTemplateColumn Header="单价" Width="70">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>

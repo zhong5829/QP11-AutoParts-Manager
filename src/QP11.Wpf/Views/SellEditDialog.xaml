@@ -1,6 +1,7 @@
 <Window x:Class="QP11.Wpf.Views.SellEditDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:QP11.Wpf.Controls"
         Title="销售编辑" Width="950" Height="600"
         WindowStartupLocation="CenterOwner"
         MinWidth="800" MinHeight="500"
@@ -76,7 +77,8 @@
                     </Grid.ColumnDefinitions>
                     <TextBlock Text="销售数量: " VerticalAlignment="Center"/>
                     <TextBox x:Name="txtAmount" Grid.Column="1" Text="1" Margin="0,1"
-                             GotFocus="InputField_GotFocus" PreviewKeyDown="InputField_PreviewKeyDown"/>
+                             GotFocus="InputField_GotFocus" PreviewKeyDown="InputField_PreviewKeyDown"
+                             controls:IntegerInputHelper.IsEnabled="True"/>
                 </Grid>
 
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
