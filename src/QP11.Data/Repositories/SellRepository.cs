@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using QP11.Core.Constants;
@@ -219,6 +220,22 @@ public class SellRepository : ISellRepository
         if (!string.IsNullOrEmpty(worker)) sql += " AND (work_infor.name LIKE @Worker OR bill_sell.worker LIKE @Worker)";
         sql += " ORDER BY detail_sell.sn DESC";
         return await db.QueryAsync<dynamic>(sql, new { Start = startDate, End = endDate, Client = $"%{client}%", Worker = $"%{worker}%" });
+    }
+
+    /// <summary>
+    /// 反查发生过退货的销售单号集合：退货单（flag=2）明细的 tsn 指向原销售单号。
+    /// 不带日期条件——退货可能发生在查询日期范围之外，须按单号集合全库反查
+    /// </summary>
+    public async Task<IEnumerable<string>> GetReturnedSourceSnsAsync(IEnumerable<string> sns)
+    {
+        var snList = sns.Where(s => !string.IsNullOrEmpty(s)).Distinct().ToList();
+        if (snList.Count == 0) return Enumerable.Empty<string>();
+        using var db = await CreateConnectionAsync();
+        var sql = @"SELECT DISTINCT d.tsn
+                    FROM detail_sell d
+                    INNER JOIN bill_sell b ON b.sn = d.sn
+                    WHERE ISNULL(b.flag, 0) = 2 AND d.tsn IN @Sns";
+        return await db.QueryAsync<string>(sql, new { Sns = snList });
     }
 
     /// <summary>

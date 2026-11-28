@@ -69,6 +69,14 @@ public class SellQueryViewModel : BaseViewModel
     }
 
     /// <summary>
+    /// 反查发生过退货的销售单号集合（退货单明细 tsn 指向原销售单，不带日期条件）
+    /// </summary>
+    public async Task<IEnumerable<string>> GetReturnedSourceSnsAsync(IEnumerable<string> sns)
+    {
+        return await _sellRepo.GetReturnedSourceSnsAsync(sns);
+    }
+
+    /// <summary>
     /// 更新备注
     /// </summary>
     public async Task UpdateMemoAsync(string sn, string memo)

@@ -400,6 +400,16 @@ public partial class SellQueryControl : UserControl, ITabContent
                 Worker = Convert.ToString(r.worker)
             }).ToList();
 
+            // 标记发生过退货的销售单行（退货单明细 tsn 指向原销售单，不带日期条件全库反查，覆盖查询范围外的退货）
+            // 普通销售单 flag=1（Confirmed），退单=2/报损=3 在双击处单独拦截，不参与反查
+            var saleSns = _currentDetails
+                .Where(d => d.BillFlag == (int)BusinessConstants.BillFlag.Confirmed && !string.IsNullOrEmpty(d.Sn))
+                .Select(d => d.Sn!)
+                .ToList();
+            var returnedSns = (await _viewModel.GetReturnedSourceSnsAsync(saleSns)).ToHashSet();
+            foreach (var d in _currentDetails)
+                d.HasReturned = returnedSns.Contains(d.Sn ?? "");
+
             dgDetails.ItemsSource = _currentDetails;
 
             txtCount.Text = $"记录数: {_currentDetails.Count}";
@@ -741,6 +751,23 @@ public partial class SellQueryControl : UserControl, ITabContent
         if (dgDetails.SelectedItem is not SellQueryDetailItem row) return;
         var sn = row.Sn;
         if (string.IsNullOrEmpty(sn)) return;
+
+        // 退单/报损单/发生过退货的销售单禁止整单编辑，弹提示后直接返回
+        if (row.BillFlag == (int)BusinessConstants.BillFlag.Returned)
+        {
+            MessageBox.Show("退货单据不能编辑", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+        if (row.BillFlag == (int)BusinessConstants.BillFlag.Voided)
+        {
+            MessageBox.Show("报损单据不能编辑", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+        if (row.HasReturned)
+        {
+            MessageBox.Show("该销售单已发生过退货，不能编辑", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
 
         var mainWin = Window.GetWindow(this) as MainWindow;
         if (mainWin == null) return;
@@ -1245,6 +1272,9 @@ public class SellQueryDetailItem : System.ComponentModel.INotifyPropertyChanged
     public int? BillFlag { get; set; }
     public string? Client { get; set; }
     public string? Worker { get; set; }
+
+    /// <summary>该明细所属销售单已发生过退货（仅普通销售单有意义，双击编辑拦截用）</summary>
+    public bool HasReturned { get; set; }
 
     private bool _isSelected;
     public bool IsSelected

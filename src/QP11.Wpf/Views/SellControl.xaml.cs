@@ -1250,6 +1250,15 @@ public partial class SellControl : UserControl, ITabContent
                 return;
             }
 
+            // 发生过退货的销售单：编辑前需密码验证（防误改已产生退货关联的单据）
+            var returnedSns = await _sellRepo.GetReturnedSourceSnsAsync(new[] { _selectedBill.Sn! });
+            if (returnedSns.Any())
+            {
+                var returnedEditDlg = new MemoConfirmDialog(App.CurrentUser!);
+                returnedEditDlg.Title = "已退货销售单编辑验证";
+                if (returnedEditDlg.ShowDialog() != true) return;
+            }
+
             // 普通销售单：设置编辑标志后切回开单模式并加载
             _viewModel.IsEditMode = true;
             _viewModel.EditSn = _selectedBill.Sn;

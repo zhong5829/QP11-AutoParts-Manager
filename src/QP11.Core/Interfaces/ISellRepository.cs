@@ -25,6 +25,8 @@ public interface ISellRepository : IRepository<BillSell>
     Task<int> DeleteDetailsAsync(string sn);
     Task<int> DeleteDetailsAsync(string sn, IDbTransaction? transaction);
     Task<IEnumerable<dynamic>> GetDetailListAsync(DateTime? startDate = null, DateTime? endDate = null, string? client = null, string? worker = null);
+    /// <summary>反查发生过退货的销售单号集合（退货单明细 tsn 指向原销售单，不带日期条件）</summary>
+    Task<IEnumerable<string>> GetReturnedSourceSnsAsync(IEnumerable<string> sns);
     /// <summary>获取今日配件销售排行（按销量降序，top<=0 显示全部，含实时库存）</summary>
     Task<IEnumerable<dynamic>> GetTodayPartsRankingAsync(DateTime today, int top = 0);
     Task<IEnumerable<ArrearBillInfo>> GetArrearBillsAsync(IEnumerable<string> sns);
