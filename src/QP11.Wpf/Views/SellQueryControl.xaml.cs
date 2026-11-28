@@ -746,6 +746,13 @@ public partial class SellQueryControl : UserControl, ITabContent
         if (mainWin == null) return;
 
         var sellControl = new SellControl(App.ServiceProvider.GetRequiredService<SellViewModel>());
+        // 整单编辑保存成功后：关闭编辑Tab，回到本页明细模式并立即刷新
+        sellControl.CloseOnSave = true;
+        sellControl.EditSaved += (s, e) =>
+        {
+            if (!_isDetailMode) ToggleMode();
+            LoadDetails();
+        };
         mainWin.OpenTab($"sell_edit_{sn}", $"编辑-{sn}", sellControl);
         sellControl.Dispatcher.BeginInvoke(new Action(() =>
         {

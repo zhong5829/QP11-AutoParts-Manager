@@ -581,10 +581,63 @@ public partial class BuyControl : UserControl, ITabContent
 
     public void OnDelete()
     {
+        // 已保存单据（开单区加载了具体单号）：按 F4 删除整张单据
+        if (_currentBill != null && !string.IsNullOrEmpty(_currentBill.Sn))
+        {
+            DeleteCurrentBill();
+            return;
+        }
+
+        // 新单未保存：仅删除选中的明细行
         if (dgDetails.SelectedItem is BuyDetailItem item)
         {
             Details.Remove(item);
             UpdateTotal();
+        }
+        else
+        {
+            MessageBox.Show("请先选中要删除的明细行", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+    }
+
+    /// <summary>
+    /// 删除当前已保存的采购单据：仅未结算（Draft）单据可删，物理删除明细+单头+欠款；
+    /// 未结算单据未入过库，不回补库存；已结算单据需走采购明细页作废（将回补库存）
+    /// </summary>
+    private async void DeleteCurrentBill()
+    {
+        var bill = _currentBill!;
+        if (bill.Flag == (int)BusinessConstants.BillFlag.Confirmed)
+        {
+            MessageBox.Show("此单据已结算，不能在此删除。如需作废请到采购明细页操作（将回补库存）", "提示",
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+        if (bill.Flag != (int)BusinessConstants.BillFlag.Draft)
+        {
+            MessageBox.Show("仅未结算的进货单可在此删除", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        var sn = bill.Sn!;
+        if (MessageBox.Show($"确定删除单据 [{sn}]? 删除后不可恢复", "确认",
+            MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
+
+        try
+        {
+            IsEnabled = false;
+            await _viewModel.DeleteUnsettledBillAsync(sn);
+            ClearBill();
+            LoadBillList();
+            MessageBox.Show("单据已删除", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"删除失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+        finally
+        {
+            IsEnabled = true;
         }
     }
 

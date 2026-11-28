@@ -237,6 +237,31 @@ public class BuyViewModel : BaseViewModel
     }
 
     /// <summary>
+    /// 删除未结算的采购单据 - 物理删除明细+单据头+欠款。
+    /// 未结算单据尚未入库（结算时才增加库存），故不回补库存。
+    /// </summary>
+    public async Task DeleteUnsettledBillAsync(string sn)
+    {
+        using var uow = _uowFactory.Create();
+        try
+        {
+            await uow.BeginTransactionAsync();
+            var txn = uow.Transaction;
+
+            await _buyRepo.DeleteDetailsBySnAsync(sn, txn);
+            await _buyRepo.DeleteBillAsync(sn, txn);
+            await _arrearRepo.DeleteBySnAsync(sn, txn);
+
+            await uow.CommitAsync();
+        }
+        catch
+        {
+            await uow.RollbackAsync();
+            throw;
+        }
+    }
+
+    /// <summary>
     /// 结算采购单（增加库存、更新状态）
     /// </summary>
     public async Task SettleBillAsync(

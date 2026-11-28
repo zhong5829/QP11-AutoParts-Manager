@@ -138,6 +138,14 @@ public partial class SellControl : UserControl, ITabContent
 
     public event EventHandler? RequestClose;
 
+    /// <summary>
+    /// 由外部页面（销售明细页双击明细行）打开的整单编辑Tab：保存成功后直接关闭本Tab
+    /// </summary>
+    public bool CloseOnSave { get; set; }
+
+    /// <summary>整单编辑保存成功后触发（仅 CloseOnSave 模式），供打开方刷新数据</summary>
+    public event EventHandler? EditSaved;
+
     private readonly DispatcherTimer _searchTimer = new() { Interval = TimeSpan.FromMilliseconds(300) };
 
     public SellControl(SellViewModel viewModel)
@@ -1484,6 +1492,13 @@ public partial class SellControl : UserControl, ITabContent
                 dlg.ShowDialog();
 
                 ClearBill();
+                if (CloseOnSave)
+                {
+                    // 由销售明细页打开的编辑Tab：通知打开方刷新后直接关闭本Tab
+                    EditSaved?.Invoke(this, EventArgs.Empty);
+                    RequestClose?.Invoke(this, EventArgs.Empty);
+                    return;
+                }
                 if (!dlg.PrintNow)
                 {
                     // 未勾选打印 → 跳转查询模式
